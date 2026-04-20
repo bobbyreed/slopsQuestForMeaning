@@ -28,4 +28,22 @@ A running log of prompts given during this project. Kept for traceability and as
 > Let's save 21-40 for now. I still want to answer them, but let's get this moving first.
 
 **Prompt 13**
-> Let's use all 4 but start with prompt. That will be the basic attack and we will evolve the others into something. Please start on implementing that first minute of play through. I'd like to build a game design document. My favorite one ever isn't long. Check it out here: https://www.graybeardgames.com/download/diablo_pitch.pdf. I'd like you to ask me a bunch of questions to create a similar document for our game. Come up with 30 to 40 questions that will help you craft a highly specific game. One of our big goals is that everything is AI generated so I won't go nudge the code you create. Don't forget to add all our prompts into history.md and continually update our journal page from Slop's perspective as you get to understand it more and more.
+> Let's use all 4 but start with prompt. That will be the basic attack and we will evolve the others into something. Please start on implementing that first minute of play through.
+
+**Prompt 14**
+> Please create a commit after each meaningful change.
+
+**Prompts 15–17** *(implementation session)*
+> The only hold 3 coins isn't working. [coin fix] / Let's include a start scene that leads to a menu that then leads to the game. / Working well other than that. Let's add an enemy and see if we can destroy it using the prompt.
+
+**Prompt 18**
+> That works great. Let's go ahead and work on the next scene where Slop heads back into where he got his prompt power and the guy runs a shop now. First, he sells a bigger wallet. Second, he sells the eyes and an even bigger wallet. The eyes will unlock additional areas off of the first screen and will change Slops appearance.
+
+**Prompts 19–20** *(Q&A session, questions 21–30)*
+> Answers to Q21–30 provided. See docs/gdd.md for synthesized output.
+
+**Prompt 21** *(Q&A session, questions 31–40)*
+> 31. Anything related to Slop or other geners (derogatory for Generated) should look obviously ai and anything against AI/geners should be polished and intentional. [...full answers to Q31–40...]
+
+**Prompt 22**
+> Please add all this to the gdd and start working towards the MVP.

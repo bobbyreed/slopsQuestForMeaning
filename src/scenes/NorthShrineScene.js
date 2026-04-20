@@ -25,7 +25,7 @@ const SHOP_ITEMS = [
   {
     key: 'smallPurse',
     label: 'SMALL PURSE',
-    cost: 10,
+    cost: 3,
     desc: 'hold 10 coins instead of 3.',
     effect: s => { s.maxCoins = 10 }
   },
