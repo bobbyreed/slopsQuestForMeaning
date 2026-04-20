@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { Slop } from '../entities/Slop.js'
+import { Enemy } from '../entities/Enemy.js'
 import { HUD } from '../ui/HUD.js'
 
 const W = 800
@@ -75,8 +76,28 @@ export class WorldScene extends Phaser.Scene {
     })
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
 
+    // Enemies
+    this._enemies = this.physics.add.group()
+    const spawnPoints = [[200, 220], [600, 220], [400, 370]]
+    spawnPoints.forEach(([x, y]) => this._enemies.add(new Enemy(this, x, y)))
+
+    this.physics.add.collider(this._enemies, this._walls)
+    this.physics.add.collider(this._enemies, this._enemies)
+
+    // Slop-enemy contact: lose a coin, knockback, brief invulnerability
+    this.physics.add.overlap(this.slop, this._enemies, (slop, enemy) => {
+      if (this._slopHitTimer > 0 || enemy._dying) return
+      this._slopHitTimer = 1200
+      slop.coinCount = Math.max(0, slop.coinCount - 1)
+      const angle = Math.atan2(slop.y - enemy.y, slop.x - enemy.x)
+      slop.body.setVelocity(Math.cos(angle) * 280, Math.sin(angle) * 280)
+      this.cameras.main.shake(120, 0.004)
+    })
+
     this._transitioning = false
     this._dropPending = false
+    this._slopHitTimer = 0
+    this._prompts = []
   }
 
   _buildWalls() {
@@ -147,10 +168,40 @@ export class WorldScene extends Phaser.Scene {
     this.slop.handleInput(this._cursors, this._wasd)
     this.slop.tick(delta)
 
+    // Slop hit invulnerability flash
+    if (this._slopHitTimer > 0) {
+      this._slopHitTimer -= delta
+      this.slop.setAlpha(Math.floor(this._slopHitTimer / 120) % 2 === 0 ? 1 : 0.3)
+    } else {
+      this.slop.setAlpha(1)
+    }
+
     // Prompt fire
     if (Phaser.Input.Keyboard.JustDown(this._spaceKey)) {
-      this.slop.firePrompt()
+      const proj = this.slop.firePrompt()
+      if (proj) this._prompts.push(proj)
     }
+
+    // Prompt-enemy collision (manual — Text objects don't work cleanly in physics groups)
+    this._prompts = this._prompts.filter(p => p?.active)
+    for (const proj of this._prompts) {
+      if (!proj.active) continue
+      const pb = proj.getBounds()
+      for (const enemy of this._enemies.getChildren()) {
+        if (!enemy.active || enemy._dying) continue
+        if (Phaser.Geom.Intersects.RectangleToRectangle(pb, enemy.getBounds())) {
+          const word = proj.text
+          proj.destroy()
+          enemy.onHit(word)
+          break
+        }
+      }
+    }
+
+    // Enemy tick
+    this._enemies.getChildren().forEach(e => {
+      if (e.active) e.tick(delta, this.slop.x, this.slop.y)
+    })
 
     // North door trigger
     if (this.slop.y < 40 && this.slop.x > DOOR_X - DOOR_WIDTH / 2 && this.slop.x < DOOR_X + DOOR_WIDTH / 2) {

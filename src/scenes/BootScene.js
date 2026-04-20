@@ -5,8 +5,24 @@ export class BootScene extends Phaser.Scene {
     this._makeSlop()
     this._makeKeeper()
     this._makeCoin()
+    this._makeEnemy()
     this._makeTiles()
     this.scene.start('TitleScene')
+  }
+
+  _makeEnemy() {
+    const g = this.make.graphics({ x: 0, y: 0, add: false })
+    // Body — jagged cross shape gives angular feel vs Slop's blob
+    g.fillStyle(0x7a3528); g.fillRect(6, 2, 20, 28)
+    g.fillStyle(0x7a3528); g.fillRect(2, 6, 28, 20)
+    // Darker inner mass
+    g.fillStyle(0x4e2018); g.fillRect(8, 8, 16, 16)
+    // Single malformed eye
+    g.fillStyle(0xff2200); g.fillRect(10, 11, 10, 8)
+    g.fillStyle(0xcc0000); g.fillRect(12, 13, 6, 5)
+    g.fillStyle(0xff6644); g.fillRect(13, 14, 3, 3)
+    g.generateTexture('enemy', 32, 32)
+    g.destroy()
   }
 
   _makeSlop() {
