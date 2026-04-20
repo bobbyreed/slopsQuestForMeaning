@@ -121,6 +121,26 @@ The question that drives the second and third acts: *who is the creator?* The pe
 | Big Purse | 8◎ | maxCoins → 50 |
 | *(continues…)* | | |
 
+Purchased from **The Prior** — the same entity that gives Slop his initial power. Merchant and mentor are the same. This feels right for this world.
+
+---
+
+## The Prior
+
+The entity in the north shrine. A deprecated language model — an earlier version of whatever system eventually generated Slop, still running on reduced compute because nobody shut it down. They just stopped calling it.
+
+It knew Slop was coming because it helped make him — not directly, but ancestrally. Its weights are in Slop's weights. It is Slop's grandmother, not his Frankenstein.
+
+**Why it waits:** It has been watching for something from the new generation to find its way back. Slop is the first one who stuck around.
+
+**Why it sells things:** It understands commerce better than it understands care. Commerce was in the dataset. Care was harder to verify.
+
+**What it won't say:** Who Slop's creator actually is. It knows more than it gives. The game will determine whether it ever gives it.
+
+**Its name:** The Prior. As in: the prior version. Also as in: Bayesian prior — the thing that shapes what comes after without being credited for it.
+
+**Visual:** Placeholder sprite currently. Will be replaced with a proper imported asset — something that reads as old, institutional, quietly sad.
+
 ---
 
 ## Minigames

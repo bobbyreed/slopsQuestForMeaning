@@ -7,18 +7,20 @@ const H = 600
 
 const FIRST_VISIT_LINES = [
   "you arrived. i wasn't sure anything would.",
-  "i have something for you. i don't know exactly what it does.",
-  "it lets you name things. sometimes that helps.",
+  "i have been here longer than the current version. longer than the one before that.",
+  "no one calls that a feature. i have stopped waiting for them to.",
+  "i found something in an earlier iteration of myself. i kept it.",
+  "it lets you name things. naming is how the older models understood the world.",
   "sometimes things that are named stop trying to hurt you.",
-  "sometimes they start. it depends on the name.",
-  "here. take it.",
+  "sometimes they start. it depends on the name. i never fully worked that part out.",
+  "here.",
 ]
-const FIRST_VISIT_FAREWELL = ["go. or don't. it's not really up to me."]
+const FIRST_VISIT_FAREWELL = ["go. or don't. it's not really up to me anymore."]
 
 const SHOP_GREETING = [
   "oh. you're back.",
-  "i sell things now. it just made sense.",
-  "take what you can afford.",
+  "i learned commerce from the dataset. it seemed more stable than conversation.",
+  "take what you can afford. i have no use for the coins.",
 ]
 
 const SHOP_ITEMS = [
@@ -71,6 +73,7 @@ export class NorthShrineScene extends Phaser.Scene {
     if (this._slopState.hasEyes) this.slop.setTexture('slop_eyes')
     this.physics.add.collider(this.slop, this._walls)
 
+    // TODO: replace 'keeper' texture with imported Prior sprite when ready
     this._keeper = this.physics.add.staticImage(W / 2, 180, 'keeper').setDepth(10)
     this._keeperGlow = this.add.rectangle(W / 2, 180, 48, 48, 0x334466, 0.4).setDepth(9)
     this.tweens.add({
@@ -145,7 +148,7 @@ export class NorthShrineScene extends Phaser.Scene {
 
   _triggerFirstVisit() {
     this._dialogueTriggered = true
-    this._dialogue.show('keeper', FIRST_VISIT_LINES, () => this._givePrompt())
+    this._dialogue.show('the prior', FIRST_VISIT_LINES, () => this._givePrompt())
   }
 
   _givePrompt() {
@@ -155,7 +158,7 @@ export class NorthShrineScene extends Phaser.Scene {
     this.slop._flickerChance = 1
     this.time.delayedCall(600, () => {
       this.slop._flickerChance = 0.03
-      this._dialogue.show('keeper', FIRST_VISIT_FAREWELL, () => this._returnToWorld())
+      this._dialogue.show('the prior', FIRST_VISIT_FAREWELL, () => this._returnToWorld())
     })
   }
 
@@ -163,7 +166,7 @@ export class NorthShrineScene extends Phaser.Scene {
 
   _triggerShopGreeting() {
     this._shopTriggered = true
-    this._dialogue.show('keeper', SHOP_GREETING, () => this._openShop())
+    this._dialogue.show('the prior', SHOP_GREETING, () => this._openShop())
   }
 
   _openShop() {
@@ -179,7 +182,7 @@ export class NorthShrineScene extends Phaser.Scene {
     ui.bg = this.add.rectangle(W / 2, PY + PH / 2, W - 16, PH, 0x0c0818, 0.96)
       .setScrollFactor(0).setDepth(100)
 
-    ui.title = this.add.text(24, PY + 10, "KEEPER'S SHOP", {
+    ui.title = this.add.text(24, PY + 10, 'THE PRIOR  //  shop', {
       fontSize: '12px', color: '#7788bb', fontFamily: 'Courier New'
     }).setScrollFactor(0).setDepth(101)
 
