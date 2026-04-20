@@ -3,11 +3,31 @@ export class BootScene extends Phaser.Scene {
 
   create() {
     this._makeSlop()
+    this._makeSlopEyes()
     this._makeKeeper()
     this._makeCoin()
     this._makeEnemy()
     this._makeTiles()
     this.scene.start('TitleScene')
+  }
+
+  _makeSlopEyes() {
+    const g = this.make.graphics({ x: 0, y: 0, add: false })
+    // More saturated body
+    g.fillStyle(0xaa9ed8); g.fillEllipse(16, 16, 26, 28)
+    // More vivid glitch artifacts
+    g.fillStyle(0xff88ff); g.fillRect(20, 6, 8, 3)
+    g.fillStyle(0x44ffcc); g.fillRect(4, 18, 6, 2)
+    g.fillStyle(0xff44aa); g.fillRect(14, 26, 9, 2)
+    g.fillStyle(0x88ffff); g.fillRect(2, 10, 3, 4)
+    // Larger, open eyes with glow
+    g.fillStyle(0xcc88ff); g.fillRect(8, 10, 8, 9); g.fillRect(16, 10, 8, 9)
+    g.fillStyle(0xffffff); g.fillRect(9, 11, 6, 7); g.fillRect(17, 11, 6, 7)
+    // Vivid pupils
+    g.fillStyle(0x8822cc); g.fillRect(10, 12, 4, 5); g.fillRect(18, 12, 4, 5)
+    g.fillStyle(0xeeddff); g.fillRect(11, 13, 2, 2); g.fillRect(19, 13, 2, 2)
+    g.generateTexture('slop_eyes', 32, 32)
+    g.destroy()
   }
 
   _makeEnemy() {

@@ -17,6 +17,8 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.coinCount = state.coinCount ?? 0
     this.maxCoins = state.maxCoins ?? 3
     this.hasPrompt = state.hasPrompt ?? false
+    this.hasEyes = state.hasEyes ?? false
+    this.purchases = state.purchases ? { ...state.purchases } : { smallPurse: false, eyes: false, bigPurse: false }
     this.facing = state.facing ? { ...state.facing } : { x: 0, y: -1 }
 
     this._jitterTimer = Phaser.Math.Between(400, 900)
@@ -91,11 +93,19 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     return proj
   }
 
+  applyEyes() {
+    this.hasEyes = true
+    this.setTexture('slop_eyes')
+    this._flickerChance = 0.04
+  }
+
   getState() {
     return {
       coinCount: this.coinCount,
       maxCoins: this.maxCoins,
       hasPrompt: this.hasPrompt,
+      hasEyes: this.hasEyes,
+      purchases: { ...this.purchases },
       facing: { ...this.facing }
     }
   }

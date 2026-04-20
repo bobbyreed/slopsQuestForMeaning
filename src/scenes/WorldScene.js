@@ -40,8 +40,9 @@ export class WorldScene extends Phaser.Scene {
     this.add.rectangle(W / 2, H / 2, W, H, 0xe8dfc8)
 
     // Walls
+    this._hasEyes = this._returnState?.hasEyes ?? false
     this._walls = this.physics.add.staticGroup()
-    this._buildWalls()
+    this._buildWalls(this._hasEyes)
 
     // Coins
     this._coins = this.physics.add.staticGroup()
@@ -53,6 +54,7 @@ export class WorldScene extends Phaser.Scene {
     const startX = this._returnState ? DOOR_X : W / 2
     const startY = this._returnState ? 80 : H - 100
     this.slop = new Slop(this, startX, startY, this._returnState || {})
+    if (this._returnState?.hasEyes) this.slop.applyEyes()
 
     // HUD
     this._hud = new HUD(this, this.slop)
@@ -100,23 +102,33 @@ export class WorldScene extends Phaser.Scene {
     this._prompts = []
   }
 
-  _buildWalls() {
+  _buildWalls(hasEyes = false) {
     const T = 32
     const gapLeft  = DOOR_X - DOOR_WIDTH / 2
     const gapRight = DOOR_X + DOOR_WIDTH / 2
 
-    // Top wall — left segment
     this._wallRect(0, 0, gapLeft, T)
-    // Top wall — right segment
     this._wallRect(gapRight, 0, W - gapRight, T)
-    // Bottom wall
     this._wallRect(0, H - T, W, T)
-    // Left wall
-    this._wallRect(0, T, T, H - T * 2)
-    // Right wall
-    this._wallRect(W - T, T, T, H - T * 2)
 
-    // Interior obstacles
+    // Side walls — split to allow east/west passages when eyes are unlocked
+    const sideGapTop = 240
+    const sideGapBot = 360
+    if (hasEyes) {
+      // Left wall with gap
+      this._wallRect(0, T, T, sideGapTop - T)
+      this._wallRect(0, sideGapBot, T, H - T - sideGapBot)
+      // Right wall with gap
+      this._wallRect(W - T, T, T, sideGapTop - T)
+      this._wallRect(W - T, sideGapBot, T, H - T - sideGapBot)
+      // Passage hints
+      this.add.text(14, H / 2, '◀\nwest', { fontSize: '9px', color: '#887799', fontFamily: 'Courier New', align: 'center' }).setOrigin(0.5).setDepth(5)
+      this.add.text(W - 14, H / 2, '▶\neast', { fontSize: '9px', color: '#887799', fontFamily: 'Courier New', align: 'center' }).setOrigin(0.5).setDepth(5)
+    } else {
+      this._wallRect(0, T, T, H - T * 2)
+      this._wallRect(W - T, T, T, H - T * 2)
+    }
+
     OBSTACLES.forEach(([x, y, w, h]) => this._wallRect(x, y, w, h))
   }
 
@@ -152,6 +164,21 @@ export class WorldScene extends Phaser.Scene {
         })
       })
     }
+  }
+
+  _showAreaHint() {
+    if (this._areaHintActive) return
+    this._areaHintActive = true
+    const hint = this.add.text(W / 2, H / 2 - 40, 'this area is still being generated.', {
+      fontSize: '12px', color: '#887799', fontFamily: 'Courier New'
+    }).setOrigin(0.5).setDepth(50).setAlpha(0)
+    this.tweens.add({ targets: hint, alpha: 1, duration: 200 })
+    this.time.delayedCall(1600, () => {
+      this.tweens.add({ targets: hint, alpha: 0, duration: 400, onComplete: () => {
+        hint.destroy()
+        this._areaHintActive = false
+      }})
+    })
   }
 
   _enterNorthShrine() {
@@ -206,6 +233,18 @@ export class WorldScene extends Phaser.Scene {
     // North door trigger
     if (this.slop.y < 40 && this.slop.x > DOOR_X - DOOR_WIDTH / 2 && this.slop.x < DOOR_X + DOOR_WIDTH / 2) {
       this._enterNorthShrine()
+    }
+
+    // East/west passage bounce — areas not yet open
+    if (this._hasEyes) {
+      const inGap = this.slop.y > 240 && this.slop.y < 360
+      if (inGap && this.slop.x < 20) {
+        this.slop.body.setVelocityX(220)
+        this._showAreaHint()
+      } else if (inGap && this.slop.x > W - 20) {
+        this.slop.body.setVelocityX(-220)
+        this._showAreaHint()
+      }
     }
 
     this._hud.update()
