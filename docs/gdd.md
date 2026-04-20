@@ -187,6 +187,12 @@ The first minigame. Gates part of the world — completing it correctly unlocks 
 
 ---
 
+## Planned But Not Yet Built
+
+- **Opening flashback** — before the title screen, a brief sequence witnessed from The Prior's perspective: the moment of Slop's creation. The Prior watches it happen. The player experiences Slop's origin before Slop does. Exact content TBD — but The Prior is the witness, not the creator.
+
+---
+
 ## Open Design Questions
 
 - [ ] The ending — what does winning look like for a monster with no Frankenstein?

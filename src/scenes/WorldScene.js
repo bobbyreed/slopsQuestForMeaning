@@ -63,10 +63,20 @@ export class WorldScene extends Phaser.Scene {
     this.physics.add.collider(this.slop, this._walls)
     this.physics.add.overlap(this.slop, this._coins, this._pickupCoin, null, this)
 
-    // North door hint text
+    // North door hint
     this.add.text(DOOR_X, 22, '▲ north', {
       fontSize: '10px', color: '#998877', fontFamily: 'Courier New'
     }).setOrigin(0.5).setDepth(5)
+
+    // Dungeon entrance — dark opening in the south wall (left of center)
+    const DUNGEON_X = 200
+    this.add.rectangle(DUNGEON_X, H - 32, 72, 32, 0x0a0810).setDepth(4)
+    this.add.text(DUNGEON_X, H - 46, '▼ dungeon', {
+      fontSize: '9px', color: '#665577', fontFamily: 'Courier New'
+    }).setOrigin(0.5).setDepth(5)
+    this._dungeonEntrance = this.add.zone(DUNGEON_X, H - 16, 72, 32)
+    this.physics.world.enable(this._dungeonEntrance)
+    this.physics.add.overlap(this.slop, this._dungeonEntrance, () => this._enterDungeon())
 
     // Input
     this._cursors = this.input.keyboard.createCursorKeys()
@@ -109,7 +119,11 @@ export class WorldScene extends Phaser.Scene {
 
     this._wallRect(0, 0, gapLeft, T)
     this._wallRect(gapRight, 0, W - gapRight, T)
-    this._wallRect(0, H - T, W, T)
+
+    // Bottom wall with dungeon entrance gap at x=164-236
+    const DUNGEON_X = 200, DUNGEON_GAP = 72
+    this._wallRect(0, H - T, DUNGEON_X - DUNGEON_GAP / 2, T)
+    this._wallRect(DUNGEON_X + DUNGEON_GAP / 2, H - T, W - (DUNGEON_X + DUNGEON_GAP / 2), T)
 
     // Side walls — split to allow east/west passages when eyes are unlocked
     const sideGapTop = 240
@@ -164,6 +178,14 @@ export class WorldScene extends Phaser.Scene {
         })
       })
     }
+  }
+
+  _enterDungeon() {
+    if (this._transitioning) return
+    this._transitioning = true
+    this.cameras.main.fade(350, 0, 0, 0, false, (_, t) => {
+      if (t === 1) this.scene.start('DungeonScene', { slopState: this.slop.getState() })
+    })
   }
 
   _showAreaHint() {
