@@ -76,6 +76,7 @@ export class WorldScene extends Phaser.Scene {
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
 
     this._transitioning = false
+    this._dropPending = false
   }
 
   _buildWalls() {
@@ -106,18 +107,28 @@ export class WorldScene extends Phaser.Scene {
 
   _pickupCoin(slop, coin) {
     if (!coin.active) return
+    if (coin.getData('justDropped')) return
+    // Already holding the overflow coin — reject until the drop clears
+    if (slop.coinCount > slop.maxCoins) return
+
     coin.destroy()
     slop.coinCount++
 
-    if (slop.coinCount > slop.maxCoins) {
-      // Drop one coin near Slop after 1 second
+    if (slop.coinCount > slop.maxCoins && !this._dropPending) {
+      this._dropPending = true
       this.time.delayedCall(1000, () => {
         if (!this.scene.isActive('WorldScene')) return
         slop.coinCount--
-        const cx = slop.x + Phaser.Math.Between(-24, 24)
-        const cy = slop.y + Phaser.Math.Between(-24, 24)
+        this._dropPending = false
+        const cx = slop.x + Phaser.Math.Between(-40, 40)
+        const cy = slop.y + Phaser.Math.Between(-40, 40)
         const dropped = this._coins.create(cx, cy, 'coin')
         dropped.refreshBody()
+        dropped.setData('justDropped', true)
+        // After 800ms the dropped coin becomes collectible again
+        this.time.delayedCall(800, () => {
+          if (dropped.active) dropped.setData('justDropped', false)
+        })
       })
     }
   }

@@ -6,7 +6,7 @@ export class BootScene extends Phaser.Scene {
     this._makeKeeper()
     this._makeCoin()
     this._makeTiles()
-    this.scene.start('WorldScene')
+    this.scene.start('TitleScene')
   }
 
   _makeSlop() {

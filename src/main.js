@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import { BootScene } from './scenes/BootScene.js'
+import { TitleScene } from './scenes/TitleScene.js'
+import { MenuScene } from './scenes/MenuScene.js'
 import { WorldScene } from './scenes/WorldScene.js'
 import { NorthShrineScene } from './scenes/NorthShrineScene.js'
 
@@ -12,5 +14,5 @@ new Phaser.Game({
     default: 'arcade',
     arcade: { gravity: { y: 0 }, debug: false }
   },
-  scene: [BootScene, WorldScene, NorthShrineScene]
+  scene: [BootScene, TitleScene, MenuScene, WorldScene, NorthShrineScene]
 })
