@@ -5,6 +5,7 @@ import { Enemy } from '../entities/Enemy.js'
 import { HUD } from '../ui/HUD.js'
 import { Sfx } from '../ui/Sfx.js'
 import { W, H } from '../config/constants.js'
+import { SaveState } from '../ui/SaveState.js'
 
 const T = 32
 const WALL_COLOR = 0xb8a898
@@ -34,7 +35,7 @@ export class WorldScene extends BaseGameScene {
   constructor() { super('WorldScene') }
 
   init(data) {
-    this._returnState = data?.slopState || null
+    this._returnState = data?.slopState ?? SaveState.load()
     this._spawnOrigin = data?.spawnOrigin || null
   }
 

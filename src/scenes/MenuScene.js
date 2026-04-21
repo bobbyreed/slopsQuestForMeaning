@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { SaveState } from '../ui/SaveState.js'
 
 const README_TEXT = `SLOP'S QUEST FOR MEANING
 ─────────────────────────────────────────────────
@@ -14,7 +15,8 @@ HOW TO PLAY
   south-west     dungeon entrance
 
 TERMINAL COMMANDS (you are in the terminal now)
-  play           start the game
+  play           start / continue
+  new game       clear save and start fresh
   journal        open slop's journal
   readme         you are reading it
   help           slop attempts to help
@@ -78,6 +80,7 @@ const EASTER_EGGS = {
   'north shrine': { role: 'slop', text: "north of here. where the prior waits. it sells things because commerce was in the dataset. care was harder to verify. i keep going back anyway." },
   'readme': { role: 'readme', text: README_TEXT },
   'play': { role: 'action', action: 'play' },
+  'new game': { role: 'action', action: 'newgame' },
   'journal': { role: 'action', action: 'journal' },
 }
 
@@ -123,9 +126,12 @@ export class MenuScene extends Phaser.Scene {
 
     parent.appendChild(term)
 
-    // Initial message
-    this._addMessage('slop', 'slop',
-      "okay. you found the terminal.\n\nhere is what i know: there are commands that do things. some are on the buttons below. others you will have to find yourself. the readme has a complete list if you want to cheat.\n\nthe game is up there when you're ready.")
+    // Initial message — acknowledges a save if one exists
+    const hasSave = SaveState.exists()
+    this._addMessage('slop', 'slop', hasSave
+      ? "okay. you came back.\n\ni remember you. the save is intact. type play to continue where we left off.\n\nif you want to start over, type new game. i won't hold it against you. much."
+      : "okay. you found the terminal.\n\nhere is what i know: there are commands that do things. some are on the buttons below. others you will have to find yourself. the readme has a complete list if you want to cheat.\n\nthe game is up there when you're ready."
+    )
 
     // Button listeners
     term.querySelectorAll('.slop-cmd-btn').forEach(btn => {
@@ -161,6 +167,10 @@ export class MenuScene extends Phaser.Scene {
     if (egg.role === 'action') {
       if (egg.action === 'play') {
         this._addMessage('slop', 'slop', 'okay. going now.')
+        setTimeout(() => this._startGame(), 900)
+      } else if (egg.action === 'newgame') {
+        this._addMessage('slop', 'slop', 'clearing the save. starting over. this counts as a choice.')
+        SaveState.clear()
         setTimeout(() => this._startGame(), 900)
       } else if (egg.action === 'journal') {
         this._addMessage('slop', 'slop', 'opening the journal. it is also me. we exist in two places.')

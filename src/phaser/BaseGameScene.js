@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { Sfx } from '../ui/Sfx.js'
+import { SaveState } from '../ui/SaveState.js'
 
 export class BaseGameScene extends Phaser.Scene {
   // Shared wall-building primitive. Dungeon/Shrine default to dark purple;
@@ -54,11 +55,12 @@ export class BaseGameScene extends Phaser.Scene {
     }
   }
 
-  // Fades out and starts another scene. Returns false (no-op) if a transition
-  // is already in progress.
+  // Fades out and starts another scene. Auto-saves slopState before leaving.
+  // Returns false (no-op) if a transition is already in progress.
   _sceneTransition(sceneName, data, duration = 350) {
     if (this._transitioning) return false
     this._transitioning = true
+    if (this.slop?.getState) SaveState.save(this.slop.getState())
     this.cameras.main.fade(duration, 0, 0, 0, false, (_, t) => {
       if (t === 1) this.scene.start(sceneName, data)
     })

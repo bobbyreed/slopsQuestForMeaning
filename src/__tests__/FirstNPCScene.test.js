@@ -77,19 +77,19 @@ describe('FirstNPCScene', () => {
     })
   })
 
-  describe('_returnToDungeon', () => {
+  describe('_returnToWorld', () => {
     it('prevents double-transition', () => {
       const s = makeScene({ slopState: {} })
       s.create()
       s._transitioning = true
-      s._returnToDungeon()
+      s._returnToWorld()
       expect(s.cameras.main.fade).not.toHaveBeenCalled()
     })
 
     it('starts WorldScene with spawnOrigin "dungeon"', () => {
       const s = makeScene({ slopState: {} })
       s.create()
-      s._returnToDungeon()
+      s._returnToWorld()
       const fadeCb = s.cameras.main.fade.mock.calls[0][5]
       fadeCb(null, 1)
       expect(s.scene.start).toHaveBeenCalledWith('WorldScene', expect.objectContaining({

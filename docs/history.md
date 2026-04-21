@@ -47,3 +47,16 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 22**
 > Please add all this to the gdd and start working towards the MVP.
+
+---
+
+## 2026-04-21
+
+**Prompt 23**
+> Can you give me a status update of our code coverage? If we are over an average of 80%, I'd like to start working on a refactor. First, create a new branch for the refactor. Next, we want to follow OOP best practices and decoupling in the vein of Kent Beck. Please keep core phaser stuff in its own folder. CSS should be external and broken into separate files. JS should follow OOP single responsibility and encapsulation guidelines.
+
+**Prompt 24**
+> This is great. Please go ahead and create a pr and I'll merge it on gh
+
+**Prompt 25**
+> I merged the pr and pulled down the changes. Please continue working towards our MVP.

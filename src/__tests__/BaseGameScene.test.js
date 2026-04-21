@@ -16,7 +16,7 @@ function makeBase() {
   s._slopHitTimer = 0
   s._transitioning = false
   const slopAlpha = { _alpha: 1 }
-  s.slop = { setAlpha: vi.fn(a => { slopAlpha._alpha = a }), get _alpha() { return slopAlpha._alpha } }
+  s.slop = { setAlpha: vi.fn(a => { slopAlpha._alpha = a }), get _alpha() { return slopAlpha._alpha }, getState: vi.fn(() => ({})) }
   return s
 }
 

@@ -116,6 +116,14 @@ describe('MenuScene easter eggs (structure)', () => {
     expect(call).toBeTruthy()
   })
 
+  it('recognises "new game" and clears save before starting', () => {
+    scene._startGame = vi.fn()
+    global.setTimeout = (fn) => fn()
+    scene._process('new game')
+    expect(scene._addMessage).toHaveBeenCalled()
+    expect(scene._startGame).toHaveBeenCalled()
+  })
+
   const knownEggs = [
     'help', 'slop', 'exist', 'generate', 'geners', 'frankenstein',
     'die', 'north', 'meaning', 'soul', 'stolen', 'hello',
