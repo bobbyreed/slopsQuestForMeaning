@@ -2,6 +2,8 @@
 // Type each letter in rhythm. Miss the window → AI-glyph replaces the letter.
 // Spell the word correctly to win.
 
+import Phaser from 'phaser'
+
 const GLITCH_CHARS = ['▓','░','▒','╬','╠','╣','Ω','Σ','∆','∇','≠','≈','∞','←','→','⊕','⊗','◆','※','⁂','✦','⬡','❋','⌘','▲','◀','✺']
 const SWEEP_DURATION = 1800  // ms for one full sweep
 const HIT_ZONE_LO   = 0.32

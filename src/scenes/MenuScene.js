@@ -1,3 +1,5 @@
+import Phaser from 'phaser'
+
 const README_TEXT = `SLOP'S QUEST FOR MEANING
 ─────────────────────────────────────────────────
 a top-down rpg about a bad piece of ai-generated
