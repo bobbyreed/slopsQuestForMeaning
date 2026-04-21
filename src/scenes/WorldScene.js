@@ -38,8 +38,11 @@ export class WorldScene extends Phaser.Scene {
   }
 
   create() {
-    // Background
-    this.add.rectangle(W / 2, H / 2, W, H, 0xe8dfc8)
+    // Background — shifts subtly with progress (beige → lavender → blue-grey)
+    const bg = this._returnState?.dungeonCleared ? 0xd8dce8
+      : this._returnState?.hasEyes ? 0xdfd8e2
+      : 0xe8dfc8
+    this.add.rectangle(W / 2, H / 2, W, H, bg)
 
     // Walls
     this._hasEyes = this._returnState?.hasEyes ?? false
