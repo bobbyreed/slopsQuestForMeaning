@@ -83,71 +83,6 @@ const EASTER_EGGS = {
 
 const PROMPT_WORDS = ['describe', 'generate', 'render', 'imagine', 'exists?', 'why', 'output', 'query', 'what is', 'context']
 
-const STYLES = `
-  #slop-terminal * { box-sizing: border-box; margin: 0; padding: 0; }
-  #slop-terminal {
-    width: 800px; height: 600px;
-    background: #080610;
-    display: flex; flex-direction: column;
-    font-family: 'Courier New', Courier, monospace;
-    color: #c8c4d8;
-    overflow: hidden;
-    position: absolute; top: 0; left: 0; z-index: 10;
-  }
-  #slop-terminal-header {
-    padding: 10px 16px; border-bottom: 1px solid #1e1430;
-    color: #7b61ff; font-size: 12px; letter-spacing: 0.06em;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  #slop-terminal-header span { color: #443355; font-size: 10px; }
-  #slop-messages {
-    flex: 1; overflow-y: auto; padding: 12px 16px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  #slop-messages::-webkit-scrollbar { width: 4px; }
-  #slop-messages::-webkit-scrollbar-track { background: #0d0a18; }
-  #slop-messages::-webkit-scrollbar-thumb { background: #2a1e3a; border-radius: 2px; }
-  .msg { display: flex; flex-direction: column; gap: 2px; max-width: 96%; }
-  .msg-user { align-self: flex-end; }
-  .msg-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
-  .msg-user .msg-label { color: #554433; text-align: right; }
-  .msg-slop  .msg-label { color: #553366; }
-  .msg-prior .msg-label { color: #334455; }
-  .msg-system .msg-label { color: #333344; }
-  .msg-readme .msg-label { color: #334433; }
-  .msg-body {
-    padding: 8px 12px; border-radius: 2px;
-    font-size: 12px; line-height: 1.7; white-space: pre-wrap;
-  }
-  .msg-user  .msg-body { background: #1a1210; color: #c8b898; border: 1px solid #2a1e10; }
-  .msg-slop  .msg-body { background: #110820; color: #c8b8dd; border: 1px solid #2a1040; }
-  .msg-prior .msg-body { background: #080f18; color: #98b8cc; border: 1px solid #102030; }
-  .msg-system .msg-body { background: #0a0a14; color: #776688; border: 1px solid #1a1428; font-size: 11px; }
-  .msg-readme .msg-body { background: #080e08; color: #88aa88; border: 1px solid #102010; font-size: 11px; }
-  .msg-prompt-fire .msg-body { background: #110820; color: #cc88ff; border: 1px solid #3a1060; font-size: 13px; }
-  #slop-cmd-buttons {
-    padding: 8px 16px; border-top: 1px solid #130d20;
-    display: flex; gap: 8px; flex-wrap: wrap;
-  }
-  .slop-cmd-btn {
-    background: none; border: 1px solid #2a1e3a; color: #7b61ff;
-    font-family: 'Courier New', Courier, monospace; font-size: 11px;
-    padding: 4px 10px; cursor: pointer; letter-spacing: 0.04em;
-    transition: background 0.15s, color 0.15s;
-  }
-  .slop-cmd-btn:hover { background: #1e1030; color: #aa88ff; border-color: #5533aa; }
-  #slop-input-row {
-    padding: 10px 16px; border-top: 1px solid #130d20;
-    display: flex; align-items: center; gap: 10px;
-  }
-  #slop-caret { color: #7b61ff; font-size: 14px; user-select: none; }
-  #slop-input {
-    flex: 1; background: none; border: none; outline: none;
-    color: #c8c4d8; font-family: 'Courier New', Courier, monospace;
-    font-size: 13px; caret-color: #7b61ff;
-  }
-  #slop-input::placeholder { color: #332244; }
-`
 
 export class MenuScene extends Phaser.Scene {
   constructor() { super('MenuScene') }
@@ -159,14 +94,6 @@ export class MenuScene extends Phaser.Scene {
   }
 
   _buildTerminal() {
-    // Inject styles once
-    if (!document.getElementById('slop-terminal-styles')) {
-      const style = document.createElement('style')
-      style.id = 'slop-terminal-styles'
-      style.textContent = STYLES
-      document.head.appendChild(style)
-    }
-
     const canvas = this.game.canvas
     const parent = canvas.parentElement
     if (getComputedStyle(parent).position === 'static') {
