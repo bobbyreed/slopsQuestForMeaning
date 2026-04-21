@@ -60,6 +60,10 @@ export class WorldScene extends BaseGameScene {
       startX = DOOR_X; startY = 80
     } else if (this._spawnOrigin === 'dungeon') {
       startX = DUNGEON_SPAWN_X; startY = H - 80
+    } else if (this._spawnOrigin === 'east') {
+      startX = W - 60; startY = H / 2
+    } else if (this._spawnOrigin === 'west') {
+      startX = 60; startY = H / 2
     } else {
       startX = W / 2; startY = H - 100
     }
@@ -68,6 +72,9 @@ export class WorldScene extends BaseGameScene {
 
     if (this._spawnOrigin === 'dungeon' && this._returnState?.dungeonCleared) {
       this.time.delayedCall(700, () => this._showOneTimeHint("the dungeon is behind you. that counts."))
+    }
+    if (this._spawnOrigin === 'shrine' && this._returnState?.hasPrompt && !this._returnState?.dungeonCleared) {
+      this.time.delayedCall(800, () => this._showOneTimeHint("press SPACE to fire a word"))
     }
 
     this._hud = new HUD(this, this.slop)
@@ -233,11 +240,9 @@ export class WorldScene extends BaseGameScene {
     if (this._hasEyes) {
       const inGap = this.slop.y > 240 && this.slop.y < 360
       if (inGap && this.slop.x < 20) {
-        this.slop.body.setVelocityX(220)
-        this._showAreaHint()
+        this._sceneTransition('WestScene', { slopState: this.slop.getState() })
       } else if (inGap && this.slop.x > W - 20) {
-        this.slop.body.setVelocityX(-220)
-        this._showAreaHint()
+        this._sceneTransition('EastScene', { slopState: this.slop.getState() })
       }
     }
 

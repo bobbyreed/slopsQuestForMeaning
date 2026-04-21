@@ -62,22 +62,24 @@ describe('WorldScene.update', () => {
     expect(w._enterNorthShrine).not.toHaveBeenCalled()
   })
 
-  it('bounces Slop back from west wall when hasEyes', () => {
+  it('transitions to WestScene when Slop reaches west gap with hasEyes', () => {
     const w = ready({ slopState: { hasEyes: true } })
     w._hasEyes = true
+    w._sceneTransition = vi.fn()
     w.slop.x = 10   // near west wall
     w.slop.y = 300  // in gap band (240-360)
     w.update(null, 16)
-    expect(w.slop.body.velocity.x).toBeGreaterThan(0)
+    expect(w._sceneTransition).toHaveBeenCalledWith('WestScene', expect.any(Object))
   })
 
-  it('bounces Slop back from east wall when hasEyes', () => {
+  it('transitions to EastScene when Slop reaches east gap with hasEyes', () => {
     const w = ready({ slopState: { hasEyes: true } })
     w._hasEyes = true
+    w._sceneTransition = vi.fn()
     w.slop.x = 795  // near east wall
     w.slop.y = 300
     w.update(null, 16)
-    expect(w.slop.body.velocity.x).toBeLessThan(0)
+    expect(w._sceneTransition).toHaveBeenCalledWith('EastScene', expect.any(Object))
   })
 
   it('builds walls with eye gaps when hasEyes is true', () => {

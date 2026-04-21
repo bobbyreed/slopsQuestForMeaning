@@ -1,0 +1,123 @@
+import Phaser from 'phaser'
+import { BaseGameScene } from '../phaser/BaseGameScene.js'
+import { Slop } from '../entities/Slop.js'
+import { HUD } from '../ui/HUD.js'
+import { W, H, T } from '../config/constants.js'
+
+const LINES = [
+  '// WEST',
+  '// the data does not exist here yet.',
+  '// something will be allocated.',
+  '// slop arrived before the content did.',
+  '// this is also very relatable.',
+]
+
+export class WestScene extends BaseGameScene {
+  constructor() { super('WestScene') }
+
+  init(data) {
+    this._slopState = data?.slopState || {}
+  }
+
+  create() {
+    this.add.rectangle(W / 2, H / 2, W, H, 0x040308)
+
+    for (let col = 0; col < 25; col++) {
+      for (let row = 0; row < 19; row++) {
+        if (Math.random() < 0.06) {
+          this.add.rectangle(
+            col * T + Phaser.Math.Between(0, T),
+            row * T + Phaser.Math.Between(0, T),
+            Phaser.Math.Between(2, 12), Phaser.Math.Between(2, 6),
+            0x220033, 0.4
+          ).setDepth(1)
+        }
+      }
+    }
+
+    this._spawnGlitch()
+
+    this._walls = this.physics.add.staticGroup()
+    this._buildWalls()
+
+    this._coins = this.physics.add.staticGroup()
+    const coinSpot = this._coins.create(W / 2, H / 2 - 60, 'coin')
+    coinSpot.refreshBody()
+
+    this.slop = new Slop(this, W - 60, H / 2, this._slopState)
+    if (this._slopState.hasEyes) this.slop.setTexture('slop_eyes')
+    this.physics.add.collider(this.slop, this._walls)
+    this.physics.add.overlap(this.slop, this._coins, (slop, coin) => {
+      if (!coin.active || coin.getData('justDropped')) return
+      coin.destroy()
+      slop.coinCount = Math.min(slop.coinCount + 1, slop.maxCoins)
+    })
+
+    this._cursors = this.input.keyboard.createCursorKeys()
+    this._wasd = this.input.keyboard.addKeys({
+      left:  Phaser.Input.Keyboard.KeyCodes.A,
+      right: Phaser.Input.Keyboard.KeyCodes.D,
+      up:    Phaser.Input.Keyboard.KeyCodes.W,
+      down:  Phaser.Input.Keyboard.KeyCodes.S,
+    })
+
+    LINES.forEach((line, i) => {
+      this.add.text(W / 2, 110 + i * 22, line, {
+        fontSize: '10px', color: '#331144', fontFamily: 'Courier New'
+      }).setOrigin(0.5).setDepth(5)
+    })
+
+    this.add.text(W - 14, H / 2, '▶\neast', {
+      fontSize: '9px', color: '#331144', fontFamily: 'Courier New', align: 'center'
+    }).setOrigin(0.5).setDepth(5)
+
+    this._hud = new HUD(this, this.slop)
+    this._transitioning = false
+
+    this.cameras.main.fadeIn(400, 0, 0, 0)
+  }
+
+  _buildWalls() {
+    const color = 0x0d0a14
+    this._wallRect(0, 0, W, T, color)
+    this._wallRect(0, H - T, W, T, color)
+    this._wallRect(0, T, T, H - T * 2, color)
+    const gapTop = 240, gapBot = 360
+    this._wallRect(W - T, T, T, gapTop - T, color)
+    this._wallRect(W - T, gapBot, T, H - T - gapBot, color)
+  }
+
+  _spawnGlitch() {
+    for (let i = 0; i < 20; i++) {
+      const dot = this.add.rectangle(
+        Phaser.Math.Between(40, W - 40), Phaser.Math.Between(60, H - 60),
+        Phaser.Math.Between(1, 4), Phaser.Math.Between(1, 3), 0x440066, 0.5
+      ).setDepth(2)
+      this.tweens.add({
+        targets: dot, alpha: 0, x: dot.x + Phaser.Math.Between(-80, 80),
+        duration: Phaser.Math.Between(1500, 4000),
+        delay: Phaser.Math.Between(0, 3000),
+        repeat: -1,
+        onRepeat: () => {
+          dot.x = Phaser.Math.Between(40, W - 40)
+          dot.y = Phaser.Math.Between(60, H - 60)
+          dot.setAlpha(0.5)
+        }
+      })
+    }
+  }
+
+  update(_, delta) {
+    if (this._transitioning) return
+
+    this.slop.handleInput(this._cursors, this._wasd)
+    this.slop.tick(delta)
+
+    const inGap = this.slop.y > 240 && this.slop.y < 360
+    if (inGap && this.slop.x > W - 20) {
+      this._sceneTransition('WorldScene', { slopState: this.slop.getState(), spawnOrigin: 'west' })
+    }
+
+    this._hud.update()
+  }
+}

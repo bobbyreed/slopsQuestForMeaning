@@ -7,6 +7,8 @@ import { NorthShrineScene } from './scenes/NorthShrineScene.js'
 import { DungeonScene } from './scenes/DungeonScene.js'
 import { TypingMinigameScene } from './scenes/TypingMinigameScene.js'
 import { FirstNPCScene } from './scenes/FirstNPCScene.js'
+import { EastScene } from './scenes/EastScene.js'
+import { WestScene } from './scenes/WestScene.js'
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -17,5 +19,5 @@ new Phaser.Game({
     default: 'arcade',
     arcade: { gravity: { y: 0 }, debug: false }
   },
-  scene: [BootScene, TitleScene, MenuScene, WorldScene, NorthShrineScene, DungeonScene, TypingMinigameScene, FirstNPCScene]
+  scene: [BootScene, TitleScene, MenuScene, WorldScene, NorthShrineScene, DungeonScene, TypingMinigameScene, FirstNPCScene, EastScene, WestScene]
 })

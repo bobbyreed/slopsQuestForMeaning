@@ -18,6 +18,8 @@ import { DungeonScene }         from '../scenes/DungeonScene.js'
 import { FirstNPCScene }        from '../scenes/FirstNPCScene.js'
 import { NorthShrineScene }     from '../scenes/NorthShrineScene.js'
 import { TypingMinigameScene }  from '../scenes/TypingMinigameScene.js'
+import { EastScene }            from '../scenes/EastScene.js'
+import { WestScene }            from '../scenes/WestScene.js'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -99,6 +101,7 @@ const SCENE_MANIFEST = [
     exits: [
       { method: '_enterDungeon',     args: [] },
       { method: '_enterNorthShrine', args: [] },
+      { method: '_sceneTransition',  args: ['EastScene', {}] },
     ],
     makeClean: makeWorld,
   },
@@ -125,6 +128,16 @@ const SCENE_MANIFEST = [
     name: 'TypingMinigameScene',
     exits: [{ method: '_returnToGame', args: [false] }],
     makeClean: makeTypingMinigame,
+  },
+  {
+    name: 'EastScene',
+    exits: [{ method: '_sceneTransition', args: ['WorldScene', {}] }],
+    makeClean: () => { const s = new EastScene(); s.init({ slopState: { hasEyes: true } }); s.create(); return s },
+  },
+  {
+    name: 'WestScene',
+    exits: [{ method: '_sceneTransition', args: ['WorldScene', {}] }],
+    makeClean: () => { const s = new WestScene(); s.init({ slopState: { hasEyes: true } }); s.create(); return s },
   },
   // Example of how to add a dead-end room:
   //   { name: 'SomeTerminalScene', deadend: true, makeClean: ..., exits: [] }
