@@ -1,9 +1,8 @@
 import Phaser from 'phaser'
+import { BaseGameScene } from '../phaser/BaseGameScene.js'
 import { Slop } from '../entities/Slop.js'
 import { Dialogue } from '../ui/Dialogue.js'
-
-const W = 800
-const H = 600
+import { W, H } from '../config/constants.js'
 
 const FIRST_VISIT_LINES = [
   "you arrived. i wasn't sure anything would.",
@@ -47,7 +46,7 @@ const SHOP_ITEMS = [
   },
 ]
 
-export class NorthShrineScene extends Phaser.Scene {
+export class NorthShrineScene extends BaseGameScene {
   constructor() { super('NorthShrineScene') }
 
   init(data) {
@@ -117,12 +116,6 @@ export class NorthShrineScene extends Phaser.Scene {
     this._wallRect(W / 2 + 36, H - T, W / 2 - 36, T)
     this._wallRect(0, T, T, H - T * 2)
     this._wallRect(W - T, T, T, H - T * 2)
-  }
-
-  _wallRect(x, y, w, h) {
-    const rect = this.add.rectangle(x + w / 2, y + h / 2, w, h, 0x1e1830)
-    this.physics.add.existing(rect, true)
-    this._walls.add(rect)
   }
 
   _spawnAmbient() {
@@ -268,11 +261,7 @@ export class NorthShrineScene extends Phaser.Scene {
   // ─── Shared ──────────────────────────────────────────────────────────────
 
   _returnToWorld() {
-    if (this._transitioning) return
-    this._transitioning = true
-    this.cameras.main.fade(400, 0, 0, 0, false, (_, t) => {
-      if (t === 1) this.scene.start('WorldScene', { slopState: this.slop.getState(), spawnOrigin: 'shrine' })
-    })
+    this._sceneTransition('WorldScene', { slopState: this.slop.getState(), spawnOrigin: 'shrine' }, 400)
   }
 
   update(_, delta) {
