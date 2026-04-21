@@ -105,3 +105,6 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 32**
 > history.md is a full log of prompting. We can't have truncated version like you have on prompts 6 -11. Can you get the full prompt back and include? Please just park these prompts right as I send them so they don't get lost to compacting.
+
+**Prompt 33**
+> Let's start including a glossary of words. This will be a journal feature. When you mouse over a word in the glossary, a tool tip panel will pop up telling you the definition in context and that the human in the creation loop didn't know what it meant. Let's start with the word "koan" which I now know means "a paradoxical anecdote or riddle used to demonstrate inaquedacy." There is something comical in this being the first word I didn't understand from the AIs generation.
