@@ -52,10 +52,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  onHit(word) {
+  onHit(word, onDeath) {
     if (this._dying) return
     this._dying = true
     this.body.setVelocity(0, 0)
+    const deathX = this.x, deathY = this.y
 
     // Float the naming word up
     const label = this.scene.add.text(this.x, this.y - 16, `[${word}]`, {
@@ -76,7 +77,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.scene.tweens.add({
           targets: this, alpha: 0, scaleX: 0.05, scaleY: 0.05,
           duration: 320, ease: 'Quad.easeIn',
-          onComplete: () => this.destroy()
+          onComplete: () => {
+            if (onDeath) onDeath(deathX, deathY)
+            this.destroy()
+          }
         })
       }
     })

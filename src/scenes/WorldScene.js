@@ -226,6 +226,14 @@ export class WorldScene extends Phaser.Scene {
     })
   }
 
+  _spawnCoinAt(x, y) {
+    if (!this.scene.isActive('WorldScene')) return
+    const coin = this._coins.create(x + Phaser.Math.Between(-12, 12), y + Phaser.Math.Between(-12, 12), 'coin')
+    coin.refreshBody()
+    coin.setData('justDropped', true)
+    this.time.delayedCall(400, () => { if (coin.active) coin.setData('justDropped', false) })
+  }
+
   _enterNorthShrine() {
     if (this._transitioning) return
     this._transitioning = true
@@ -264,7 +272,7 @@ export class WorldScene extends Phaser.Scene {
         if (Phaser.Geom.Intersects.RectangleToRectangle(pb, enemy.getBounds())) {
           const word = proj.text
           proj.destroy()
-          enemy.onHit(word)
+          enemy.onHit(word, (x, y) => this._spawnCoinAt(x, y))
           break
         }
       }

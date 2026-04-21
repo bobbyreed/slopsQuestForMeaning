@@ -44,11 +44,19 @@ export class DungeonScene extends Phaser.Scene {
 
     this._spawnAmbient()
 
+    // Coins
+    this._coins = this.physics.add.staticGroup()
+
     // Slop — enters from south
     this.slop = new Slop(this, W / 2, H - 80, this._slopState)
     this.slop._flickerChance = 0.03
     if (this._slopState.hasEyes) this.slop.setTexture('slop_eyes')
     this.physics.add.collider(this.slop, this._walls)
+    this.physics.add.overlap(this.slop, this._coins, (slop, coin) => {
+      if (!coin.active || coin.getData('justDropped')) return
+      coin.destroy()
+      slop.coinCount = Math.min(slop.coinCount + 1, slop.maxCoins)
+    })
 
     // Enemies — skip if already cleared
     this._enemies = this.physics.add.group()
@@ -197,6 +205,14 @@ export class DungeonScene extends Phaser.Scene {
     }
   }
 
+  _spawnCoinAt(x, y) {
+    if (!this.scene.isActive('DungeonScene')) return
+    const coin = this._coins.create(x + Phaser.Math.Between(-12, 12), y + Phaser.Math.Between(-12, 12), 'coin')
+    coin.refreshBody()
+    coin.setData('justDropped', true)
+    this.time.delayedCall(400, () => { if (coin.active) coin.setData('justDropped', false) })
+  }
+
   _enterMinigame() {
     if (this._transitioning) return
     this._transitioning = true
@@ -256,7 +272,7 @@ export class DungeonScene extends Phaser.Scene {
         if (Phaser.Geom.Intersects.RectangleToRectangle(pb, enemy.getBounds())) {
           const word = proj.text
           proj.destroy()
-          enemy.onHit(word)
+          enemy.onHit(word, (x, y) => this._spawnCoinAt(x, y))
           break
         }
       }
