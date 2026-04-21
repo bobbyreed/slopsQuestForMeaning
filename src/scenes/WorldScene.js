@@ -64,6 +64,11 @@ export class WorldScene extends Phaser.Scene {
     this.slop = new Slop(this, startX, startY, this._returnState || {})
     if (this._returnState?.hasEyes) this.slop.applyEyes()
 
+    // First time surfacing from the dungeon — brief ambient note
+    if (this._spawnOrigin === 'dungeon' && this._returnState?.dungeonCleared) {
+      this.time.delayedCall(700, () => this._showOneTimeHint("the dungeon is behind you. that counts."))
+    }
+
     // HUD
     this._hud = new HUD(this, this.slop)
 
@@ -196,10 +201,20 @@ export class WorldScene extends Phaser.Scene {
     })
   }
 
-  _showAreaHint() {
+  _showOneTimeHint(msg) {
+    const hint = this.add.text(W / 2, H / 2 - 40, msg, {
+      fontSize: '12px', color: '#887799', fontFamily: 'Courier New'
+    }).setOrigin(0.5).setDepth(50).setAlpha(0)
+    this.tweens.add({ targets: hint, alpha: 1, duration: 300 })
+    this.time.delayedCall(2200, () => {
+      this.tweens.add({ targets: hint, alpha: 0, duration: 500, onComplete: () => hint.destroy() })
+    })
+  }
+
+  _showAreaHint(msg = 'this area is still being generated.') {
     if (this._areaHintActive) return
     this._areaHintActive = true
-    const hint = this.add.text(W / 2, H / 2 - 40, 'this area is still being generated.', {
+    const hint = this.add.text(W / 2, H / 2 - 40, msg, {
       fontSize: '12px', color: '#887799', fontFamily: 'Courier New'
     }).setOrigin(0.5).setDepth(50).setAlpha(0)
     this.tweens.add({ targets: hint, alpha: 1, duration: 200 })

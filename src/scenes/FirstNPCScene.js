@@ -23,11 +23,19 @@ const DISMISS_LINES = [
   "and that's the problem, isn't it.",
 ]
 
+const RETURN_LINES = [
+  "you came back.",
+  "i don't know what you're looking for in here. there's nothing left.",
+  "the coins are gone. you took them.",
+  "i'm still here. that's all this room has now.",
+]
+
 export class FirstNPCScene extends Phaser.Scene {
   constructor() { super('FirstNPCScene') }
 
   init(data) {
     this._slopState = data?.slopState || {}
+    this._isReturn = this._slopState.dungeonCleared === true
   }
 
   create() {
@@ -100,7 +108,11 @@ export class FirstNPCScene extends Phaser.Scene {
 
   _triggerDialogue() {
     this._dialogueTriggered = true
-    this._dialogue.show('the render', RENDER_LINES, () => this._giveCoins())
+    if (this._isReturn) {
+      this._dialogue.show('the render', RETURN_LINES, () => this._returnToDungeon())
+    } else {
+      this._dialogue.show('the render', RENDER_LINES, () => this._giveCoins())
+    }
   }
 
   _giveCoins() {

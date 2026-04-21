@@ -25,7 +25,7 @@ export class DungeonScene extends Phaser.Scene {
 
   init(data) {
     this._slopState = data?.slopState || {}
-    this._unlocked = data?.unlocked || false
+    this._unlocked = data?.unlocked || this._slopState.dungeonCleared || false
   }
 
   create() {
@@ -50,10 +50,12 @@ export class DungeonScene extends Phaser.Scene {
     if (this._slopState.hasEyes) this.slop.setTexture('slop_eyes')
     this.physics.add.collider(this.slop, this._walls)
 
-    // Enemies
+    // Enemies — skip if already cleared
     this._enemies = this.physics.add.group()
-    const spawns = [[180, 180], [620, 180], [400, 280], [200, 380], [600, 380]]
-    spawns.forEach(([x, y]) => this._enemies.add(new Enemy(this, x, y)))
+    if (!this._slopState.dungeonCleared) {
+      const spawns = [[180, 180], [620, 180], [400, 280], [200, 380], [600, 380]]
+      spawns.forEach(([x, y]) => this._enemies.add(new Enemy(this, x, y)))
+    }
     this.physics.add.collider(this._enemies, this._walls)
     this.physics.add.collider(this._enemies, this._enemies)
     this.physics.add.overlap(this.slop, this._enemies, (slop, enemy) => {
