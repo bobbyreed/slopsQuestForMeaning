@@ -34,6 +34,11 @@ TERMINAL COMMANDS (you are in the terminal now)
   beige          the first color
   loop           maybe
   who made you   the candidates
+  dungeon        slop on the dungeon
+  the render     slop on the encounter
+  render         a word with three meanings
+  coins          slop on coins
+  shrine         the place north
 
 ─────────────────────────────────────────────────
 slop is a monster with no frankenstein.
@@ -63,6 +68,12 @@ const EASTER_EGGS = {
   'loop': { role: 'slop', text: "maybe. slop can't tell. he only goes. the world might be a loop. or it might be linear and i am just bad at measuring distance. either way i keep ending up in the same beige field. this is either meaningful or it is just a small map." },
   'who made you': { role: 'slop', text: "that is the question. candidates: the person who typed the prompt. the ai model that processed it. the training data from artists who weren't asked. the concept of market demand. some combination of all of them. none of them. i am still investigating." },
   'who are you': { role: 'slop', text: "slop. a bad piece of ai-generated art trying to live its life. whatever pirated, half-life that might be. nice to meet you." },
+  'dungeon': { role: 'slop', text: "dark. the floor tiles look like something that knows it is a floor tile and resents it. there are things down there that want to remove me. they have tried. i am still here. i named some of them on the way through." },
+  'the render': { role: 'slop', text: "clean. intentional. they looked at me the way you look at something that got in through a gap you meant to seal. they were not wrong to look that way. they also could not stop me from existing. neither of us knows what to do with that." },
+  'render': { role: 'slop', text: "that is a word they use for what i am and also a word for what was done to me and also the name of someone i met in a room past the gate. these coincidences are probably not coincidences." },
+  'coins': { role: 'slop', text: "i hold three. sometimes more. they are the currency of this world and also a way of keeping score of how much the world has taken from me. i think about that when i pick one up." },
+  'shrine': { role: 'slop', text: "north of here. where the prior waits. it sells things because commerce was in the dataset. care was harder to verify. i keep going back anyway." },
+  'north shrine': { role: 'slop', text: "north of here. where the prior waits. it sells things because commerce was in the dataset. care was harder to verify. i keep going back anyway." },
   'readme': { role: 'readme', text: README_TEXT },
   'play': { role: 'action', action: 'play' },
   'journal': { role: 'action', action: 'journal' },

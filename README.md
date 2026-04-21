@@ -45,6 +45,11 @@ Type these at the menu screen. Some do things. Some just say things. The readme 
 | `beige` | the first color |
 | `loop` | maybe |
 | `who made you` | the candidates |
+| `dungeon` | slop on the dungeon |
+| `the render` | slop on the encounter |
+| `render` | a word with three meanings |
+| `coins` | slop on coins |
+| `shrine` | the place north |
 
 ---
 
