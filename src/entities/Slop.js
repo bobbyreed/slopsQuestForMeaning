@@ -18,6 +18,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.maxCoins = state.maxCoins ?? 3
     this.hasPrompt = state.hasPrompt ?? false
     this.hasEyes = state.hasEyes ?? false
+    this.dungeonCleared = state.dungeonCleared ?? false
     this.purchases = state.purchases ? { ...state.purchases } : { smallPurse: false, eyes: false, bigPurse: false }
     this.facing = state.facing ? { ...state.facing } : { x: 0, y: -1 }
 
@@ -105,6 +106,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
       maxCoins: this.maxCoins,
       hasPrompt: this.hasPrompt,
       hasEyes: this.hasEyes,
+      dungeonCleared: this.dungeonCleared,
       purchases: { ...this.purchases },
       facing: { ...this.facing }
     }

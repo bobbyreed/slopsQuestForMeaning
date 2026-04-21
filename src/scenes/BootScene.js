@@ -5,6 +5,7 @@ export class BootScene extends Phaser.Scene {
     this._makeSlop()
     this._makeSlopEyes()
     this._makeKeeper()
+    this._makeRender()
     this._makeCoin()
     this._makeEnemy()
     this._makeTiles()
@@ -57,6 +58,23 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffffff); g.fillRect(10, 12, 4, 5); g.fillRect(18, 12, 4, 5)
     g.fillStyle(0x220022); g.fillRect(11, 13, 2, 3); g.fillRect(19, 13, 2, 3)
     g.generateTexture('slop', 32, 32)
+    g.destroy()
+  }
+
+  _makeRender() {
+    const g = this.make.graphics({ x: 0, y: 0, add: false })
+    // Clean geometric body — no blob, no glitch
+    g.fillStyle(0xe8eaf0); g.fillRect(6, 4, 20, 24)
+    g.fillStyle(0xd0d4e0); g.fillRect(8, 6, 16, 20)
+    // Sharp geometric shoulders
+    g.fillStyle(0xf0f2f8); g.fillRect(2, 8, 6, 12)
+    g.fillStyle(0xf0f2f8); g.fillRect(24, 8, 6, 12)
+    // Thin sensor eye — a single horizontal line
+    g.fillStyle(0x1a2240); g.fillRect(8, 13, 16, 3)
+    g.fillStyle(0x3355aa); g.fillRect(8, 14, 16, 1)
+    // Clean outline
+    g.lineStyle(1, 0xaab0c8, 1.0); g.strokeRect(6, 4, 20, 24)
+    g.generateTexture('the_render', 32, 32)
     g.destroy()
   }
 

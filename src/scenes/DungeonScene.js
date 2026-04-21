@@ -209,11 +209,19 @@ export class DungeonScene extends Phaser.Scene {
     })
   }
 
+  _enterFirstNPC() {
+    if (this._transitioning) return
+    this._transitioning = true
+    this.cameras.main.fade(350, 0, 0, 0, false, (_, t) => {
+      if (t === 1) this.scene.start('FirstNPCScene', { slopState: this.slop.getState() })
+    })
+  }
+
   _exitDungeon() {
     if (this._transitioning) return
     this._transitioning = true
     this.cameras.main.fade(350, 0, 0, 0, false, (_, t) => {
-      if (t === 1) this.scene.start('WorldScene', { slopState: this.slop.getState() })
+      if (t === 1) this.scene.start('WorldScene', { slopState: this.slop.getState(), spawnOrigin: 'dungeon' })
     })
   }
 
@@ -265,8 +273,7 @@ export class DungeonScene extends Phaser.Scene {
 
     // North exit when gate open
     if (!this._gateBlocked && this.slop.y < 40) {
-      // For now: bounce back with a message (future area)
-      this.slop.body.setVelocityY(200)
+      this._enterFirstNPC()
     }
 
     // South exit

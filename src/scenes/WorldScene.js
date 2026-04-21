@@ -33,6 +33,7 @@ export class WorldScene extends Phaser.Scene {
 
   init(data) {
     this._returnState = data?.slopState || null
+    this._spawnOrigin = data?.spawnOrigin || null
   }
 
   create() {
@@ -50,9 +51,16 @@ export class WorldScene extends Phaser.Scene {
       this._coins.create(x, y, 'coin').refreshBody()
     })
 
-    // Slop — spawn just south of the north door when returning from shrine
-    const startX = this._returnState ? DOOR_X : W / 2
-    const startY = this._returnState ? 80 : H - 100
+    // Slop — spawn position depends on where we came from
+    const DUNGEON_SPAWN_X = 200
+    let startX, startY
+    if (this._spawnOrigin === 'shrine') {
+      startX = DOOR_X; startY = 80
+    } else if (this._spawnOrigin === 'dungeon') {
+      startX = DUNGEON_SPAWN_X; startY = H - 80
+    } else {
+      startX = W / 2; startY = H - 100
+    }
     this.slop = new Slop(this, startX, startY, this._returnState || {})
     if (this._returnState?.hasEyes) this.slop.applyEyes()
 

@@ -271,7 +271,7 @@ export class NorthShrineScene extends Phaser.Scene {
     if (this._transitioning) return
     this._transitioning = true
     this.cameras.main.fade(400, 0, 0, 0, false, (_, t) => {
-      if (t === 1) this.scene.start('WorldScene', { slopState: this.slop.getState() })
+      if (t === 1) this.scene.start('WorldScene', { slopState: this.slop.getState(), spawnOrigin: 'shrine' })
     })
   }
 
