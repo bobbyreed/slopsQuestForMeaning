@@ -110,7 +110,9 @@ export class DungeonScene extends BaseGameScene {
     const southGapLeft  = W / 2 - 36
     const southGapRight = W / 2 + 36
 
-    this._wallRect(0, 0, W, T)
+    const northGapHalf = 36
+    this._wallRect(0, 0, W / 2 - northGapHalf, T)
+    this._wallRect(W / 2 + northGapHalf, 0, W / 2 - northGapHalf, T)
     this._wallRect(0, H - T, southGapLeft, T)
     this._wallRect(southGapRight, H - T, W - southGapRight, T)
     this._wallRect(0, T, T, H - T * 2)
@@ -135,7 +137,7 @@ export class DungeonScene extends BaseGameScene {
     }).setOrigin(0.5).setDepth(16)
 
     if (this._gateBlocked) {
-      this._gateBlocker = this.add.rectangle(W / 2, gateY + 8, gateW, T, 0x000000, 0)
+      this._gateBlocker = this.add.rectangle(W / 2, T / 2, gateW, T, 0x000000, 0)
       this.physics.add.existing(this._gateBlocker, true)
       this._walls.add(this._gateBlocker)
     }
