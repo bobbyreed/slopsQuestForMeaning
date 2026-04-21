@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { Slop } from '../entities/Slop.js'
 import { Enemy } from '../entities/Enemy.js'
 import { HUD } from '../ui/HUD.js'
+import { Sfx } from '../ui/Sfx.js'
 
 const W = 800
 const H = 600
@@ -56,6 +57,7 @@ export class DungeonScene extends Phaser.Scene {
       if (!coin.active || coin.getData('justDropped')) return
       coin.destroy()
       slop.coinCount = Math.min(slop.coinCount + 1, slop.maxCoins)
+      Sfx.coin(this)
     })
 
     // Enemies — skip if already cleared
@@ -70,6 +72,7 @@ export class DungeonScene extends Phaser.Scene {
       if (this._slopHitTimer > 0 || enemy._dying) return
       this._slopHitTimer = 1200
       slop.coinCount = Math.max(0, slop.coinCount - 1)
+      Sfx.slopHit(this)
       const angle = Math.atan2(slop.y - enemy.y, slop.x - enemy.x)
       slop.body.setVelocity(Math.cos(angle) * 280, Math.sin(angle) * 280)
       this.cameras.main.shake(100, 0.003)
@@ -259,7 +262,7 @@ export class DungeonScene extends Phaser.Scene {
     // Prompt fire
     if (Phaser.Input.Keyboard.JustDown(this._spaceKey)) {
       const proj = this.slop.firePrompt()
-      if (proj) this._prompts.push(proj)
+      if (proj) { this._prompts.push(proj); Sfx.promptFire(this) }
     }
 
     // Prompt-enemy collision
@@ -272,6 +275,7 @@ export class DungeonScene extends Phaser.Scene {
         if (Phaser.Geom.Intersects.RectangleToRectangle(pb, enemy.getBounds())) {
           const word = proj.text
           proj.destroy()
+          Sfx.enemyDeath(this)
           enemy.onHit(word, (x, y) => this._spawnCoinAt(x, y))
           break
         }
