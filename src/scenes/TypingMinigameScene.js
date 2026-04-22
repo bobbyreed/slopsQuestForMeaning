@@ -172,10 +172,8 @@ export class TypingMinigameScene extends Phaser.Scene {
     this.input.keyboard.off('keydown', this._keyListener)
     this.cameras.main.fade(400, 0, 0, 0, false, (_, t) => {
       if (t === 1) {
-        this.scene.start(this._returnScene, {
-          slopState: this._slopState,
-          unlocked
-        })
+        this.scene.resume(this._returnScene, { unlocked })
+        this.scene.stop()
       }
     })
   }

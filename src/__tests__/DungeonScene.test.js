@@ -103,13 +103,13 @@ describe('DungeonScene', () => {
       expect(d.cameras.main.fade).not.toHaveBeenCalled()
     })
 
-    it('transitions to TypingMinigameScene with correct data', () => {
+    it('launches TypingMinigameScene with correct data', () => {
       const d = makeDungeon({ slopState: { hasPrompt: true } })
       d.create()
       d._enterMinigame()
       const fadeCb = d.cameras.main.fade.mock.calls[0][5]
       fadeCb(null, 1)
-      expect(d.scene.start).toHaveBeenCalledWith('TypingMinigameScene', expect.objectContaining({
+      expect(d.scene.launch).toHaveBeenCalledWith('TypingMinigameScene', expect.objectContaining({
         targetWord: 'exist',
         returnScene: 'DungeonScene',
       }))

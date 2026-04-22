@@ -157,14 +157,17 @@ describe('Scene exit manifest — structural', () => {
 SCENE_MANIFEST.filter(s => !s.deadend).forEach(({ name, makeClean, exits }) => {
   describe(`${name} exits`, () => {
     exits.forEach(({ method, args }) => {
-      it(`${method}() triggers scene.start`, () => {
+      it(`${method}() triggers a scene transition`, () => {
         const scene = makeClean()
-        scene.scene.start.mockClear()
+        ;['start', 'launch', 'resume'].forEach(m => scene.scene[m]?.mockClear())
 
         scene[method](...args)
         triggerFade(scene)
 
-        expect(scene.scene.start).toHaveBeenCalled()
+        const transitioned = ['start', 'launch', 'resume'].some(
+          m => (scene.scene[m]?.mock?.calls?.length ?? 0) > 0
+        )
+        expect(transitioned).toBe(true)
       })
     })
   })

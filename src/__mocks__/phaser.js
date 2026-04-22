@@ -169,10 +169,19 @@ function makeScene() {
     },
     sound: { context: audioCtx },
     scale: { width: 800, height: 600 },
+    events: {
+      on:   vi.fn(),
+      off:  vi.fn(),
+      emit: vi.fn(),
+    },
     scene: {
       isActive: vi.fn(() => true),
       start:    vi.fn(),
       restart:  vi.fn(),
+      launch:   vi.fn(),
+      pause:    vi.fn(),
+      resume:   vi.fn(),
+      stop:     vi.fn(),
     },
     _audioCtx: audioCtx,
   }

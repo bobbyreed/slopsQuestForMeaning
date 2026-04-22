@@ -98,6 +98,12 @@ export class DungeonScene extends BaseGameScene {
     this._eKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E)
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
 
+    this.events.on('resume', (_sys, data) => {
+      if (data?.unlocked) this._openGate()
+      this._transitioning = false
+      this.cameras.main.fadeIn(300, 0, 0, 0)
+    })
+
     this._prompts = []
     this._slopHitTimer = 0
     this._dropPending = false
@@ -189,10 +195,17 @@ export class DungeonScene extends BaseGameScene {
   }
 
   _enterMinigame() {
-    this._sceneTransition('TypingMinigameScene', {
-      slopState: this.slop.getState(),
-      targetWord: UNLOCK_WORD,
-      returnScene: 'DungeonScene',
+    if (this._transitioning) return
+    this._transitioning = true
+    this.cameras.main.fade(250, 0, 0, 0, false, (_, t) => {
+      if (t === 1) {
+        this.scene.launch('TypingMinigameScene', {
+          slopState: this.slop.getState(),
+          targetWord: UNLOCK_WORD,
+          returnScene: 'DungeonScene',
+        })
+        this.scene.pause()
+      }
     })
   }
 

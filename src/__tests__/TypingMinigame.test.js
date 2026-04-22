@@ -199,12 +199,12 @@ describe('TypingMinigameScene', () => {
       expect(mg.cameras.main.fade).not.toHaveBeenCalled()
     })
 
-    it('starts the return scene with unlocked=true', () => {
+    it('resumes the return scene with unlocked=true', () => {
       const mg = makeMinigame('exist', 'DungeonScene')
       mg._returnToGame(true)
       const fadeCb = mg.cameras.main.fade.mock.calls[0][5]
       fadeCb(null, 1)
-      expect(mg.scene.start).toHaveBeenCalledWith('DungeonScene', expect.objectContaining({ unlocked: true }))
+      expect(mg.scene.resume).toHaveBeenCalledWith('DungeonScene', expect.objectContaining({ unlocked: true }))
     })
   })
 
