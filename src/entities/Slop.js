@@ -22,7 +22,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.inPriorBody = state.inPriorBody ?? false
     this.freakyFridayUnlocked = state.freakyFridayUnlocked ?? false
     this.dungeonCleared = state.dungeonCleared ?? false
-    this.purchases = state.purchases ? { ...state.purchases } : { smallPurse: false, eyes: false, bigPurse: false }
+    this.purchases = state.purchases ? { ...state.purchases } : { smallPurse: false, eyes: false, bigPurse: false, grandPurse: false }
     this.facing = state.facing ? { ...state.facing } : { x: 0, y: -1 }
 
     this._jitterTimer = Phaser.Math.Between(400, 900)

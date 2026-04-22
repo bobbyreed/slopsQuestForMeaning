@@ -39,7 +39,7 @@ describe('Slop', () => {
 
     it('purchases all default to false', () => {
       const { purchases } = makeSlop().slop
-      expect(purchases).toEqual({ smallPurse: false, eyes: false, bigPurse: false })
+      expect(purchases).toEqual({ smallPurse: false, eyes: false, bigPurse: false, grandPurse: false })
     })
   })
 

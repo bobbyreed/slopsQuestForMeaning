@@ -44,6 +44,13 @@ const SHOP_ITEMS = [
     desc: 'hold 50 coins. for the committed.',
     effect: s => { s.maxCoins = 50 }
   },
+  {
+    key: 'grandPurse',
+    label: 'GRAND PURSE',
+    cost: 50,
+    desc: 'hold 300 coins. the prior does not ask why.',
+    effect: s => { s.maxCoins = 300 }
+  },
 ]
 
 // Built dynamically each time; not tracked via purchases[]

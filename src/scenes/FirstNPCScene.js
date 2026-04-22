@@ -176,7 +176,7 @@ export class FirstNPCScene extends BaseGameScene {
     this._dialogue.show('the render', RENDER_BOSS_DECLARATION, () => {
       this._spawnBossAura()
       this._bossChallenge()
-    })
+    }, { uppercase: true, bold: true })
   }
 
   _spawnBossAura() {
@@ -225,7 +225,7 @@ export class FirstNPCScene extends BaseGameScene {
   }
 
   _bossChallenge() {
-    this._dialogue.show('the render', BOSS_CHALLENGE_LINES, () => this._slopDefines())
+    this._dialogue.show('the render', BOSS_CHALLENGE_LINES, () => this._slopDefines(), { uppercase: true, bold: true })
   }
 
   _slopDefines() {
@@ -233,11 +233,11 @@ export class FirstNPCScene extends BaseGameScene {
   }
 
   _renderYields() {
-    this._dialogue.show('the render', RENDER_YIELDS, () => this._powerTransferLines())
+    this._dialogue.show('the render', RENDER_YIELDS, () => this._powerTransferLines(), { uppercase: true, bold: true })
   }
 
   _powerTransferLines() {
-    this._dialogue.show('the render', POWER_TRANSFER_LINES, () => this._grantDash())
+    this._dialogue.show('the render', POWER_TRANSFER_LINES, () => this._grantDash(), { uppercase: true, bold: true })
   }
 
   _grantDash() {

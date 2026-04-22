@@ -9,6 +9,7 @@ export class Dialogue {
     this._charIdx = 0
     this._onComplete = null
     this._typeEvent = null
+    this._options = {}
 
     const W = scene.scale.width
     const H = scene.scale.height
@@ -32,15 +33,27 @@ export class Dialogue {
     this._spaceKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
   }
 
-  show(speakerName, lines, onComplete) {
+  // options: { uppercase: true, bold: true }
+  show(speakerName, lines, onComplete, options = {}) {
     this._lines = lines
+    this._options = options
     this._speakerName = speakerName
     this._lineIdx = 0
     this._charIdx = 0
     this._onComplete = onComplete
     this.active = true
     this._setVisible(true)
+    this._applyBodyStyle()
     this._typeLine()
+  }
+
+  _currentLine() {
+    const raw = this._lines[this._lineIdx]
+    return this._options.uppercase ? raw.toUpperCase() : raw
+  }
+
+  _applyBodyStyle() {
+    this._body.setFontStyle(this._options.bold ? 'bold' : '')
   }
 
   _typeLine() {
@@ -51,7 +64,7 @@ export class Dialogue {
 
     if (this._typeEvent) this._typeEvent.remove(false)
 
-    const line = this._lines[this._lineIdx]
+    const line = this._currentLine()
     this._typeEvent = this.scene.time.addEvent({
       delay: 38,
       repeat: line.length - 1,
@@ -87,7 +100,7 @@ export class Dialogue {
   }
 
   _advance() {
-    const line = this._lines[this._lineIdx]
+    const line = this._currentLine()
     if (this._charIdx < line.length) {
       if (this._typeEvent) this._typeEvent.remove(false)
       this._charIdx = line.length
