@@ -125,7 +125,7 @@ function makeScene() {
     physics: {
       add: {
         existing:    vi.fn((obj) => { if (obj && !obj.body) obj.body = new Body() }),
-        staticImage: vi.fn(() => ({ setDepth: vi.fn().mockReturnThis(), setScale: vi.fn().mockReturnThis(), x: 400, y: 300 })),
+        staticImage: vi.fn(() => ({ setDepth: vi.fn().mockReturnThis(), setScale: vi.fn().mockReturnThis(), setTint: vi.fn().mockReturnThis(), clearTint: vi.fn().mockReturnThis(), x: 400, y: 300 })),
         group:       vi.fn(() => ({
           add: vi.fn(), getChildren: vi.fn(() => []),
           create: vi.fn(() => ({ refreshBody: vi.fn(), setData: vi.fn(), setDepth: vi.fn().mockReturnThis(), active: true })),

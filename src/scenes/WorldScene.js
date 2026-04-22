@@ -98,13 +98,7 @@ export class WorldScene extends BaseGameScene {
     this.physics.world.enable(this._dungeonEntrance)
     this.physics.add.overlap(this.slop, this._dungeonEntrance, () => this._enterDungeon())
 
-    this._cursors = this.input.keyboard.createCursorKeys()
-    this._wasd = this.input.keyboard.addKeys({
-      left:  Phaser.Input.Keyboard.KeyCodes.A,
-      right: Phaser.Input.Keyboard.KeyCodes.D,
-      up:    Phaser.Input.Keyboard.KeyCodes.W,
-      down:  Phaser.Input.Keyboard.KeyCodes.S,
-    })
+    this._initMovementKeys()
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
     this._shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
 
@@ -115,15 +109,7 @@ export class WorldScene extends BaseGameScene {
     this.physics.add.collider(this._enemies, this._walls)
     this.physics.add.collider(this._enemies, this._enemies)
 
-    this.physics.add.overlap(this.slop, this._enemies, (slop, enemy) => {
-      if (this._slopHitTimer > 0 || enemy._dying) return
-      this._slopHitTimer = 1200
-      slop.coinCount = Math.max(0, slop.coinCount - 1)
-      Sfx.slopHit(this)
-      const angle = Math.atan2(slop.y - enemy.y, slop.x - enemy.x)
-      slop.body.setVelocity(Math.cos(angle) * 280, Math.sin(angle) * 280)
-      this.cameras.main.shake(120, 0.004)
-    })
+    this._setupEnemyOverlap(120, 0.004)
 
     this._transitioning = false
     this._dropPending = false

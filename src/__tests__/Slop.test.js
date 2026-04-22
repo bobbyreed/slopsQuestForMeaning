@@ -208,6 +208,82 @@ describe('Slop', () => {
     })
   })
 
+  describe('applyTexture', () => {
+    it('sets keeper texture when inPriorBody is true', () => {
+      const { slop } = makeSlop({ inPriorBody: true })
+      expect(slop._texture).toBe('keeper')
+    })
+
+    it('sets slop_eyes texture when hasEyes is true and not in prior body', () => {
+      const { slop } = makeSlop({ hasEyes: true })
+      expect(slop._texture).toBe('slop_eyes')
+    })
+
+    it('stays slop texture by default', () => {
+      const { slop } = makeSlop()
+      expect(slop._texture).toBe('slop')
+    })
+
+    it('prefers keeper over slop_eyes when both flags are set', () => {
+      const { slop } = makeSlop({ inPriorBody: true, hasEyes: true })
+      expect(slop._texture).toBe('keeper')
+    })
+  })
+
+  describe('dash', () => {
+    it('returns false when hasDash is false', () => {
+      const { slop } = makeSlop({ hasDash: false })
+      expect(slop.dash()).toBe(false)
+    })
+
+    it('returns true on successful dash', () => {
+      const { slop } = makeSlop({ hasDash: true })
+      expect(slop.dash()).toBe(true)
+    })
+
+    it('sets _dashActive after dash', () => {
+      const { slop } = makeSlop({ hasDash: true })
+      slop.dash()
+      expect(slop._dashActive).toBeGreaterThan(0)
+    })
+
+    it('sets _dashCooldown after dash', () => {
+      const { slop } = makeSlop({ hasDash: true })
+      slop.dash()
+      expect(slop._dashCooldown).toBeGreaterThan(0)
+    })
+
+    it('returns false when cooldown is active', () => {
+      const { slop } = makeSlop({ hasDash: true })
+      slop.dash()
+      expect(slop.dash()).toBe(false)
+    })
+
+    it('applies velocity in facing direction', () => {
+      const { slop } = makeSlop({ hasDash: true, facing: { x: 1, y: 0 } })
+      slop.dash()
+      expect(slop.body.velocity.x).toBeGreaterThan(0)
+    })
+  })
+
+  describe('tick — dash active', () => {
+    it('decrements _dashActive when active', () => {
+      const { slop } = makeSlop({ hasDash: true })
+      slop.dash()
+      const before = slop._dashActive
+      slop.tick(50)
+      expect(slop._dashActive).toBe(before - 50)
+    })
+
+    it('resets drag when dashActive expires', () => {
+      const { slop } = makeSlop({ hasDash: true })
+      slop.dash()
+      slop._dashActive = 10
+      slop.tick(50)
+      expect(slop._dashActive).toBeLessThanOrEqual(0)
+    })
+  })
+
   describe('firePrompt', () => {
     it('returns undefined when hasPrompt is false', () => {
       const { slop } = makeSlop({ hasPrompt: false })

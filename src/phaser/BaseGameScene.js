@@ -3,6 +3,37 @@ import { Sfx } from '../ui/Sfx.js'
 import { SaveState } from '../ui/SaveState.js'
 
 export class BaseGameScene extends Phaser.Scene {
+  _initMovementKeys() {
+    this._cursors = this.input.keyboard.createCursorKeys()
+    this._wasd = this.input.keyboard.addKeys({
+      left:  Phaser.Input.Keyboard.KeyCodes.A,
+      right: Phaser.Input.Keyboard.KeyCodes.D,
+      up:    Phaser.Input.Keyboard.KeyCodes.W,
+      down:  Phaser.Input.Keyboard.KeyCodes.S,
+    })
+  }
+
+  _setupCoinOverlap() {
+    this.physics.add.overlap(this.slop, this._coins, (slop, coin) => {
+      if (!coin.active || coin.getData('justDropped')) return
+      coin.destroy()
+      slop.coinCount = Math.min(slop.coinCount + 1, slop.maxCoins)
+      Sfx.coin(this)
+    })
+  }
+
+  _setupEnemyOverlap(shakeDuration = 120, shakeMagnitude = 0.004) {
+    this.physics.add.overlap(this.slop, this._enemies, (slop, enemy) => {
+      if (this._slopHitTimer > 0 || enemy._dying) return
+      this._slopHitTimer = 1200
+      slop.coinCount = Math.max(0, slop.coinCount - 1)
+      Sfx.slopHit(this)
+      const angle = Math.atan2(slop.y - enemy.y, slop.x - enemy.x)
+      slop.body.setVelocity(Math.cos(angle) * 280, Math.sin(angle) * 280)
+      this.cameras.main.shake(shakeDuration, shakeMagnitude)
+    })
+  }
+
   // Shared wall-building primitive. Dungeon/Shrine default to dark purple;
   // WorldScene passes its own tan color.
   _wallRect(x, y, w, h, color = 0x1e1830) {

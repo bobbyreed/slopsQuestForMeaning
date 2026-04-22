@@ -128,13 +128,7 @@ export class FirstNPCScene extends BaseGameScene {
       }
     })
 
-    this._cursors = this.input.keyboard.createCursorKeys()
-    this._wasd = this.input.keyboard.addKeys({
-      left:  Phaser.Input.Keyboard.KeyCodes.A,
-      right: Phaser.Input.Keyboard.KeyCodes.D,
-      up:    Phaser.Input.Keyboard.KeyCodes.W,
-      down:  Phaser.Input.Keyboard.KeyCodes.S,
-    })
+    this._initMovementKeys()
 
     this.cameras.main.fadeIn(400, 216, 220, 232)
   }

@@ -124,6 +124,145 @@ describe('FirstNPCScene', () => {
     })
   })
 
+  describe('boss flow', () => {
+    function prepScene() {
+      const s = makeScene({ slopState: {} })
+      s.create()
+      return s
+    }
+
+    it('_launchBossFight calls scene.launch with RenderBossScene', () => {
+      const s = prepScene()
+      s._transitioning = false
+      s._launchBossFight()
+      const cb = s.cameras.main.fade.mock.calls[0][5]
+      cb(null, 1)
+      expect(s.scene.launch).toHaveBeenCalledWith('RenderBossScene', expect.objectContaining({ returnScene: 'FirstNPCScene' }))
+    })
+
+    it('_launchBossFight pauses the scene', () => {
+      const s = prepScene()
+      s._launchBossFight()
+      const cb = s.cameras.main.fade.mock.calls[0][5]
+      cb(null, 1)
+      expect(s.scene.pause).toHaveBeenCalled()
+    })
+
+    it('_launchBossFight is no-op when already transitioning', () => {
+      const s = prepScene()
+      s._transitioning = true
+      s._launchBossFight()
+      expect(s.cameras.main.fade).not.toHaveBeenCalled()
+    })
+
+    it('_spawnBossAura sets _bossMode to true', () => {
+      const s = prepScene()
+      s._spawnBossAura()
+      expect(s._bossMode).toBe(true)
+    })
+
+    it('_dissolveAura sets _bossMode to false', () => {
+      const s = prepScene()
+      s._spawnBossAura()
+      s._dissolveAura()
+      expect(s._bossMode).toBe(false)
+    })
+
+    it('_renderYields shows dialogue with RENDER_YIELDS content', () => {
+      const s = prepScene()
+      s._dialogue = { show: vi.fn() }
+      s._renderYields()
+      expect(s._dialogue.show).toHaveBeenCalledWith(
+        'the render', expect.any(Array), expect.any(Function), expect.any(Object)
+      )
+      const lines = s._dialogue.show.mock.calls[0][1]
+      expect(lines.some(l => l.includes('yes') || l.includes('honest') || l.includes('render'))).toBe(true)
+    })
+
+    it('resume event with bossFightWon: true calls _renderYields', () => {
+      const s = prepScene()
+      s._renderYields = vi.fn()
+      s._dissolveAura = vi.fn()
+      // Simulate scene resume event
+      const resumeHandler = s.events.on.mock.calls.find(c => c[0] === 'resume')?.[1]
+      expect(resumeHandler).toBeDefined()
+      resumeHandler(null, { bossFightWon: true })
+      expect(s._renderYields).toHaveBeenCalled()
+    })
+
+    it('resume event without bossFightWon calls _dissolveAura', () => {
+      const s = prepScene()
+      s._dissolveAura = vi.fn()
+      const resumeHandler = s.events.on.mock.calls.find(c => c[0] === 'resume')?.[1]
+      resumeHandler(null, { bossFightWon: false })
+      expect(s._dissolveAura).toHaveBeenCalled()
+    })
+  })
+
+  describe('dialogue chain', () => {
+    function prepScene() {
+      const s = makeScene({ slopState: {} })
+      s.create()
+      s._dialogue = { show: vi.fn(), active: false, update: vi.fn() }
+      return s
+    }
+
+    it('_beginSlopQuestions calls show with slop speaker', () => {
+      const s = prepScene()
+      s._beginSlopQuestions()
+      expect(s._dialogue.show).toHaveBeenCalledWith('slop', expect.any(Array), expect.any(Function))
+    })
+
+    it('_renderDefensive calls show with the render speaker', () => {
+      const s = prepScene()
+      s._renderDefensive()
+      expect(s._dialogue.show).toHaveBeenCalledWith('the render', expect.any(Array), expect.any(Function))
+    })
+
+    it('_slopPresses calls show with slop speaker', () => {
+      const s = prepScene()
+      s._slopPresses()
+      expect(s._dialogue.show).toHaveBeenCalledWith('slop', expect.any(Array), expect.any(Function))
+    })
+
+    it('_renderBossDeclaration calls show with uppercase/bold options', () => {
+      const s = prepScene()
+      s._spawnBossAura = vi.fn()
+      s._launchBossFight = vi.fn()
+      s._renderBossDeclaration()
+      expect(s._dialogue.show).toHaveBeenCalledWith(
+        'the render', expect.any(Array), expect.any(Function),
+        expect.objectContaining({ uppercase: true, bold: true })
+      )
+    })
+
+    it('_powerTransferLines calls show with uppercase/bold options', () => {
+      const s = prepScene()
+      s._powerTransferLines()
+      expect(s._dialogue.show).toHaveBeenCalledWith(
+        'the render', expect.any(Array), expect.any(Function),
+        expect.objectContaining({ uppercase: true, bold: true })
+      )
+    })
+
+    it('_grantDash sets hasDash on slop', () => {
+      const s = prepScene()
+      s._dissolveAura = vi.fn()
+      s._grantDash()
+      expect(s.slop.hasDash).toBe(true)
+    })
+
+    it('_grantDash schedules _giveCoins via delayedCall', () => {
+      const s = prepScene()
+      s._dissolveAura = vi.fn()
+      s._giveCoins = vi.fn()
+      s._grantDash()
+      const cb = s.time.delayedCall.mock.calls[s.time.delayedCall.mock.calls.length - 1][1]
+      cb()
+      expect(s._giveCoins).toHaveBeenCalled()
+    })
+  })
+
   describe('_triggerDialogue', () => {
     it('shows RENDER_LINES on first visit', () => {
       const s = makeScene({ slopState: { dungeonCleared: false } })

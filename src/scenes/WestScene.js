@@ -46,19 +46,8 @@ export class WestScene extends BaseGameScene {
 
     this.slop = new Slop(this, W - 60, H / 2, this._slopState)
     this.physics.add.collider(this.slop, this._walls)
-    this.physics.add.overlap(this.slop, this._coins, (slop, coin) => {
-      if (!coin.active || coin.getData('justDropped')) return
-      coin.destroy()
-      slop.coinCount = Math.min(slop.coinCount + 1, slop.maxCoins)
-    })
-
-    this._cursors = this.input.keyboard.createCursorKeys()
-    this._wasd = this.input.keyboard.addKeys({
-      left:  Phaser.Input.Keyboard.KeyCodes.A,
-      right: Phaser.Input.Keyboard.KeyCodes.D,
-      up:    Phaser.Input.Keyboard.KeyCodes.W,
-      down:  Phaser.Input.Keyboard.KeyCodes.S,
-    })
+    this._setupCoinOverlap()
+    this._initMovementKeys()
 
     LINES.forEach((line, i) => {
       this.add.text(W / 2, 110 + i * 22, line, {

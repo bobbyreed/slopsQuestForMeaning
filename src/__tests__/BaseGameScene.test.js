@@ -20,6 +20,123 @@ function makeBase() {
   return s
 }
 
+describe('BaseGameScene._initMovementKeys', () => {
+  it('creates cursor keys', () => {
+    const s = makeBase()
+    s._initMovementKeys()
+    expect(s.input.keyboard.createCursorKeys).toHaveBeenCalled()
+    expect(s._cursors).toBeDefined()
+  })
+
+  it('adds WASD keys', () => {
+    const s = makeBase()
+    s._initMovementKeys()
+    expect(s.input.keyboard.addKeys).toHaveBeenCalled()
+    expect(s._wasd).toBeDefined()
+  })
+})
+
+describe('BaseGameScene._setupCoinOverlap', () => {
+  it('registers an overlap between slop and coins', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 0, maxCoins: 10, body: { setVelocity: vi.fn() } }
+    s._setupCoinOverlap()
+    expect(s.physics.add.overlap).toHaveBeenCalledWith(s.slop, s._coins, expect.any(Function))
+  })
+
+  it('coin pickup increments coinCount', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 2, maxCoins: 10, body: { setVelocity: vi.fn() } }
+    s._setupCoinOverlap()
+    const cb = s.physics.add.overlap.mock.calls[0][2]
+    const coin = { active: true, getData: vi.fn(() => false), destroy: vi.fn() }
+    cb(s.slop, coin)
+    expect(s.slop.coinCount).toBe(3)
+  })
+
+  it('skips inactive coins', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 0, maxCoins: 10 }
+    s._setupCoinOverlap()
+    const cb = s.physics.add.overlap.mock.calls[0][2]
+    const coin = { active: false, getData: vi.fn(() => false), destroy: vi.fn() }
+    cb(s.slop, coin)
+    expect(s.slop.coinCount).toBe(0)
+  })
+
+  it('skips justDropped coins', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 0, maxCoins: 10 }
+    s._setupCoinOverlap()
+    const cb = s.physics.add.overlap.mock.calls[0][2]
+    const coin = { active: true, getData: vi.fn(() => true), destroy: vi.fn() }
+    cb(s.slop, coin)
+    expect(s.slop.coinCount).toBe(0)
+  })
+
+  it('caps coinCount at maxCoins', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 10, maxCoins: 10 }
+    s._setupCoinOverlap()
+    const cb = s.physics.add.overlap.mock.calls[0][2]
+    const coin = { active: true, getData: vi.fn(() => false), destroy: vi.fn() }
+    cb(s.slop, coin)
+    expect(s.slop.coinCount).toBe(10)
+  })
+})
+
+describe('BaseGameScene._setupEnemyOverlap', () => {
+  it('registers an overlap between slop and enemies', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 2, body: { setVelocity: vi.fn() }, x: 100, y: 100 }
+    s._setupEnemyOverlap()
+    expect(s.physics.add.overlap).toHaveBeenCalledWith(s.slop, s._enemies, expect.any(Function))
+  })
+
+  it('decrements coinCount on hit', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 2, body: { setVelocity: vi.fn() }, x: 100, y: 100 }
+    s._slopHitTimer = 0
+    s._setupEnemyOverlap()
+    const cb = s.physics.add.overlap.mock.calls[0][2]
+    const enemy = { _dying: false, x: 90, y: 100 }
+    cb(s.slop, enemy)
+    expect(s.slop.coinCount).toBe(1)
+  })
+
+  it('skips hit when slop is invulnerable', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 2, body: { setVelocity: vi.fn() }, x: 100, y: 100 }
+    s._slopHitTimer = 500
+    s._setupEnemyOverlap()
+    const cb = s.physics.add.overlap.mock.calls[0][2]
+    const enemy = { _dying: false, x: 90, y: 100 }
+    cb(s.slop, enemy)
+    expect(s.slop.coinCount).toBe(2)
+  })
+
+  it('skips hit against dying enemy', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 2, body: { setVelocity: vi.fn() }, x: 100, y: 100 }
+    s._slopHitTimer = 0
+    s._setupEnemyOverlap()
+    const cb = s.physics.add.overlap.mock.calls[0][2]
+    const enemy = { _dying: true, x: 90, y: 100 }
+    cb(s.slop, enemy)
+    expect(s.slop.coinCount).toBe(2)
+  })
+
+  it('shakes camera with supplied params', () => {
+    const s = makeBase()
+    s.slop = { coinCount: 1, body: { setVelocity: vi.fn() }, x: 100, y: 100 }
+    s._slopHitTimer = 0
+    s._setupEnemyOverlap(200, 0.01)
+    const cb = s.physics.add.overlap.mock.calls[0][2]
+    cb(s.slop, { _dying: false, x: 90, y: 100 })
+    expect(s.cameras.main.shake).toHaveBeenCalledWith(200, 0.01)
+  })
+})
+
 describe('BaseGameScene._wallRect', () => {
   it('creates a rectangle and adds it to the walls group', () => {
     const s = makeBase()

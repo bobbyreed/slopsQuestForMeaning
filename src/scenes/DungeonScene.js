@@ -45,12 +45,7 @@ export class DungeonScene extends BaseGameScene {
     this.slop = new Slop(this, W / 2, H - 80, this._slopState)
     this.slop._flickerChance = 0.03
     this.physics.add.collider(this.slop, this._walls)
-    this.physics.add.overlap(this.slop, this._coins, (slop, coin) => {
-      if (!coin.active || coin.getData('justDropped')) return
-      coin.destroy()
-      slop.coinCount = Math.min(slop.coinCount + 1, slop.maxCoins)
-      Sfx.coin(this)
-    })
+    this._setupCoinOverlap()
 
     this._enemies = this.physics.add.group()
     if (!this._slopState.dungeonCleared) {
@@ -59,15 +54,7 @@ export class DungeonScene extends BaseGameScene {
     }
     this.physics.add.collider(this._enemies, this._walls)
     this.physics.add.collider(this._enemies, this._enemies)
-    this.physics.add.overlap(this.slop, this._enemies, (slop, enemy) => {
-      if (this._slopHitTimer > 0 || enemy._dying) return
-      this._slopHitTimer = 1200
-      slop.coinCount = Math.max(0, slop.coinCount - 1)
-      Sfx.slopHit(this)
-      const angle = Math.atan2(slop.y - enemy.y, slop.x - enemy.x)
-      slop.body.setVelocity(Math.cos(angle) * 280, Math.sin(angle) * 280)
-      this.cameras.main.shake(100, 0.003)
-    })
+    this._setupEnemyOverlap(100, 0.003)
 
     this._gateBlocked = !this._unlocked
     this._gate = this._buildGate()
@@ -87,13 +74,7 @@ export class DungeonScene extends BaseGameScene {
 
     this._hud = new HUD(this, this.slop)
 
-    this._cursors = this.input.keyboard.createCursorKeys()
-    this._wasd = this.input.keyboard.addKeys({
-      left:  Phaser.Input.Keyboard.KeyCodes.A,
-      right: Phaser.Input.Keyboard.KeyCodes.D,
-      up:    Phaser.Input.Keyboard.KeyCodes.W,
-      down:  Phaser.Input.Keyboard.KeyCodes.S,
-    })
+    this._initMovementKeys()
     this._eKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E)
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
     this._shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
