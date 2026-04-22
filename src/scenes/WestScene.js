@@ -3,6 +3,7 @@ import { BaseGameScene } from '../phaser/BaseGameScene.js'
 import { Slop } from '../entities/Slop.js'
 import { HUD } from '../ui/HUD.js'
 import { W, H, T } from '../config/constants.js'
+import { VisitedScenes } from '../ui/VisitedScenes.js'
 
 const LINES = [
   '// WEST',
@@ -20,6 +21,7 @@ export class WestScene extends BaseGameScene {
   }
 
   create() {
+    VisitedScenes.mark('WestScene')
     this.add.rectangle(W / 2, H / 2, W, H, 0x040308)
 
     for (let col = 0; col < 25; col++) {
@@ -97,6 +99,7 @@ export class WestScene extends BaseGameScene {
 
   update(_, delta) {
     if (this._transitioning) return
+    this._checkPauseKey()
 
     this.slop.handleInput(this._cursors, this._wasd)
     this.slop.tick(delta)

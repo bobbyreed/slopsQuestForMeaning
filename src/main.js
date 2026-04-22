@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { PauseScene }         from './scenes/PauseScene.js'
 import { BootScene }          from './scenes/BootScene.js'
 import { TitleScene }         from './scenes/TitleScene.js'
 import { MenuScene }          from './scenes/MenuScene.js'
@@ -22,6 +23,7 @@ new Phaser.Game({
   width: 800,
   height: 600,
   backgroundColor: '#e8dfc8',
+  dom: { createContainer: true },
   physics: {
     default: 'arcade',
     arcade: { gravity: { y: 0 }, debug: false }
@@ -34,5 +36,6 @@ new Phaser.Game({
     EastA0Scene, EastA1Scene, EastA2Scene, EastA3Scene,
     EastB0Scene, EastB1Scene, CastTownScene, EastB3Scene,
     EastC0Scene, EastC1Scene, EastC2Scene, EastC3Scene,
+    PauseScene,
   ],
 })

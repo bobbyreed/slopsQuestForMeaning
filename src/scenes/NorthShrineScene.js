@@ -3,6 +3,7 @@ import { BaseGameScene } from '../phaser/BaseGameScene.js'
 import { Slop } from '../entities/Slop.js'
 import { Dialogue } from '../ui/Dialogue.js'
 import { W, H } from '../config/constants.js'
+import { VisitedScenes } from '../ui/VisitedScenes.js'
 
 const FIRST_VISIT_LINES = [
   "you arrived. i wasn't sure anything would.",
@@ -86,6 +87,7 @@ export class NorthShrineScene extends BaseGameScene {
   }
 
   create() {
+    VisitedScenes.mark('NorthShrineScene')
     this.add.rectangle(W / 2, H / 2, W, H, 0x0d0b16)
 
     for (let col = 1; col < 24; col++) {
@@ -309,6 +311,7 @@ export class NorthShrineScene extends BaseGameScene {
 
   update(_, delta) {
     if (this._transitioning) return
+    this._checkPauseKey()
 
     if (this._shopMode) {
       this._updateShopMode(delta)

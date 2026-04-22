@@ -5,6 +5,7 @@ import { Enemy } from '../entities/Enemy.js'
 import { HUD } from '../ui/HUD.js'
 import { Sfx } from '../ui/Sfx.js'
 import { W, H, T } from '../config/constants.js'
+import { VisitedScenes } from '../ui/VisitedScenes.js'
 
 const UNLOCK_WORD = 'exist'
 
@@ -27,6 +28,7 @@ export class DungeonScene extends BaseGameScene {
   }
 
   create() {
+    VisitedScenes.mark('DungeonScene')
     this.add.rectangle(W / 2, H / 2, W, H, 0x0a0810)
 
     for (let col = 1; col < 24; col++) {
@@ -200,6 +202,7 @@ export class DungeonScene extends BaseGameScene {
 
   update(_, delta) {
     if (this._transitioning) return
+    this._checkPauseKey()
 
     this.slop.handleInput(this._cursors, this._wasd)
     this.slop.tick(delta)

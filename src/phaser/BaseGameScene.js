@@ -11,6 +11,19 @@ export class BaseGameScene extends Phaser.Scene {
       up:    Phaser.Input.Keyboard.KeyCodes.W,
       down:  Phaser.Input.Keyboard.KeyCodes.S,
     })
+    this._enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
+  }
+
+  _checkPauseKey() {
+    if (!this._enterKey) return
+    if (!Phaser.Input.Keyboard.JustDown(this._enterKey)) return
+    const key = this.sys.settings.key
+    this.scene.launch('PauseScene', {
+      fromScene: key,
+      slopState: this.slop?.getState?.() ?? {},
+      currentScene: key,
+    })
+    this.scene.pause()
   }
 
   _setupCoinOverlap() {

@@ -262,6 +262,7 @@ export class FirstNPCScene extends BaseGameScene {
 
   update(_, delta) {
     if (this._transitioning) return
+    this._checkPauseKey()
 
     const blocked = this._dialogue.active
     this.slop.handleInput(this._cursors, this._wasd, blocked)

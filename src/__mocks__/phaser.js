@@ -122,6 +122,7 @@ function makeScene() {
       circle:      vi.fn(() => makeRect()),
       container:   vi.fn(() => ({ add: vi.fn(), getAll: vi.fn(() => []), setDepth: vi.fn().mockReturnThis() })),
       zone:        vi.fn(() => ({ body: {} })),
+      dom:         vi.fn(() => ({ destroy: vi.fn(), setDepth: vi.fn().mockReturnThis() })),
     },
     physics: {
       add: {
@@ -212,6 +213,7 @@ const Phaser = {
       KeyCodes: {
         A: 65, D: 68, W: 87, S: 83,
         SPACE: 32, ENTER: 13, E: 69, R: 82, ESCAPE: 27, SHIFT: 16,
+        LEFT: 37, RIGHT: 39, UP: 38, DOWN: 40,
       },
       JustDown: vi.fn(() => false),
     },

@@ -3,6 +3,7 @@ import { BaseGameScene } from '../phaser/BaseGameScene.js'
 import { Slop } from '../entities/Slop.js'
 import { HUD } from '../ui/HUD.js'
 import { W, H, T } from '../config/constants.js'
+import { VisitedScenes } from '../ui/VisitedScenes.js'
 
 // The chasm — a gap in the world too wide to walk, requiring dash momentum.
 const CHASM_L = 350
@@ -18,6 +19,7 @@ export class EastScene extends BaseGameScene {
   }
 
   create() {
+    VisitedScenes.mark('EastScene')
     this.add.rectangle(W / 2, H / 2, W, H, 0x100a06)
 
     // Tile grid — same dark mosaic as original
@@ -123,6 +125,7 @@ export class EastScene extends BaseGameScene {
 
   update(_, delta) {
     if (this._transitioning) return
+    this._checkPauseKey()
 
     this.slop.handleInput(this._cursors, this._wasd)
     this.slop.tick(delta)

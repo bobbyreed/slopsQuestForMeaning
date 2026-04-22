@@ -6,6 +6,7 @@ import { Shard } from '../entities/Shard.js'
 import { HUD } from '../ui/HUD.js'
 import { Sfx } from '../ui/Sfx.js'
 import { W, H, T } from '../config/constants.js'
+import { VisitedScenes } from '../ui/VisitedScenes.js'
 
 // Gap geometry shared by all east-world scenes.
 const GAP_Y_TOP = 240   // top of left/right wall gap
@@ -45,6 +46,7 @@ export class EastGridScene extends BaseGameScene {
   }
 
   create() {
+    VisitedScenes.mark(this.sys.settings.key)
     const { bg, wallColor = 0x1a1208, coins = [], enemies = [], lines = [], content } = this._cfg
     const nav = this._cfg.nav ?? {}
 
@@ -134,6 +136,7 @@ export class EastGridScene extends BaseGameScene {
 
   update(_, delta) {
     if (this._transitioning) return
+    this._checkPauseKey()
 
     const dialogueActive = this._dialogue?.active ?? false
     this.slop.handleInput(this._cursors, this._wasd, dialogueActive)

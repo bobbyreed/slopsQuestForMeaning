@@ -6,6 +6,7 @@ import { HUD } from '../ui/HUD.js'
 import { Sfx } from '../ui/Sfx.js'
 import { W, H } from '../config/constants.js'
 import { SaveState } from '../ui/SaveState.js'
+import { VisitedScenes } from '../ui/VisitedScenes.js'
 
 const T = 32
 const WALL_COLOR = 0xb8a898
@@ -40,6 +41,7 @@ export class WorldScene extends BaseGameScene {
   }
 
   create() {
+    VisitedScenes.mark('WorldScene')
     const bg = this._returnState?.dungeonCleared ? 0xd8dce8
       : this._returnState?.hasEyes ? 0xdfd8e2
       : 0xe8dfc8
@@ -207,6 +209,7 @@ export class WorldScene extends BaseGameScene {
 
   update(_, delta) {
     if (this._transitioning) return
+    this._checkPauseKey()
 
     this.slop.handleInput(this._cursors, this._wasd)
     this.slop.tick(delta)
