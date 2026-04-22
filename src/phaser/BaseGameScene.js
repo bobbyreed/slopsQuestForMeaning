@@ -78,8 +78,9 @@ export class BaseGameScene extends Phaser.Scene {
         if (Phaser.Geom.Intersects.RectangleToRectangle(pb, enemy.getBounds())) {
           const word = proj.text
           proj.destroy()
-          Sfx.enemyDeath(this)
-          enemy.onHit(word, (ex, ey) => this._spawnCoinAt(ex, ey))
+          if (enemy.onHit(word, (ex, ey) => this._spawnCoinAt(ex, ey)) !== false) {
+            Sfx.enemyDeath(this)
+          }
           break
         }
       }

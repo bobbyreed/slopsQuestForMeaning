@@ -11,6 +11,7 @@ class Body {
   setSize()         { return this }
   setOffset()       { return this }
   setDrag()         { return this }
+  setBounce()       { return this }
   setMaxVelocity()  { return this }
   setAllowGravity(v) { this._allowGravity = v; return this }
   setVelocity(x, y) {

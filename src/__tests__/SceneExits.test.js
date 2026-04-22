@@ -21,6 +21,12 @@ import { TypingMinigameScene }  from '../scenes/TypingMinigameScene.js'
 import { EastScene }            from '../scenes/EastScene.js'
 import { WestScene }            from '../scenes/WestScene.js'
 import { RenderBossScene }      from '../scenes/RenderBossScene.js'
+import {
+  EastA0Scene, EastA1Scene, EastA2Scene, EastA3Scene,
+  EastB0Scene, EastB1Scene, EastB3Scene,
+  EastC0Scene, EastC1Scene, EastC2Scene, EastC3Scene,
+} from '../scenes/east/EastGridScenes.js'
+import { CastTownScene }        from '../scenes/east/CastTownScene.js'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -131,11 +137,6 @@ const SCENE_MANIFEST = [
     makeClean: makeTypingMinigame,
   },
   {
-    name: 'EastScene',
-    exits: [{ method: '_sceneTransition', args: ['WorldScene', {}] }],
-    makeClean: () => { const s = new EastScene(); s.init({ slopState: { hasEyes: true } }); s.create(); return s },
-  },
-  {
     name: 'WestScene',
     exits: [{ method: '_sceneTransition', args: ['WorldScene', {}] }],
     makeClean: () => { const s = new WestScene(); s.init({ slopState: { hasEyes: true } }); s.create(); return s },
@@ -149,6 +150,74 @@ const SCENE_MANIFEST = [
       s.create()
       return s
     },
+  },
+  // ── East world grid ──────────────────────────────────────────────────────────
+  // All grid scenes share the same exit mechanism (_sceneTransition).
+  // We test one valid transition per scene to verify the mechanism works.
+  {
+    name: 'EastScene (chasm)',
+    exits: [{ method: '_sceneTransition', args: ['WorldScene', {}] }],
+    makeClean: () => { const s = new EastScene(); s.init({ slopState: { hasEyes: true, hasDash: true } }); s.create(); return s },
+  },
+  {
+    name: 'EastA0Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastA1Scene', {}] }],
+    makeClean: () => { const s = new EastA0Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastA1Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastA2Scene', {}] }],
+    makeClean: () => { const s = new EastA1Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastA2Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastA3Scene', {}] }],
+    makeClean: () => { const s = new EastA2Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastA3Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastB3Scene', {}] }],
+    makeClean: () => { const s = new EastA3Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastB0Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastB1Scene', {}] }],
+    makeClean: () => { const s = new EastB0Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastB1Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastB2Scene', {}] }],
+    makeClean: () => { const s = new EastB1Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'CastTownScene (EastB2)',
+    exits: [{ method: '_sceneTransition', args: ['EastB3Scene', {}] }],
+    makeClean: () => { const s = new CastTownScene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastB3Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastA3Scene', {}] }],
+    makeClean: () => { const s = new EastB3Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastC0Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastC1Scene', {}] }],
+    makeClean: () => { const s = new EastC0Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastC1Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastC2Scene', {}] }],
+    makeClean: () => { const s = new EastC1Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastC2Scene',
+    exits: [{ method: '_sceneTransition', args: ['EastC3Scene', {}] }],
+    makeClean: () => { const s = new EastC2Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'EastC3Scene (dungeon stub)',
+    exits: [{ method: '_sceneTransition', args: ['EastC2Scene', {}] }],
+    makeClean: () => { const s = new EastC3Scene(); s.init({ slopState: {} }); s.create(); return s },
   },
   // Example of how to add a dead-end room:
   //   { name: 'SomeTerminalScene', deadend: true, makeClean: ..., exits: [] }

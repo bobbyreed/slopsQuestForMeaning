@@ -53,7 +53,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   onHit(word, onDeath) {
-    if (this._dying) return
+    if (this._dying) return false
     this._dying = true
     this.body.setVelocity(0, 0)
     const deathX = this.x, deathY = this.y
@@ -84,5 +84,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         })
       }
     })
+    return true
   }
 }
