@@ -46,6 +46,30 @@ const SHOP_ITEMS = [
   },
 ]
 
+// Built dynamically each time; not tracked via purchases[]
+function buildFreakFridayItem(slop) {
+  if (slop.inPriorBody) {
+    return {
+      key: 'returnToBody',
+      label: 'RETURN TO BODY',
+      cost: 0,
+      desc: 'go back. the prior will be waiting.',
+      effect: s => { s.inPriorBody = false },
+      noOwn: true,
+    }
+  }
+  return {
+    key: 'freakyFriday',
+    label: 'FREAKY FRIDAY',
+    cost: slop.freakyFridayUnlocked ? 0 : 50,
+    desc: slop.freakyFridayUnlocked
+      ? 'swap with the prior again. you know how now.'
+      : 'swap bodies with the prior. cost is what you can\'t get back.',
+    effect: s => { s.inPriorBody = true; s.freakyFridayUnlocked = true },
+    noOwn: true,
+  }
+}
+
 export class NorthShrineScene extends BaseGameScene {
   constructor() { super('NorthShrineScene') }
 
@@ -69,7 +93,6 @@ export class NorthShrineScene extends BaseGameScene {
 
     this.slop = new Slop(this, W / 2, H - 80, this._slopState)
     this.slop._flickerChance = 0.03
-    if (this._slopState.hasEyes) this.slop.setTexture('slop_eyes')
     this.physics.add.collider(this.slop, this._walls)
 
     // TODO: replace 'keeper' texture with imported Prior sprite when ready
@@ -187,9 +210,8 @@ export class NorthShrineScene extends BaseGameScene {
       fontSize: '10px', color: '#2a1e3a', fontFamily: 'Courier New'
     }).setScrollFactor(0).setDepth(101)
 
-    const allRows = [...SHOP_ITEMS, { key: 'leave', label: '─── leave ───', cost: 0, desc: '' }]
-    this._allRows = allRows
-    ui.rows = allRows.map((_, i) => {
+    this._allRows = this._buildAllRows()
+    ui.rows = this._allRows.map((_, i) => {
       const y = PY + 44 + i * 28
       return {
         arrow: this.add.text(18, y, '', { fontSize: '12px', color: '#9977cc', fontFamily: 'Courier New' }).setScrollFactor(0).setDepth(102),
@@ -198,11 +220,23 @@ export class NorthShrineScene extends BaseGameScene {
       }
     })
 
-    ui.desc = this.add.text(34, PY + 44 + allRows.length * 28 + 4, '', {
+    ui.desc = this.add.text(34, PY + 44 + this._allRows.length * 28 + 4, '', {
       fontSize: '10px', color: '#6655aa', fontFamily: 'Courier New', fontStyle: 'italic'
     }).setScrollFactor(0).setDepth(101)
 
     this._refreshShop()
+  }
+
+  _buildAllRows() {
+    return [
+      ...SHOP_ITEMS,
+      buildFreakFridayItem(this.slop),
+      { key: 'leave', label: '─── leave ───', cost: 0, desc: '' },
+    ]
+  }
+
+  _applySkin() {
+    this.slop.applyTexture()
   }
 
   _refreshShop() {
@@ -221,7 +255,7 @@ export class NorthShrineScene extends BaseGameScene {
         return
       }
 
-      const owned = this.slop.purchases[item.key]
+      const owned = !item.noOwn && this.slop.purchases[item.key]
       const canAfford = this.slop.coinCount >= item.cost
 
       if (owned) {
@@ -243,7 +277,7 @@ export class NorthShrineScene extends BaseGameScene {
     const item = this._allRows[this._shopCursor]
 
     if (item.key === 'leave') { this._returnToWorld(); return }
-    if (this.slop.purchases[item.key]) return
+    if (!item.noOwn && this.slop.purchases[item.key]) return
 
     if (this.slop.coinCount < item.cost) {
       this.cameras.main.shake(80, 0.003)
@@ -251,10 +285,18 @@ export class NorthShrineScene extends BaseGameScene {
     }
 
     this.slop.coinCount -= item.cost
-    this.slop.purchases[item.key] = true
     item.effect(this.slop)
 
-    this.cameras.main.flash(180, 60, 180, 60, true)
+    if (item.noOwn) {
+      this._allRows = this._buildAllRows()
+      this._applySkin()
+      const isSwap = item.key === 'freakyFriday'
+      this.cameras.main.flash(280, isSwap ? 180 : 40, isSwap ? 60 : 120, isSwap ? 20 : 200, true)
+    } else {
+      this.slop.purchases[item.key] = true
+      this.cameras.main.flash(180, 60, 180, 60, true)
+    }
+
     this._refreshShop()
   }
 

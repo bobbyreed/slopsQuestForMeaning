@@ -45,7 +45,6 @@ export class WestScene extends BaseGameScene {
     coinSpot.refreshBody()
 
     this.slop = new Slop(this, W - 60, H / 2, this._slopState)
-    if (this._slopState.hasEyes) this.slop.setTexture('slop_eyes')
     this.physics.add.collider(this.slop, this._walls)
     this.physics.add.overlap(this.slop, this._coins, (slop, coin) => {
       if (!coin.active || coin.getData('justDropped')) return

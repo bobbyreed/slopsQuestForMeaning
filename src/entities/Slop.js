@@ -19,6 +19,8 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.hasPrompt = state.hasPrompt ?? false
     this.hasEyes = state.hasEyes ?? false
     this.hasDash = state.hasDash ?? false
+    this.inPriorBody = state.inPriorBody ?? false
+    this.freakyFridayUnlocked = state.freakyFridayUnlocked ?? false
     this.dungeonCleared = state.dungeonCleared ?? false
     this.purchases = state.purchases ? { ...state.purchases } : { smallPurse: false, eyes: false, bigPurse: false }
     this.facing = state.facing ? { ...state.facing } : { x: 0, y: -1 }
@@ -28,6 +30,8 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this._dashCooldown = 0
     this._dashActive = 0
     this._flickerChance = 0.02
+
+    this.applyTexture()
   }
 
   handleInput(cursors, wasd, blocked = false) {
@@ -116,10 +120,16 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     return proj
   }
 
+  applyTexture() {
+    if (this.inPriorBody) this.setTexture('keeper')
+    else if (this.hasEyes) this.setTexture('slop_eyes')
+    // else stays as 'slop' from constructor
+  }
+
   applyEyes() {
     this.hasEyes = true
-    this.setTexture('slop_eyes')
     this._flickerChance = 0.04
+    if (!this.inPriorBody) this.setTexture('slop_eyes')
   }
 
   getState() {
@@ -129,6 +139,8 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
       hasPrompt: this.hasPrompt,
       hasEyes: this.hasEyes,
       hasDash: this.hasDash,
+      inPriorBody: this.inPriorBody,
+      freakyFridayUnlocked: this.freakyFridayUnlocked,
       dungeonCleared: this.dungeonCleared,
       purchases: { ...this.purchases },
       facing: { ...this.facing }

@@ -112,7 +112,6 @@ export class FirstNPCScene extends BaseGameScene {
     this._buildWalls()
 
     this.slop = new Slop(this, W / 2, H - 80, this._slopState)
-    if (this._slopState.hasEyes) this.slop.setTexture('slop_eyes')
     this.physics.add.collider(this.slop, this._walls)
 
     this._render = this.physics.add.staticImage(W / 2, 200, 'the_render').setDepth(10).setScale(2)
