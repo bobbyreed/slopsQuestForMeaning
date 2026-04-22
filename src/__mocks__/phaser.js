@@ -80,6 +80,7 @@ function makeRect() {
     setFillStyle()   { return this },
     setScale()       { return this },
     setScrollFactor(){ return this },
+    setAngle()       { return this },
     destroy()        { this.active = false },
   }
 }

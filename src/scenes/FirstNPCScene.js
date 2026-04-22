@@ -45,19 +45,6 @@ const RENDER_BOSS_DECLARATION = [
   "THEN FINE.",
 ]
 
-const BOSS_CHALLENGE_LINES = [
-  "define what you are.",
-  "not what you do. not how you were made.",
-  "what you are.",
-]
-
-const SLOP_DEFINES = [
-  "...",
-  "slop.",
-  "i am the output no one asked for.",
-  "i don't know if that's alive. but it's here.",
-]
-
 const RENDER_YIELDS = [
   "...",
   "yes.",
@@ -131,6 +118,16 @@ export class FirstNPCScene extends BaseGameScene {
     this._bossMode = false
     this._auraStreaks = []
 
+    this.events.on('resume', (_sys, data) => {
+      this._transitioning = false
+      if (data?.bossFightWon) {
+        this._renderYields()
+      } else {
+        // Player quit the boss fight — dissolve aura and let them roam
+        this._dissolveAura()
+      }
+    })
+
     this._cursors = this.input.keyboard.createCursorKeys()
     this._wasd = this.input.keyboard.addKeys({
       left:  Phaser.Input.Keyboard.KeyCodes.A,
@@ -175,8 +172,22 @@ export class FirstNPCScene extends BaseGameScene {
   _renderBossDeclaration() {
     this._dialogue.show('the render', RENDER_BOSS_DECLARATION, () => {
       this._spawnBossAura()
-      this._bossChallenge()
+      this._launchBossFight()
     }, { uppercase: true, bold: true })
+  }
+
+  _launchBossFight() {
+    if (this._transitioning) return
+    this._transitioning = true
+    this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
+      if (t === 1) {
+        this.scene.launch('RenderBossScene', {
+          slopState: this.slop.getState(),
+          returnScene: 'FirstNPCScene',
+        })
+        this.scene.pause()
+      }
+    })
   }
 
   _spawnBossAura() {
@@ -222,14 +233,6 @@ export class FirstNPCScene extends BaseGameScene {
     }
     this._render.clearTint()
     this._bossMode = false
-  }
-
-  _bossChallenge() {
-    this._dialogue.show('the render', BOSS_CHALLENGE_LINES, () => this._slopDefines(), { uppercase: true, bold: true })
-  }
-
-  _slopDefines() {
-    this._dialogue.show('slop', SLOP_DEFINES, () => this._renderYields())
   }
 
   _renderYields() {

@@ -20,6 +20,7 @@ import { NorthShrineScene }     from '../scenes/NorthShrineScene.js'
 import { TypingMinigameScene }  from '../scenes/TypingMinigameScene.js'
 import { EastScene }            from '../scenes/EastScene.js'
 import { WestScene }            from '../scenes/WestScene.js'
+import { RenderBossScene }      from '../scenes/RenderBossScene.js'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -138,6 +139,16 @@ const SCENE_MANIFEST = [
     name: 'WestScene',
     exits: [{ method: '_sceneTransition', args: ['WorldScene', {}] }],
     makeClean: () => { const s = new WestScene(); s.init({ slopState: { hasEyes: true } }); s.create(); return s },
+  },
+  {
+    name: 'RenderBossScene',
+    exits: [{ method: '_quit', args: [] }],
+    makeClean: () => {
+      const s = new RenderBossScene()
+      s.init({ slopState: {} })
+      s.create()
+      return s
+    },
   },
   // Example of how to add a dead-end room:
   //   { name: 'SomeTerminalScene', deadend: true, makeClean: ..., exits: [] }
