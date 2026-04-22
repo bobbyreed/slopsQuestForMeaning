@@ -13,11 +13,9 @@ import { VisitedScenes } from '../ui/VisitedScenes.js'
 const BG      = 0x0c0c14
 const BORDER  = 0x334466
 const ACCENT  = 0x88aaff
-const DIM     = 0x445566
 const TEXT_HI = '#aaccff'
 const TEXT_LO = '#445577'
 const TEXT_WH = '#ddeeff'
-const TEXT_RD = '#ff6655'
 
 const TABS = ['INVENTORY', 'MAP', 'TERMINAL', 'JOURNAL']
 
@@ -218,8 +216,6 @@ export class PauseScene extends Phaser.Scene {
         isCurrent ? 0x334466 : isVisited ? 0x1a2233 : 0x0a0a0f
       ).setDepth(10)
 
-      // colored dot
-      const dot = this.add.circle ? null : null  // skip if unavailable
       const dotColor = isCurrent ? ACCENT : isVisited ? node.color : 0x1a1a2e
       const r = this.add.rectangle(cx, cy - 4, 10, 10, dotColor).setDepth(11)
 
@@ -341,7 +337,7 @@ export class PauseScene extends Phaser.Scene {
   // ── JOURNAL ───────────────────────────────────────────────────────────────
 
   _renderJournal() {
-    if (!this.add.dom) {
+    if (!this.add.dom || typeof document === 'undefined') {
       const t = this.add.text(W / 2, H / 2, 'journal requires DOM mode', {
         fontSize: '12px', fontFamily: 'Courier New', color: TEXT_LO,
       }).setOrigin(0.5).setDepth(10)

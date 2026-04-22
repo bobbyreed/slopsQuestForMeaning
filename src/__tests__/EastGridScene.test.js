@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import { EastGridScene } from '../phaser/EastGridScene.js'
+import { CastTownScene } from '../scenes/east/CastTownScene.js'
 import { W, H } from '../config/constants.js'
+import Phaser from 'phaser'
 
 function makeGrid(navOverride = {}, extras = {}) {
   const s = new EastGridScene('TestEastScene', {
@@ -151,5 +153,71 @@ describe('EastGridScene', () => {
       s.update(null, 16)
       expect(onUpdate).toHaveBeenCalledWith(s)
     })
+
+    it('launches PauseScene when ENTER is just pressed', () => {
+      const s = makeGrid()
+      Phaser.Input.Keyboard.JustDown.mockReturnValueOnce(true)
+      s.update(null, 16)
+      expect(s.scene.launch).toHaveBeenCalledWith('PauseScene', expect.objectContaining({ fromScene: 'TestEastScene' }))
+      expect(s.scene.pause).toHaveBeenCalled()
+    })
+  })
+})
+
+describe('CastTownScene', () => {
+  function makeCastTown() {
+    const s = new CastTownScene()
+    s.init({ slopState: {} })
+    s.create()
+    return s
+  }
+
+  it('creates without throwing', () => {
+    expect(() => makeCastTown()).not.toThrow()
+  })
+
+  it('has three NPCs', () => {
+    const s = makeCastTown()
+    expect(s._npcs.length).toBe(3)
+  })
+
+  it('NPC proximity triggers dialogue when slop is close', () => {
+    const s = makeCastTown()
+    const npc = s._npcs[0]
+    // Place slop directly on the guard NPC
+    s.slop.x = npc.sprite.x
+    s.slop.y = npc.sprite.y
+    // Run the onUpdate hook directly
+    s._cfg.onUpdate(s)
+    expect(npc.triggered).toBe(true)
+  })
+
+  it('does not re-trigger an already-triggered NPC', () => {
+    const s = makeCastTown()
+    // Mark all NPCs as already triggered
+    s._npcs.forEach(n => { n.triggered = true })
+    s.slop.x = s._npcs[0].sprite.x
+    s.slop.y = s._npcs[0].sprite.y
+    const showSpy = vi.spyOn(s._dialogue, 'show')
+    s._cfg.onUpdate(s)
+    expect(showSpy).not.toHaveBeenCalled()
+  })
+
+  it('does not trigger when slop is far away', () => {
+    const s = makeCastTown()
+    s.slop.x = 700
+    s.slop.y = 500  // far from all NPCs
+    s._cfg.onUpdate(s)
+    expect(s._npcs.every(n => !n.triggered)).toBe(true)
+  })
+
+  it('does not trigger while dialogue is active', () => {
+    const s = makeCastTown()
+    s._dialogue.active = true
+    const npc = s._npcs[0]
+    s.slop.x = npc.sprite.x
+    s.slop.y = npc.sprite.y
+    s._cfg.onUpdate(s)
+    expect(npc.triggered).toBe(false)
   })
 })
