@@ -58,7 +58,10 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
   tick(delta) {
     if (this._dashActive > 0) {
       this._dashActive -= delta
-      if (this._dashActive <= 0) this.body.setDrag(900, 900)
+      if (this._dashActive <= 0) {
+        this.body.setDrag(900, 900)
+        this.body.setMaxVelocity(180, 180)
+      }
       this.setTint(Phaser.Math.RND.pick([0xff3300, 0xff6622, 0xffaa44]))
       if (this._dashCooldown > 0) this._dashCooldown -= delta
       if (this._promptCooldown > 0) this._promptCooldown -= delta
@@ -87,8 +90,9 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
   dash() {
     if (!this.hasDash || this._dashCooldown > 0) return false
     this._dashCooldown = 700
-    this._dashActive = 150
-    this.body.setDrag(80, 80)
+    this._dashActive = 180
+    this.body.setDrag(60, 60)
+    this.body.setMaxVelocity(600, 600)
     this.body.setVelocity(this.facing.x * 580, this.facing.y * 580)
     return true
   }

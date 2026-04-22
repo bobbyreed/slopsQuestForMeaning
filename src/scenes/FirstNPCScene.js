@@ -120,12 +120,16 @@ export class FirstNPCScene extends BaseGameScene {
 
     this.events.on('resume', (_sys, data) => {
       this._transitioning = false
-      if (data?.bossFightWon) {
-        this._renderYields()
-      } else {
-        // Player quit the boss fight — dissolve aura and let them roam
-        this._dissolveAura()
+      if (data?.bossFightWon !== undefined) {
+        // Resuming from boss fight — fade camera back in
+        this.cameras.main.fadeIn(400, 0, 0, 0)
+        if (data.bossFightWon) {
+          this._renderYields()
+        } else {
+          this._dissolveAura()
+        }
       }
+      // Resuming from PauseScene (no data) — camera and state are fine as-is
     })
 
     this._initMovementKeys()

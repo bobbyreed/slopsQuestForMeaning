@@ -74,6 +74,7 @@ export class EastScene extends BaseGameScene {
     }).setOrigin(0.5).setDepth(5)
 
     this._initMovementKeys()
+    this._shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
     this._hud = new HUD(this, this.slop)
     this._transitioning  = false
     this._chasmHinted    = false
@@ -128,11 +129,13 @@ export class EastScene extends BaseGameScene {
     this._checkPauseKey()
 
     this.slop.handleInput(this._cursors, this._wasd)
+    if (Phaser.Input.Keyboard.JustDown(this._shiftKey)) this.slop.dash()
     this.slop.tick(delta)
 
     // ── Chasm pushback ───────────────────────────────────────────────────────
     const inChasm = this.slop.x > CHASM_L && this.slop.x < CHASM_R
-    if (inChasm && this.slop.body.speed < 260) {
+    const dashing = this.slop._dashActive > 0
+    if (inChasm && !dashing && this.slop.body.speed < 260) {
       const pushDir = this.slop.x < CHASM_MID ? -1 : 1
       this.slop.body.setVelocityX(pushDir * 280)
       this._showHint(
