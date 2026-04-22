@@ -97,6 +97,7 @@ export class DungeonScene extends BaseGameScene {
     })
     this._eKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E)
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    this._shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
 
     this.events.on('resume', (_sys, data) => {
       if (data?.unlocked) this._openGate()
@@ -228,6 +229,7 @@ export class DungeonScene extends BaseGameScene {
       const proj = this.slop.firePrompt()
       if (proj) { this._prompts.push(proj); Sfx.promptFire(this) }
     }
+    if (Phaser.Input.Keyboard.JustDown(this._shiftKey)) this.slop.dash()
 
     this._checkPromptCollisions()
 

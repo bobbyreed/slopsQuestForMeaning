@@ -73,6 +73,9 @@ export class WorldScene extends BaseGameScene {
     if (this._spawnOrigin === 'dungeon' && this._returnState?.dungeonCleared) {
       this.time.delayedCall(700, () => this._showOneTimeHint("the dungeon is behind you. that counts."))
     }
+    if (this._spawnOrigin === 'dungeon' && this._returnState?.hasDash) {
+      this.time.delayedCall(2200, () => this._showOneTimeHint("SHIFT to dash"))
+    }
     if (this._spawnOrigin === 'shrine' && this._returnState?.hasPrompt && !this._returnState?.dungeonCleared) {
       this.time.delayedCall(800, () => this._showOneTimeHint("press SPACE to fire a word"))
     }
@@ -103,6 +106,7 @@ export class WorldScene extends BaseGameScene {
       down:  Phaser.Input.Keyboard.KeyCodes.S,
     })
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    this._shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
 
     this._enemies = this.physics.add.group()
     const spawnPoints = [[200, 220], [600, 220], [400, 370]]
@@ -226,6 +230,7 @@ export class WorldScene extends BaseGameScene {
       const proj = this.slop.firePrompt()
       if (proj) { this._prompts.push(proj); Sfx.promptFire(this) }
     }
+    if (Phaser.Input.Keyboard.JustDown(this._shiftKey)) this.slop.dash()
 
     this._checkPromptCollisions()
 

@@ -207,7 +207,7 @@ const Phaser = {
     Keyboard: {
       KeyCodes: {
         A: 65, D: 68, W: 87, S: 83,
-        SPACE: 32, ENTER: 13, E: 69, R: 82, ESCAPE: 27,
+        SPACE: 32, ENTER: 13, E: 69, R: 82, ESCAPE: 27, SHIFT: 16,
       },
       JustDown: vi.fn(() => false),
     },

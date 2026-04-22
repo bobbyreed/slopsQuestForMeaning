@@ -18,12 +18,15 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.maxCoins = state.maxCoins ?? 3
     this.hasPrompt = state.hasPrompt ?? false
     this.hasEyes = state.hasEyes ?? false
+    this.hasDash = state.hasDash ?? false
     this.dungeonCleared = state.dungeonCleared ?? false
     this.purchases = state.purchases ? { ...state.purchases } : { smallPurse: false, eyes: false, bigPurse: false }
     this.facing = state.facing ? { ...state.facing } : { x: 0, y: -1 }
 
     this._jitterTimer = Phaser.Math.Between(400, 900)
     this._promptCooldown = 0
+    this._dashCooldown = 0
+    this._dashActive = 0
     this._flickerChance = 0.02
   }
 
@@ -49,6 +52,15 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
   }
 
   tick(delta) {
+    if (this._dashActive > 0) {
+      this._dashActive -= delta
+      if (this._dashActive <= 0) this.body.setDrag(900, 900)
+      this.setTint(Phaser.Math.RND.pick([0xff3300, 0xff6622, 0xffaa44]))
+      if (this._dashCooldown > 0) this._dashCooldown -= delta
+      if (this._promptCooldown > 0) this._promptCooldown -= delta
+      return
+    }
+
     this._jitterTimer -= delta
     if (this._jitterTimer <= 0) {
       this._jitterTimer = Phaser.Math.Between(400, 900)
@@ -65,6 +77,16 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     }
 
     if (this._promptCooldown > 0) this._promptCooldown -= delta
+    if (this._dashCooldown > 0) this._dashCooldown -= delta
+  }
+
+  dash() {
+    if (!this.hasDash || this._dashCooldown > 0) return false
+    this._dashCooldown = 700
+    this._dashActive = 150
+    this.body.setDrag(80, 80)
+    this.body.setVelocity(this.facing.x * 580, this.facing.y * 580)
+    return true
   }
 
   firePrompt() {
@@ -106,6 +128,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
       maxCoins: this.maxCoins,
       hasPrompt: this.hasPrompt,
       hasEyes: this.hasEyes,
+      hasDash: this.hasDash,
       dungeonCleared: this.dungeonCleared,
       purchases: { ...this.purchases },
       facing: { ...this.facing }
