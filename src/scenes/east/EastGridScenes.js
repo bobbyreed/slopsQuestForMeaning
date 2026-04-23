@@ -183,13 +183,16 @@ export class EastC3Scene extends EastGridScene {
   constructor() {
     super('EastC3Scene', {
       bg: 0x020204, wallColor: 0x080810,
-      nav: { north: 'EastB3Scene', south: null, east: null, west: 'EastC2Scene' },
+      nav: { north: 'EastB3Scene', south: 'PixelBossScene', east: null, west: 'EastC2Scene' },
       coins: [[220, 280], [580, 320]],
       enemies: [[280, 200, Enemy], [520, 200, Enemy], [300, 380, Shard], [500, 380, Shard]],
       lines: [
-        '// SECOND DUNGEON',
-        '// the dungeon is not finished.',
-        '// this is a door. the door is locked. the game acknowledges this.',
+        '// SIGNAL CHAMBER — APPROACH',
+        '// something is in there.',
+        '// very small. very fast. the scans show it bouncing.',
+        '// it has been bouncing for a very long time.',
+        '// the sector gate records note: no distress signal.',
+        '// this is probably fine.',
       ],
     })
   }
