@@ -19,6 +19,14 @@ import {
 import { CastTownScene }      from './scenes/east/CastTownScene.js'
 import { SectorScene }        from './scenes/east/SectorScene.js'
 import { PixelBossScene }     from './scenes/east/PixelBossScene.js'
+import {
+  WestA0Scene, WestA1Scene, WestA2Scene, WestA3Scene,
+  WestB0Scene, WestB1Scene, WestB3Scene,
+  WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,
+} from './scenes/west/WestGridScenes.js'
+import { WestGateScene }      from './scenes/west/WestGateScene.js'
+import { ArchiveTownScene }   from './scenes/west/ArchiveTownScene.js'
+import { DuplicateBossScene } from './scenes/west/DuplicateBossScene.js'
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -38,6 +46,10 @@ new Phaser.Game({
     EastA0Scene, EastA1Scene, EastA2Scene, EastA3Scene,
     EastB0Scene, EastB1Scene, CastTownScene, EastB3Scene,
     EastC0Scene, EastC1Scene, EastC2Scene, EastC3Scene,
+    WestGateScene, ArchiveTownScene, DuplicateBossScene,
+    WestA0Scene, WestA1Scene, WestA2Scene, WestA3Scene,
+    WestB0Scene, WestB1Scene, WestB3Scene,
+    WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,
     PauseScene,
   ],
 })

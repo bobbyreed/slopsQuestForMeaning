@@ -24,6 +24,8 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.dungeonCleared = state.dungeonCleared ?? false
     this.sectorCleared       = state.sectorCleared       ?? false
     this.eastDungeonCleared  = state.eastDungeonCleared  ?? false
+    this.westGateCleared     = state.westGateCleared     ?? false
+    this.westDungeonCleared  = state.westDungeonCleared  ?? false
     this.purchases = state.purchases ? { ...state.purchases } : { smallPurse: false, eyes: false, bigPurse: false, grandPurse: false }
     this.facing = state.facing ? { ...state.facing } : { x: 0, y: -1 }
 
@@ -150,6 +152,8 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
       dungeonCleared: this.dungeonCleared,
       sectorCleared:       this.sectorCleared,
       eastDungeonCleared:  this.eastDungeonCleared,
+      westGateCleared:     this.westGateCleared,
+      westDungeonCleared:  this.westDungeonCleared,
       purchases: { ...this.purchases },
       facing: { ...this.facing }
     }

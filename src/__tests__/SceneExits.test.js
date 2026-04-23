@@ -27,6 +27,14 @@ import {
   EastC0Scene, EastC1Scene, EastC2Scene, EastC3Scene,
 } from '../scenes/east/EastGridScenes.js'
 import { CastTownScene }        from '../scenes/east/CastTownScene.js'
+import {
+  WestA0Scene, WestA1Scene, WestA2Scene, WestA3Scene,
+  WestB0Scene, WestB1Scene, WestB3Scene,
+  WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,
+} from '../scenes/west/WestGridScenes.js'
+import { WestGateScene }        from '../scenes/west/WestGateScene.js'
+import { ArchiveTownScene }     from '../scenes/west/ArchiveTownScene.js'
+import { DuplicateBossScene }   from '../scenes/west/DuplicateBossScene.js'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -138,7 +146,10 @@ const SCENE_MANIFEST = [
   },
   {
     name: 'WestScene',
-    exits: [{ method: '_sceneTransition', args: ['WorldScene', {}] }],
+    exits: [
+      { method: '_sceneTransition', args: ['WorldScene', {}] },
+      { method: '_sceneTransition', args: ['WestGateScene', {}] },
+    ],
     makeClean: () => { const s = new WestScene(); s.init({ slopState: { hasEyes: true } }); s.create(); return s },
   },
   {
@@ -218,6 +229,86 @@ const SCENE_MANIFEST = [
     name: 'EastC3Scene (dungeon stub)',
     exits: [{ method: '_sceneTransition', args: ['EastC2Scene', {}] }],
     makeClean: () => { const s = new EastC3Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  // ── West world grid ──────────────────────────────────────────────────────────
+  {
+    name: 'WestGateScene',
+    exits: [
+      { method: '_winTransition', args: [] },
+      { method: '_loseTransition', args: [] },
+    ],
+    makeClean: () => { const s = new WestGateScene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestA0Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestA1Scene', {}] }],
+    makeClean: () => { const s = new WestA0Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestA1Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestA2Scene', {}] }],
+    makeClean: () => { const s = new WestA1Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestA2Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestA3Scene', {}] }],
+    makeClean: () => { const s = new WestA2Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestA3Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestB3Scene', {}] }],
+    makeClean: () => { const s = new WestA3Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestB0Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestB1Scene', {}] }],
+    makeClean: () => { const s = new WestB0Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestB1Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestB2Scene', {}] }],
+    makeClean: () => { const s = new WestB1Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'ArchiveTownScene (WestB2)',
+    exits: [{ method: '_sceneTransition', args: ['WestB3Scene', {}] }],
+    makeClean: () => { const s = new ArchiveTownScene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestB3Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestA3Scene', {}] }],
+    makeClean: () => { const s = new WestB3Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestC0Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestC1Scene', {}] }],
+    makeClean: () => { const s = new WestC0Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestC1Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestC2Scene', {}] }],
+    makeClean: () => { const s = new WestC1Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestC2Scene',
+    exits: [{ method: '_sceneTransition', args: ['WestC3Scene', {}] }],
+    makeClean: () => { const s = new WestC2Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestC3Scene',
+    exits: [
+      { method: '_sceneTransition', args: ['WestC2Scene', {}] },
+      { method: '_sceneTransition', args: ['DuplicateBossScene', {}] },
+    ],
+    makeClean: () => { const s = new WestC3Scene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'DuplicateBossScene',
+    exits: [
+      { method: '_winTransition', args: [] },
+      { method: '_loseTransition', args: [] },
+    ],
+    makeClean: () => { const s = new DuplicateBossScene(); s.init({ slopState: {} }); s.create(); return s },
   },
   // Example of how to add a dead-end room:
   //   { name: 'SomeTerminalScene', deadend: true, makeClean: ..., exits: [] }

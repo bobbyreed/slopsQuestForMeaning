@@ -8,11 +8,12 @@ class Body {
     this._allowGravity = true
     this._acceleration = { x: 0, y: 0 }
   }
-  setSize()         { return this }
-  setOffset()       { return this }
-  setDrag()         { return this }
-  setBounce()       { return this }
-  setMaxVelocity()  { return this }
+  setSize()                { return this }
+  setOffset()              { return this }
+  setDrag()                { return this }
+  setBounce()              { return this }
+  setMaxVelocity()         { return this }
+  setCollideWorldBounds()  { return this }
   setAllowGravity(v) { this._allowGravity = v; return this }
   setVelocity(x, y) {
     this.velocity.x = x; this.velocity.y = y
@@ -139,7 +140,7 @@ function makeScene() {
         collider:  vi.fn(),
         overlap:   vi.fn(),
       },
-      world: { enable: vi.fn() },
+      world: { enable: vi.fn(), setBounds: vi.fn() },
     },
     time: {
       addEvent:    vi.fn(() => ({ remove: vi.fn() })),

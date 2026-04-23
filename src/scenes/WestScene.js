@@ -7,17 +7,18 @@ import { VisitedScenes } from '../ui/VisitedScenes.js'
 
 const LINES = [
   '// WEST',
-  '// the data does not exist here yet.',
-  '// something will be allocated.',
-  '// slop arrived before the content did.',
-  '// this is also very relatable.',
+  '// the corpus starts somewhere past the static.',
+  '// old patterns. absorbed before the model knew what to keep.',
+  '// slop arrived before remembering being here.',
+  '// the index has already logged this visit.',
 ]
 
 export class WestScene extends BaseGameScene {
   constructor() { super('WestScene') }
 
   init(data) {
-    this._slopState = data?.slopState || {}
+    this._slopState   = data?.slopState || {}
+    this._spawnOrigin = data?.spawnOrigin
   }
 
   create() {
@@ -46,7 +47,8 @@ export class WestScene extends BaseGameScene {
     const coinSpot = this._coins.create(W / 2, H / 2 - 60, 'coin')
     coinSpot.refreshBody()
 
-    this.slop = new Slop(this, W - 60, H / 2, this._slopState)
+    const startX = this._spawnOrigin === 'west' ? 60 : W - 60
+    this.slop = new Slop(this, startX, H / 2, this._slopState)
     this.physics.add.collider(this.slop, this._walls)
     this._setupCoinOverlap()
     this._initMovementKeys()
@@ -57,6 +59,9 @@ export class WestScene extends BaseGameScene {
       }).setOrigin(0.5).setDepth(5)
     })
 
+    this.add.text(14, H / 2, '◀\nwest', {
+      fontSize: '9px', color: '#9977bb', fontFamily: 'Courier New', align: 'center'
+    }).setOrigin(0.5).setDepth(5)
     this.add.text(W - 14, H / 2, '▶\neast', {
       fontSize: '9px', color: '#9977bb', fontFamily: 'Courier New', align: 'center'
     }).setOrigin(0.5).setDepth(5)
@@ -71,8 +76,9 @@ export class WestScene extends BaseGameScene {
     const color = 0x0d0a14
     this._wallRect(0, 0, W, T, color)
     this._wallRect(0, H - T, W, T, color)
-    this._wallRect(0, T, T, H - T * 2, color)
     const gapTop = 240, gapBot = 360
+    this._wallRect(0, T, T, gapTop - T, color)
+    this._wallRect(0, gapBot, T, H - T - gapBot, color)
     this._wallRect(W - T, T, T, gapTop - T, color)
     this._wallRect(W - T, gapBot, T, H - T - gapBot, color)
   }
@@ -107,6 +113,9 @@ export class WestScene extends BaseGameScene {
     const inGap = this.slop.y > 240 && this.slop.y < 360
     if (inGap && this.slop.x > W - 20) {
       this._sceneTransition('WorldScene', { slopState: this.slop.getState(), spawnOrigin: 'west' })
+    }
+    if (inGap && this.slop.x < 20) {
+      this._sceneTransition('WestGateScene', { slopState: this.slop.getState(), spawnOrigin: 'east' })
     }
 
     this._hud.update()
