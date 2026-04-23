@@ -53,12 +53,12 @@ export class WestScene extends BaseGameScene {
 
     LINES.forEach((line, i) => {
       this.add.text(W / 2, 110 + i * 22, line, {
-        fontSize: '10px', color: '#331144', fontFamily: 'Courier New'
+        fontSize: '10px', color: '#9977bb', fontFamily: 'Courier New'
       }).setOrigin(0.5).setDepth(5)
     })
 
     this.add.text(W - 14, H / 2, '▶\neast', {
-      fontSize: '9px', color: '#331144', fontFamily: 'Courier New', align: 'center'
+      fontSize: '9px', color: '#9977bb', fontFamily: 'Courier New', align: 'center'
     }).setOrigin(0.5).setDepth(5)
 
     this._hud = new HUD(this, this.slop)

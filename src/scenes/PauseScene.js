@@ -14,7 +14,7 @@ const BG      = 0x0c0c14
 const BORDER  = 0x334466
 const ACCENT  = 0x88aaff
 const TEXT_HI = '#aaccff'
-const TEXT_LO = '#445577'
+const TEXT_LO = '#7a9acc'
 const TEXT_WH = '#ddeeff'
 const TEXT_GN = '#88cc88'
 const TEXT_DM = '#334455'
@@ -471,7 +471,7 @@ export class PauseScene extends Phaser.Scene {
 
       const lbl = this.add.text(cx, cy + 8, node.label, {
         fontSize: '6px', fontFamily: 'Courier New',
-        color: isCurrent ? TEXT_HI : isVisited ? '#667788' : '#1e2030',
+        color: isCurrent ? TEXT_HI : isVisited ? '#7a9acc' : '#2a3050',
       }).setOrigin(0.5, 0).setDepth(12)
 
       if (isCurrent) {

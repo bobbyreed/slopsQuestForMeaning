@@ -67,10 +67,10 @@ export class EastScene extends BaseGameScene {
 
     // Direction hints
     this.add.text(14, H / 2, '◀\nworld', {
-      fontSize: '9px', color: '#3d2a14', fontFamily: 'Courier New', align: 'center',
+      fontSize: '9px', color: '#9a8060', fontFamily: 'Courier New', align: 'center',
     }).setOrigin(0.5).setDepth(5)
     this.add.text(W - 14, H / 2, '▶\neast', {
-      fontSize: '9px', color: '#3d2a14', fontFamily: 'Courier New', align: 'center',
+      fontSize: '9px', color: '#9a8060', fontFamily: 'Courier New', align: 'center',
     }).setOrigin(0.5).setDepth(5)
 
     this._initMovementKeys()

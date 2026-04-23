@@ -210,7 +210,7 @@ export class NorthShrineScene extends BaseGameScene {
     }).setOrigin(1, 0).setScrollFactor(0).setDepth(101)
 
     ui.sep = this.add.text(24, PY + 28, '─'.repeat(59), {
-      fontSize: '10px', color: '#2a1e3a', fontFamily: 'Courier New'
+      fontSize: '10px', color: '#8a7aaa', fontFamily: 'Courier New'
     }).setScrollFactor(0).setDepth(101)
 
     this._allRows = this._buildAllRows()

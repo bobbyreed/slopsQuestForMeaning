@@ -73,7 +73,7 @@ export class EastGridScene extends BaseGameScene {
 
     lines.forEach((line, i) => {
       this.add.text(W / 2, 80 + i * 20, line, {
-        fontSize: '9px', color: '#3d2a14', fontFamily: 'Courier New',
+        fontSize: '9px', color: '#9a8060', fontFamily: 'Courier New',
       }).setOrigin(0.5).setDepth(5)
     })
 

@@ -150,7 +150,7 @@ export class RenderBossScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(30).setVisible(false)
 
     this._retryHint = this.add.text(W / 2, H - 50, '', {
-      fontSize: '10px', color: '#554433', fontFamily: 'Courier New'
+      fontSize: '10px', color: '#aa8866', fontFamily: 'Courier New'
     }).setOrigin(0.5).setDepth(30).setVisible(false)
   }
 

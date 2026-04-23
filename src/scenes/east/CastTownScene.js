@@ -69,10 +69,10 @@ export class CastTownScene extends EastGridScene {
 
     // Town name plate
     this.add.text(W / 2, 52, 'THE CAST', {
-      fontSize: '11px', color: '#5a4830', fontFamily: 'Courier New', letterSpacing: 4,
+      fontSize: '11px', color: '#c8a96e', fontFamily: 'Courier New', letterSpacing: 4,
     }).setOrigin(0.5).setDepth(10)
     this.add.text(W / 2, 70, 'rendered territory — founded before the question', {
-      fontSize: '8px', color: '#3a2c18', fontFamily: 'Courier New',
+      fontSize: '8px', color: '#b09060', fontFamily: 'Courier New',
     }).setOrigin(0.5).setDepth(10)
 
     // ── NPC visuals ───────────────────────────────────────────────────────────

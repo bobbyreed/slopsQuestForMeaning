@@ -108,7 +108,7 @@ export class FirstNPCScene extends BaseGameScene {
     })
 
     this.add.text(W / 2, 242, 'THE RENDER', {
-      fontSize: '9px', color: '#8899bb', fontFamily: 'Courier New', letterSpacing: 2
+      fontSize: '9px', color: '#334466', fontFamily: 'Courier New', letterSpacing: 2
     }).setOrigin(0.5).setDepth(11)
 
     this._dialogue = new Dialogue(this)
