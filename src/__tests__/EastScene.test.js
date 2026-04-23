@@ -44,12 +44,12 @@ describe('EastScene', () => {
   })
 
   describe('_enterEastWorld', () => {
-    it('transitions to EastB0Scene', () => {
+    it('transitions to SectorScene', () => {
       const s = makeScene()
       s._enterEastWorld()
       const fadeCb = s.cameras.main.fade.mock.calls[0]?.[5]
       if (fadeCb) fadeCb(null, 1)
-      expect(s.scene.start).toHaveBeenCalledWith('EastB0Scene', expect.objectContaining({ spawnOrigin: 'west' }))
+      expect(s.scene.start).toHaveBeenCalledWith('SectorScene', expect.objectContaining({ spawnOrigin: 'west' }))
     })
   })
 
@@ -108,7 +108,7 @@ describe('EastScene', () => {
       s.update(null, 16)
       const fadeCb = s.cameras.main.fade.mock.calls[0]?.[5]
       if (fadeCb) fadeCb(null, 1)
-      expect(s.scene.start).toHaveBeenCalledWith('EastB0Scene', expect.anything())
+      expect(s.scene.start).toHaveBeenCalledWith('SectorScene', expect.anything())
     })
   })
 })

@@ -204,9 +204,10 @@ const Phaser = {
   Physics: { Arcade: { Sprite: ArcadeSprite } },
   Scene,
   Math: {
-    Between:  (min, _max) => min,
-    RND: { pick: arr => arr[0] },
-    Distance: { Between: (x1, y1, x2, y2) => Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) },
+    Between:    (min, _max) => min,
+    DegToRad:   (deg) => (deg * Math.PI) / 180,
+    RND:        { pick: arr => arr[0] },
+    Distance:   { Between: (x1, y1, x2, y2) => Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) },
   },
   Input: {
     Keyboard: {

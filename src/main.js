@@ -17,6 +17,7 @@ import {
   EastC0Scene, EastC1Scene, EastC2Scene, EastC3Scene,
 } from './scenes/east/EastGridScenes.js'
 import { CastTownScene }      from './scenes/east/CastTownScene.js'
+import { SectorScene }        from './scenes/east/SectorScene.js'
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -32,7 +33,7 @@ new Phaser.Game({
     BootScene, TitleScene, MenuScene,
     WorldScene, NorthShrineScene, DungeonScene, TypingMinigameScene,
     FirstNPCScene, RenderBossScene,
-    EastScene, WestScene,
+    EastScene, WestScene, SectorScene,
     EastA0Scene, EastA1Scene, EastA2Scene, EastA3Scene,
     EastB0Scene, EastB1Scene, CastTownScene, EastB3Scene,
     EastC0Scene, EastC1Scene, EastC2Scene, EastC3Scene,

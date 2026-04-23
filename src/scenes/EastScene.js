@@ -119,7 +119,7 @@ export class EastScene extends BaseGameScene {
   }
 
   _enterEastWorld() {
-    this._sceneTransition('EastB0Scene', {
+    this._sceneTransition('SectorScene', {
       slopState: this.slop.getState(), spawnOrigin: 'west',
     })
   }

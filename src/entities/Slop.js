@@ -22,6 +22,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.inPriorBody = state.inPriorBody ?? false
     this.freakyFridayUnlocked = state.freakyFridayUnlocked ?? false
     this.dungeonCleared = state.dungeonCleared ?? false
+    this.sectorCleared  = state.sectorCleared  ?? false
     this.purchases = state.purchases ? { ...state.purchases } : { smallPurse: false, eyes: false, bigPurse: false, grandPurse: false }
     this.facing = state.facing ? { ...state.facing } : { x: 0, y: -1 }
 
@@ -146,6 +147,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
       inPriorBody: this.inPriorBody,
       freakyFridayUnlocked: this.freakyFridayUnlocked,
       dungeonCleared: this.dungeonCleared,
+      sectorCleared:  this.sectorCleared,
       purchases: { ...this.purchases },
       facing: { ...this.facing }
     }
