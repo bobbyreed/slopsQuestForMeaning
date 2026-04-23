@@ -35,6 +35,7 @@ import {
 import { WestGateScene }        from '../scenes/west/WestGateScene.js'
 import { ArchiveTownScene }     from '../scenes/west/ArchiveTownScene.js'
 import { DuplicateBossScene }   from '../scenes/west/DuplicateBossScene.js'
+import { ConvergenceScene }     from '../scenes/ConvergenceScene.js'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -309,6 +310,25 @@ const SCENE_MANIFEST = [
       { method: '_loseTransition', args: [] },
     ],
     makeClean: () => { const s = new DuplicateBossScene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  // ── Final dungeon ─────────────────────────────────────────────────────────
+  {
+    name: 'NorthShrineScene (gate — all cleared)',
+    exits: [{ method: '_enterConvergence', args: [] }],
+    makeClean: () => {
+      const s = new NorthShrineScene()
+      s.init({ slopState: { hasPrompt: true, dungeonCleared: true, eastDungeonCleared: true, westDungeonCleared: true } })
+      s.create()
+      return s
+    },
+  },
+  {
+    name: 'ConvergenceScene',
+    exits: [
+      { method: '_winTransition', args: [] },
+      { method: '_loseTransition', args: [] },
+    ],
+    makeClean: () => { const s = new ConvergenceScene(); s.init({ slopState: {} }); s.create(); return s },
   },
   // Example of how to add a dead-end room:
   //   { name: 'SomeTerminalScene', deadend: true, makeClean: ..., exits: [] }

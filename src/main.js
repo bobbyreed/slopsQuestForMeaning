@@ -11,6 +11,7 @@ import { FirstNPCScene }      from './scenes/FirstNPCScene.js'
 import { EastScene }          from './scenes/EastScene.js'
 import { WestScene }          from './scenes/WestScene.js'
 import { RenderBossScene }    from './scenes/RenderBossScene.js'
+import { ConvergenceScene }  from './scenes/ConvergenceScene.js'
 import {
   EastA0Scene, EastA1Scene, EastA2Scene, EastA3Scene,
   EastB0Scene, EastB1Scene, EastB3Scene,
@@ -42,7 +43,7 @@ new Phaser.Game({
     BootScene, TitleScene, MenuScene,
     WorldScene, NorthShrineScene, DungeonScene, TypingMinigameScene,
     FirstNPCScene, RenderBossScene,
-    EastScene, WestScene, SectorScene, PixelBossScene,
+    EastScene, WestScene, SectorScene, PixelBossScene, ConvergenceScene,
     EastA0Scene, EastA1Scene, EastA2Scene, EastA3Scene,
     EastB0Scene, EastB1Scene, CastTownScene, EastB3Scene,
     EastC0Scene, EastC1Scene, EastC2Scene, EastC3Scene,

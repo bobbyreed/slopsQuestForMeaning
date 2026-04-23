@@ -67,6 +67,76 @@ describe('NorthShrineScene', () => {
     })
   })
 
+  describe("prior's gate", () => {
+    function allClearedScene(extra = {}) {
+      const s = makeShrine({
+        slopState: {
+          hasPrompt: true,
+          dungeonCleared: true,
+          eastDungeonCleared: true,
+          westDungeonCleared: true,
+          ...extra,
+        },
+      })
+      s.create()
+      return s
+    }
+
+    it('_allCleared is true when all three dungeons cleared', () => {
+      const s = allClearedScene()
+      expect(s._allCleared).toBe(true)
+    })
+
+    it('_allCleared is false if any dungeon is missing', () => {
+      const s = makeShrine({ slopState: { hasPrompt: true, dungeonCleared: true, eastDungeonCleared: true } })
+      expect(s._allCleared).toBe(false)
+    })
+
+    it('_finalDungeonCleared is false when not cleared', () => {
+      const s = allClearedScene()
+      expect(s._finalDungeonCleared).toBe(false)
+    })
+
+    it('_finalDungeonCleared is true when set', () => {
+      const s = allClearedScene({ finalDungeonCleared: true })
+      expect(s._finalDungeonCleared).toBe(true)
+    })
+
+    it('spawns gate visuals when allCleared', () => {
+      const s = allClearedScene()
+      expect(s._gateX).toBeDefined()
+      expect(s._gateY).toBeDefined()
+    })
+
+    it('does not spawn gate when not all cleared', () => {
+      const s = makeShrine({ slopState: { hasPrompt: true, dungeonCleared: true } })
+      s.create()
+      expect(s._gateX).toBeUndefined()
+    })
+
+    it('_triggerGateDialogue sets _gateTriggered', () => {
+      const s = allClearedScene()
+      s._triggerGateDialogue()
+      expect(s._gateTriggered).toBe(true)
+    })
+
+    it('_enterConvergence transitions to ConvergenceScene', () => {
+      const s = allClearedScene()
+      s._enterConvergence()
+      const fadeCb = s.cameras.main.fade.mock.calls[0]?.[5]
+      if (fadeCb) fadeCb(null, 1)
+      expect(s.scene.start).toHaveBeenCalledWith('ConvergenceScene', expect.any(Object))
+    })
+
+    it('gate uses return dialogue when finalDungeonCleared', () => {
+      const s = allClearedScene({ finalDungeonCleared: true })
+      s._returnToWorld = vi.fn()
+      s._triggerGateDialogue()
+      // Should show dialogue (not immediately call _returnToWorld — dialogue runs)
+      expect(s._gateTriggered).toBe(true)
+    })
+  })
+
   describe('shop — _selectShopRow', () => {
     function shopScene(coinCount = 10) {
       const s = makeShrine({ slopState: { hasPrompt: true, coinCount, maxCoins: 3, purchases: { smallPurse: false, eyes: false, bigPurse: false } } })

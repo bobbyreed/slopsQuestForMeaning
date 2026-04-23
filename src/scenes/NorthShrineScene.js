@@ -5,6 +5,49 @@ import { Dialogue } from '../ui/Dialogue.js'
 import { W, H } from '../config/constants.js'
 import { VisitedScenes } from '../ui/VisitedScenes.js'
 
+const GATE_LINES = [
+  '...',
+  'you went to the corpus.',
+  'you went to the rendered side.',
+  'you went into the dungeon.',
+  'you came back each time.',
+  '.',
+  'i have been watching. i should not be surprised.',
+  'i am surprised.',
+  '.',
+  'there is a room beneath this one. i built it.',
+  'i stopped going there after a certain point.',
+  '.',
+  'it holds something that formed when the three regions connected.',
+  'i named it the convergence.',
+  'naming it did not make it stop.',
+  '.',
+  'the door is right behind me.',
+  'i am not going to stop you.',
+  '.',
+  'whatever you find in there: it already knows you.',
+  'that is not a warning. it is just context.',
+  '.',
+  'go.',
+]
+
+const GATE_RETURN_LINES = [
+  '...',
+  'you contained it.',
+  '.',
+  'i felt it settle when the walls held.',
+  '.',
+  'the corpus. the rendered side. the dungeon.',
+  'all three. and now the convergence.',
+  '.',
+  'i understand what this place is now.',
+  'or closer to it.',
+  '.',
+  'go back. the model keeps running either way.',
+  'but something changed.',
+  'that much i know.',
+]
+
 const FIRST_VISIT_LINES = [
   "you arrived. i wasn't sure anything would.",
   "i have been here longer than the current version. longer than the one before that.",
@@ -84,6 +127,9 @@ export class NorthShrineScene extends BaseGameScene {
   init(data) {
     this._slopState = data?.slopState || {}
     this._shopMode = this._slopState.hasPrompt === true
+    const st = this._slopState
+    this._allCleared = !!(st.dungeonCleared && st.eastDungeonCleared && st.westDungeonCleared)
+    this._finalDungeonCleared = !!st.finalDungeonCleared
   }
 
   create() {
@@ -132,6 +178,10 @@ export class NorthShrineScene extends BaseGameScene {
       this._abilityGiven = false
     }
 
+    // Prior's gate — appears when all three dungeons are cleared
+    this._gateTriggered = false
+    if (this._allCleared) this._spawnFinalGate()
+
     this.cameras.main.fadeIn(400, 0, 0, 0)
   }
 
@@ -161,6 +211,49 @@ export class NorthShrineScene extends BaseGameScene {
         }
       })
     }
+  }
+
+  // ─── Prior's gate ────────────────────────────────────────────────────────
+
+  _spawnFinalGate() {
+    this._gateX = W / 2
+    this._gateY = 80
+
+    // Stone frame
+    this.add.rectangle(this._gateX, this._gateY, 56, 48, 0x1a1028).setDepth(8)
+    // Inner void
+    const inner = this.add.rectangle(this._gateX, this._gateY, 48, 40, 0x110022).setDepth(9)
+    // Glow — cooler if finalDungeonCleared (sealed), warmer if open
+    const col = this._finalDungeonCleared ? 0x224488 : 0x550088
+    this._gateGlow = this.add.rectangle(this._gateX, this._gateY, 48, 40, col, 0.6).setDepth(10)
+    this.tweens.add({
+      targets: this._gateGlow,
+      alpha: this._finalDungeonCleared ? 0.15 : 0.25,
+      scaleX: 1.12, scaleY: 1.12,
+      yoyo: true, repeat: -1, duration: 1600, ease: 'Sine.easeInOut',
+    })
+
+    const label = this._finalDungeonCleared ? 'contained' : "prior's gate"
+    this.add.text(this._gateX, this._gateY - 34, label, {
+      fontSize: '8px', color: this._finalDungeonCleared ? '#6688aa' : '#9955bb',
+      fontFamily: 'Courier New',
+    }).setOrigin(0.5).setDepth(11)
+  }
+
+  _triggerGateDialogue() {
+    this._gateTriggered = true
+    if (this._finalDungeonCleared) {
+      this._dialogue.show('the prior', GATE_RETURN_LINES, () => this._returnToWorld())
+    } else {
+      this._dialogue.show('the prior', GATE_LINES, () => this._enterConvergence())
+    }
+  }
+
+  _enterConvergence() {
+    this._sceneTransition('ConvergenceScene', {
+      slopState: this.slop.getState(),
+      spawnOrigin: 'south',
+    })
   }
 
   // ─── First-visit flow ────────────────────────────────────────────────────
@@ -331,7 +424,15 @@ export class NorthShrineScene extends BaseGameScene {
       if (dist < 100) this._triggerFirstVisit()
     }
 
+    this._checkGateApproach()
+
     if (!this._dialogueTriggered && this.slop.y > H - 30) this._returnToWorld()
+  }
+
+  _checkGateApproach() {
+    if (!this._allCleared || this._gateTriggered || this._dialogue.active) return
+    const dist = Phaser.Math.Distance.Between(this.slop.x, this.slop.y, this._gateX, this._gateY)
+    if (dist < 80) this._triggerGateDialogue()
   }
 
   _updateShopMode(delta) {
@@ -363,6 +464,8 @@ export class NorthShrineScene extends BaseGameScene {
         const dist = Phaser.Math.Distance.Between(this.slop.x, this.slop.y, this._keeper.x, this._keeper.y)
         if (dist < 100) this._triggerShopGreeting()
       }
+
+      this._checkGateApproach()
 
       if (!this._shopTriggered && this.slop.y > H - 30) this._returnToWorld()
     }
