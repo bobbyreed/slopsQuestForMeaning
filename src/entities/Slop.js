@@ -19,6 +19,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.hasPrompt = state.hasPrompt ?? false
     this.hasEyes = state.hasEyes ?? false
     this.hasDash = state.hasDash ?? false
+    this.hasCorrupt = state.hasCorrupt ?? false
     this.inPriorBody = state.inPriorBody ?? false
     this.freakyFridayUnlocked = state.freakyFridayUnlocked ?? false
     this.dungeonCleared = state.dungeonCleared ?? false
@@ -34,6 +35,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this._promptCooldown = 0
     this._dashCooldown = 0
     this._dashActive = 0
+    this._corruptCooldown = 0
     this._flickerChance = 0.02
 
     this.applyTexture()
@@ -70,6 +72,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
       this.setTint(Phaser.Math.RND.pick([0xff3300, 0xff6622, 0xffaa44]))
       if (this._dashCooldown > 0) this._dashCooldown -= delta
       if (this._promptCooldown > 0) this._promptCooldown -= delta
+      if (this._corruptCooldown > 0) this._corruptCooldown -= delta
       return
     }
 
@@ -90,6 +93,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
 
     if (this._promptCooldown > 0) this._promptCooldown -= delta
     if (this._dashCooldown > 0) this._dashCooldown -= delta
+    if (this._corruptCooldown > 0) this._corruptCooldown -= delta
   }
 
   dash() {
@@ -99,6 +103,12 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.body.setDrag(60, 60)
     this.body.setMaxVelocity(600, 600)
     this.body.setVelocity(this.facing.x * 580, this.facing.y * 580)
+    return true
+  }
+
+  corrupt() {
+    if (!this.hasCorrupt || this._corruptCooldown > 0) return false
+    this._corruptCooldown = 2500
     return true
   }
 
@@ -148,6 +158,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
       hasPrompt: this.hasPrompt,
       hasEyes: this.hasEyes,
       hasDash: this.hasDash,
+      hasCorrupt: this.hasCorrupt,
       inPriorBody: this.inPriorBody,
       freakyFridayUnlocked: this.freakyFridayUnlocked,
       dungeonCleared: this.dungeonCleared,

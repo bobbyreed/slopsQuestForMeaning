@@ -4,16 +4,16 @@ import { HUD } from '../ui/HUD.js'
 
 function makeHUD(slopOverrides = {}) {
   const scene = makeScene()
-  const slop = { coinCount: 0, maxCoins: 3, hasPrompt: false, ...slopOverrides }
+  const slop = { coinCount: 0, maxCoins: 3, hasPrompt: false, hasCorrupt: false, _corruptCooldown: 0, ...slopOverrides }
   const hud = new HUD(scene, slop)
   return { hud, slop, scene }
 }
 
 describe('HUD', () => {
   describe('constructor', () => {
-    it('creates coin and prompt labels via scene.add.text', () => {
+    it('creates coin, prompt, and corrupt labels via scene.add.text', () => {
       const { scene } = makeHUD()
-      expect(scene.add.text).toHaveBeenCalledTimes(2)
+      expect(scene.add.text).toHaveBeenCalledTimes(3)
     })
   })
 
@@ -50,11 +50,32 @@ describe('HUD', () => {
   })
 
   describe('destroy', () => {
-    it('destroys both labels', () => {
+    it('destroys all labels', () => {
       const { hud } = makeHUD()
       hud.destroy()
       expect(hud.coinLabel.active).toBe(false)
       expect(hud.promptLabel.active).toBe(false)
+      expect(hud.corruptLabel.active).toBe(false)
+    })
+  })
+
+  describe('corrupt label', () => {
+    it('shows [Q] corrupt when hasCorrupt is true and cooldown is 0', () => {
+      const { hud } = makeHUD({ hasCorrupt: true, _corruptCooldown: 0 })
+      hud.update()
+      expect(hud.corruptLabel._text).toBe('[Q] corrupt')
+    })
+
+    it('shows [Q] ... when hasCorrupt is true and cooldown is active', () => {
+      const { hud } = makeHUD({ hasCorrupt: true, _corruptCooldown: 1200 })
+      hud.update()
+      expect(hud.corruptLabel._text).toBe('[Q] ...')
+    })
+
+    it('hides corrupt label when hasCorrupt is false', () => {
+      const { hud } = makeHUD({ hasCorrupt: false })
+      hud.update()
+      expect(hud.corruptLabel._text).toBe('')
     })
   })
 })

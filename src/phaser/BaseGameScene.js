@@ -12,6 +12,7 @@ export class BaseGameScene extends Phaser.Scene {
       down:  Phaser.Input.Keyboard.KeyCodes.S,
     })
     this._enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
+    this._qKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q)
   }
 
   _checkPauseKey() {
@@ -98,6 +99,40 @@ export class BaseGameScene extends Phaser.Scene {
         }
       }
     }
+  }
+
+  // Short-range glitch pulse that destroys corruptible tiles within RANGE px.
+  _activateCorrupt() {
+    const RANGE = 100
+    const sx = this.slop.x
+    const sy = this.slop.y
+
+    const ring = this.add.circle(sx, sy, 10, 0xcc33ff, 0.85).setDepth(15)
+    this.tweens.add({
+      targets: ring,
+      scaleX: RANGE / 5, scaleY: RANGE / 5,
+      alpha: 0,
+      duration: 380,
+      ease: 'Cubic.easeOut',
+      onComplete: () => ring.destroy(),
+    })
+
+    if (this._corruptibles) {
+      this._corruptibles.getChildren().slice().forEach(tile => {
+        if (!tile.active) return
+        const dist = Phaser.Math.Distance.Between(sx, sy, tile.x, tile.y)
+        if (dist > RANGE) return
+        const flash = this.add.rectangle(tile.x, tile.y, tile.width, tile.height, 0xff33ff, 0.85).setDepth(20)
+        this.tweens.add({
+          targets: flash, alpha: 0, scaleX: 2.2, scaleY: 2.2,
+          duration: 340, ease: 'Cubic.easeOut',
+          onComplete: () => flash.destroy(),
+        })
+        tile.destroy()
+      })
+    }
+
+    Sfx.corrupt(this)
   }
 
   // Fades out and starts another scene. Auto-saves slopState before leaving.

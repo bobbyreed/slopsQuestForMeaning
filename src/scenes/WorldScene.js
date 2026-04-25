@@ -78,13 +78,20 @@ export class WorldScene extends BaseGameScene {
     if (this._spawnOrigin === 'dungeon' && this._returnState?.hasDash) {
       this.time.delayedCall(2200, () => this._showOneTimeHint("SHIFT to dash"))
     }
+    if (this._spawnOrigin === 'east' && this._returnState?.hasCorrupt) {
+      this.time.delayedCall(1800, () => this._showOneTimeHint('[Q] corrupt — try the dark tiles'))
+    }
     if (this._spawnOrigin === 'shrine' && this._returnState?.hasPrompt && !this._returnState?.dungeonCleared) {
       this.time.delayedCall(800, () => this._showOneTimeHint("press SPACE to fire a word"))
     }
 
     this._hud = new HUD(this, this.slop)
 
+    this._corruptibles = this.physics.add.staticGroup()
+    this._buildCorruptibles()
+
     this.physics.add.collider(this.slop, this._walls)
+    this.physics.add.collider(this.slop, this._corruptibles)
     this.physics.add.overlap(this.slop, this._coins, this._pickupCoin, null, this)
 
     this.add.text(DOOR_X, 22, '▲ north', {
@@ -103,6 +110,7 @@ export class WorldScene extends BaseGameScene {
     this._initMovementKeys()
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
     this._shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
+    // _qKey added in BaseGameScene._initMovementKeys()
 
     this._enemies = this.physics.add.group()
     const spawnPoints = [[200, 220], [600, 220], [400, 370]]
@@ -117,6 +125,23 @@ export class WorldScene extends BaseGameScene {
     this._dropPending = false
     this._slopHitTimer = 0
     this._prompts = []
+  }
+
+  _buildCorruptibles() {
+    const C = 0x440055
+    // Two glitch-matter tiles flanking the lower-center obstacle.
+    // Destroying them opens up easier cross-routes once you have CORRUPT.
+    ;[
+      [228, 376, 32, 48],
+      [540, 376, 32, 48],
+    ].forEach(([x, y, w, h]) => {
+      const rect = this.add.rectangle(x + w / 2, y + h / 2, w, h, C)
+      this.physics.add.existing(rect, true)
+      this._corruptibles.add(rect)
+      this.add.text(x + w / 2, y - 6, '◈', {
+        fontSize: '9px', color: '#882299', fontFamily: 'Courier New',
+      }).setOrigin(0.5).setDepth(5)
+    })
   }
 
   _buildWalls(hasEyes = false) {
@@ -220,6 +245,9 @@ export class WorldScene extends BaseGameScene {
       if (proj) { this._prompts.push(proj); Sfx.promptFire(this) }
     }
     if (Phaser.Input.Keyboard.JustDown(this._shiftKey)) this.slop.dash()
+    if (Phaser.Input.Keyboard.JustDown(this._qKey)) {
+      if (this.slop.corrupt()) this._activateCorrupt()
+    }
 
     this._checkPromptCollisions()
 

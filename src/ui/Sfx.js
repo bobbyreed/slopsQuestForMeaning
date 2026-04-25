@@ -66,4 +66,21 @@ export const Sfx = {
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1)
     osc.start(t); osc.stop(t + 0.12)
   },
+
+  corrupt(scene) {
+    const ctx = this._ctx(scene)
+    if (!ctx) return
+    const t = ctx.currentTime
+    ;[440, 220, 330, 110].forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.type = 'square'
+      osc.frequency.setValueAtTime(freq, t + i * 0.04)
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.25, t + i * 0.04 + 0.16)
+      gain.gain.setValueAtTime(0.055, t + i * 0.04)
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.04 + 0.19)
+      osc.start(t + i * 0.04); osc.stop(t + i * 0.04 + 0.2)
+    })
+  },
 }

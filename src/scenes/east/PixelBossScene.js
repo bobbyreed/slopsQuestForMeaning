@@ -486,6 +486,7 @@ export class PixelBossScene extends BaseGameScene {
     const st = {
       ...this._slopState,
       eastDungeonCleared: true,
+      hasCorrupt: true,
       coinCount: Math.min(
         (this._slopState.coinCount ?? 0) + 5,
         this._slopState.maxCoins ?? 3

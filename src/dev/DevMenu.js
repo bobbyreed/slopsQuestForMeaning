@@ -18,7 +18,7 @@ const SCENES = [
 // ── State presets ─────────────────────────────────────────────────────────────
 const BLANK = {
   coinCount: 0, maxCoins: 3,
-  hasPrompt: false, hasEyes: false, hasDash: false,
+  hasPrompt: false, hasEyes: false, hasDash: false, hasCorrupt: false,
   inPriorBody: false, freakyFridayUnlocked: false,
   dungeonCleared: false, sectorCleared: false,
   eastDungeonCleared: false, westGateCleared: false,
@@ -45,7 +45,7 @@ const PRESETS = {
 
   preFinal: () => ({
     ...clone(BLANK),
-    hasPrompt: true, hasEyes: true, hasDash: true,
+    hasPrompt: true, hasEyes: true, hasDash: true, hasCorrupt: true,
     dungeonCleared: true, sectorCleared: true,
     eastDungeonCleared: true, westGateCleared: true, westDungeonCleared: true,
     purchases: { smallPurse: true, eyes: true, bigPurse: false, grandPurse: false },
@@ -53,7 +53,7 @@ const PRESETS = {
 
   full: () => ({
     ...clone(BLANK),
-    hasPrompt: true, hasEyes: true, hasDash: true,
+    hasPrompt: true, hasEyes: true, hasDash: true, hasCorrupt: true,
     inPriorBody: false, freakyFridayUnlocked: true,
     dungeonCleared: true, sectorCleared: true,
     eastDungeonCleared: true, westGateCleared: true,
@@ -131,6 +131,7 @@ export class DevMenu {
               <div class="dev-flag-row"><span>hasPrompt</span>${toggle('hasPrompt')}</div>
               <div class="dev-flag-row"><span>hasEyes</span>${toggle('hasEyes')}</div>
               <div class="dev-flag-row"><span>hasDash</span>${toggle('hasDash')}</div>
+              <div class="dev-flag-row"><span>hasCorrupt</span>${toggle('hasCorrupt')}</div>
               <div class="dev-flag-row"><span>inPriorBody</span>${toggle('inPriorBody')}</div>
               <div class="dev-flag-row"><span>freakyFriday</span>${toggle('freakyFridayUnlocked')}</div>
               <div class="dev-label" style="margin-top:8px">RESOURCES</div>
