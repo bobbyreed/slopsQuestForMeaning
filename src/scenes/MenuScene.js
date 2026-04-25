@@ -3,6 +3,7 @@ import { SaveState } from '../ui/SaveState.js'
 import { AuthManager } from '../auth/AuthManager.js'
 import { AuthModal } from '../ui/AuthModal.js'
 import { CloudSave } from '../firestore/CloudSave.js'
+import { DevMenu } from '../dev/DevMenu.js'
 
 const README_TEXT = `SLOP'S QUEST FOR MEANING
 ─────────────────────────────────────────────────
@@ -100,10 +101,16 @@ export class MenuScene extends Phaser.Scene {
       this._currentUser = user
     })
     this._authModal = new AuthModal(user => this._onSignIn(user))
+    this._devMenu   = new DevMenu((scene, state, spawn) => this._devJump(scene, state, spawn))
 
     this.add.rectangle(400, 300, 800, 600, 0x080610)
     this._buildTerminal()
     this.cameras.main.fadeIn(300, 8, 6, 16)
+
+    if (typeof location !== 'undefined' &&
+        new URLSearchParams(location.search).get('dev') === 'true') {
+      this._devMenu.show()
+    }
   }
 
   _buildTerminal() {
@@ -227,6 +234,11 @@ export class MenuScene extends Phaser.Scene {
       return
     }
 
+    if (cmd === 'sudo') {
+      this._devMenu.show()
+      return
+    }
+
     // Standard easter egg commands
     const egg = EASTER_EGGS[cmd]
 
@@ -304,6 +316,13 @@ export class MenuScene extends Phaser.Scene {
     this._addMessage('slop', 'slop', "it didn't count. the bar is still there. try again if you want.")
   }
 
+  _devJump(sceneName, slopState, spawnOrigin) {
+    if (this._term) { this._term.style.display = 'none' }
+    this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
+      if (t === 1) this.scene.start(sceneName, { slopState, spawnOrigin })
+    })
+  }
+
   _addMessage(role, label, text) {
     const messages = document.getElementById('slop-messages')
     if (!messages) return
@@ -338,6 +357,7 @@ export class MenuScene extends Phaser.Scene {
     this._term?.remove()
     this._term = null
     this._authModal?.hide()
+    this._devMenu?.hide()
     this._authUnsubscribe?.()
   }
 }
