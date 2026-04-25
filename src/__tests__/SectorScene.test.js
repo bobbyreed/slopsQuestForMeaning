@@ -323,6 +323,103 @@ describe('SectorScene — sealing', () => {
   })
 })
 
+// FX=40 FY=78 CELL=20  →  wx = 40 + col*20 + 10,  wy = 78 + row*20 + 10
+function makeVisual() {
+  const v = { setSize: null, setPosition: vi.fn(), destroy: vi.fn() }
+  v.setSize = vi.fn(() => v)
+  return v
+}
+
+describe('SectorScene — _tickWalls snap correctness', () => {
+  it('vertical wall does NOT snap to partial horizontal wall outside its column span', () => {
+    const s = makeScene()
+    s._gameActive = true
+
+    // Horizontal wall at row 5 ending at col 10 → toX = 40 + 10*20 + 10 = 250
+    s._sealedMeta.push({ row: 5, toX: 250 })
+
+    // Vertical wall at col 15 (wx = 40 + 15*20 + 10 = 350) — beyond toX=250
+    // Position its tip just above row-5 line (wy_row5 = 78 + 5*20 + 10 = 188) so it would cross it this tick
+    const wy_row5 = 188
+    s._growingWalls.push({ dir: 'up', col: 15, wx: 350, tipY: wy_row5 + 6, visual: makeVisual() })
+
+    s._tickWalls(30)  // 30 ms → ~7.65 px movement, crosses row-5 line
+
+    // Wall must NOT have snapped — it should still be growing (not sealed at row-5 height)
+    const sealed = s._sealedMeta.find(m => m.col === 15)
+    if (sealed) {
+      expect(sealed.fromY).not.toBeCloseTo(wy_row5, 0)
+    } else {
+      // Still in _growingWalls, tip is below wy_row5 (it passed through)
+      const growing = s._growingWalls.find(w => w.col === 15)
+      expect(growing).toBeDefined()
+      expect(growing.tipY).toBeLessThan(wy_row5)
+    }
+  })
+
+  it('vertical wall DOES snap to horizontal wall when inside its column span', () => {
+    const s = makeScene()
+    s._gameActive = true
+
+    // Horizontal wall at row 5 ending at col 20 → toX = 40 + 20*20 + 10 = 450
+    s._sealedMeta.push({ row: 5, toX: 450 })
+
+    // Vertical wall at col 15 (wx = 350) — inside toX=450
+    const wy_row5 = 188
+    s._growingWalls.push({ dir: 'up', col: 15, wx: 350, tipY: wy_row5 + 6, visual: makeVisual() })
+
+    s._tickWalls(30)
+
+    // Wall should have snapped and been sealed at row-5 height
+    const sealed = s._sealedMeta.find(m => m.col === 15)
+    expect(sealed).toBeDefined()
+    expect(sealed.fromY).toBeCloseTo(wy_row5, 0)
+  })
+
+  it('horizontal wall does NOT snap to partial vertical wall above its height span', () => {
+    const s = makeScene()
+    s._gameActive = true
+
+    // Vertical wall at col 10 starting at fromY = 78 + 10*20 = 278 (only bottom portion)
+    s._sealedMeta.push({ col: 10, fromY: 278 })
+
+    // Horizontal wall at row 3 (wy = 78 + 3*20 + 10 = 148) — above fromY=278
+    const wx_col10 = 40 + 10 * 20 + 10  // 250
+    s._growingWalls.push({ dir: 'right', row: 3, wy: 148, tipX: wx_col10 - 6, visual: makeVisual() })
+
+    s._tickWalls(30)  // ~7.65 px rightward — crosses col-10 line
+
+    // Wall must NOT have snapped — should still be growing past col 10
+    const sealed = s._sealedMeta.find(m => m.row === 3)
+    if (sealed) {
+      expect(sealed.toX).not.toBeCloseTo(wx_col10, 0)
+    } else {
+      const growing = s._growingWalls.find(w => w.row === 3)
+      expect(growing).toBeDefined()
+      expect(growing.tipX).toBeGreaterThan(wx_col10)
+    }
+  })
+
+  it('horizontal wall DOES snap to vertical wall when within its height span', () => {
+    const s = makeScene()
+    s._gameActive = true
+
+    // Vertical wall at col 10 starting at fromY = 78 (full height from top)
+    s._sealedMeta.push({ col: 10, fromY: 78 })
+
+    // Horizontal wall at row 3 (wy = 148) — below fromY=78, so within span
+    const wx_col10 = 250
+    s._growingWalls.push({ dir: 'right', row: 3, wy: 148, tipX: wx_col10 - 6, visual: makeVisual() })
+
+    s._tickWalls(30)
+
+    // Wall should have snapped and been sealed at col-10 x position
+    const sealed = s._sealedMeta.find(m => m.row === 3)
+    expect(sealed).toBeDefined()
+    expect(sealed.toX).toBeCloseTo(wx_col10, 0)
+  })
+})
+
 describe('SectorScene — win condition', () => {
   it('_checkWin sets _won when containment ≤30%', () => {
     const s = makeScene()

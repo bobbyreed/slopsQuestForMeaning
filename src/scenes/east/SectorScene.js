@@ -276,12 +276,13 @@ export class SectorScene extends BaseGameScene {
         const prevTipY = gw.tipY
         gw.tipY -= WALL_GROW * dt
 
-        // Snap to first horizontal sealed wall hit going upward
+        // Snap to first horizontal sealed wall hit going upward —
+        // only if this column is within the horizontal wall's actual span.
         let snapY = null
         for (const m of this._sealedMeta) {
           if (m.row !== undefined) {
             const wy = FY + m.row * CELL + CELL / 2
-            if (wy < prevTipY && wy >= gw.tipY) {
+            if (wy < prevTipY && wy >= gw.tipY && gw.wx <= m.toX) {
               if (snapY === null || wy > snapY) snapY = wy
             }
           }
@@ -306,12 +307,13 @@ export class SectorScene extends BaseGameScene {
         const prevTipX = gw.tipX
         gw.tipX += WALL_GROW * dt
 
-        // Snap to first vertical sealed wall hit going right
+        // Snap to first vertical sealed wall hit going right —
+        // only if this row is within the vertical wall's actual span.
         let snapX = null
         for (const m of this._sealedMeta) {
           if (m.col !== undefined) {
             const wx = FX + m.col * CELL + CELL / 2
-            if (wx > prevTipX && wx <= gw.tipX) {
+            if (wx > prevTipX && wx <= gw.tipX && gw.wy >= m.fromY) {
               if (snapX === null || wx < snapX) snapX = wx
             }
           }
