@@ -223,13 +223,7 @@ export class MenuScene extends Phaser.Scene {
     }
 
     if (cmd === 'no ads') {
-      if (!this._currentUser) {
-        this._addMessage('slop', 'slop', 'you need to be logged in for this. your account is how i remember that you watched it. type login first.')
-        return
-      }
-      this._noAdsConfirming = true
-      this._addMessage('slop', 'slop',
-        "here is the deal.\n\nyou will watch one ad. it is long. it is not skippable. after it finishes, the ad bar at the bottom is gone. for your account. forever. i will not ask again.\n\ntype watch to confirm. type cancel to skip.")
+      this._addMessage('slop', 'slop', 'that feature is not ready yet. i will let you know when it is.')
       return
     }
 
@@ -286,9 +280,6 @@ export class MenuScene extends Phaser.Scene {
 
     if (profile?.adsDisabled) {
       this._hideAds()
-    } else {
-      this._addMessage('slop', 'slop',
-        "the ad bar is down there. you can make it go away: type no ads and i will show you one long ad, exactly once. after that, it is gone. for your account. forever. i will not ask again.")
     }
   }
 
@@ -298,27 +289,8 @@ export class MenuScene extends Phaser.Scene {
   }
 
   _showRewardedAd() {
-    // AdSense rewarded ads require a rewarded ad unit (format="rewarded") configured in the
-    // AdSense dashboard. Replace the data-ad-slot in index.html with your rewarded ad unit ID.
-    try {
-      const adEl = document.getElementById('ad-rewarded')
-      if (!adEl) { this._onAdFailed(); return }
-
-      adEl.style.display = 'block';
-      (window.adsbygoogle = window.adsbygoogle || []).push({
-        params: { google_rewarded_ad_key: adEl.dataset.adSlot },
-        callback: result => {
-          adEl.style.display = 'none'
-          if (result?.type === 'reward') {
-            this._onAdEarned()
-          } else {
-            this._onAdFailed()
-          }
-        }
-      })
-    } catch {
-      this._onAdFailed()
-    }
+    // Rewarded ad unit not yet available — re-enable once AdSense grants rewarded access.
+    this._onAdFailed()
   }
 
   _onAdEarned() {
