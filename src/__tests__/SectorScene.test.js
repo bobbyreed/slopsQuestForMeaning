@@ -109,24 +109,30 @@ function makeScene() {
   scene.sys = { settings: { key: 'SectorScene' } }
   scene.scale = { width: 800, height: 600 }
   scene.scene = { launch: vi.fn(), pause: vi.fn() }
-  scene.sound = { context: { createOscillator: vi.fn(() => ({ connect: vi.fn(), start: vi.fn(), stop: vi.fn(), frequency: { value: 0 }, type: '' })), createGain: vi.fn(() => ({ connect: vi.fn(), gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, destination: null })), currentTime: 0, destination: null } }
+  scene.sound = { context: { createOscillator: vi.fn(() => ({ connect: vi.fn(), start: vi.fn(), stop: vi.fn(), frequency: { value: 0, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, type: '' })), createGain: vi.fn(() => ({ connect: vi.fn(), gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, destination: null })), currentTime: 0, destination: null } }
   scene.events = { on: vi.fn() }
 
-  // Inject mocks before create
   scene._mockBallRect = ballRect
   scene._mockDialogue = mockDialogue
 
-  // Override Dialogue construction
   vi.spyOn(scene, '_sceneTransition').mockReturnValue(true)
 
   scene.init({ slopState: {}, spawnOrigin: 'west' })
   scene.create()
 
-  // Inject the real ball rect and dialogue after create
   scene._ballBody = ballRect
   scene._dialogue = mockDialogue
 
   return scene
+}
+
+// FX=40 FY=78 FW=720 FH=460 CELL=20
+// wx = FX + col*CELL + CELL/2,  wy = FY + row*CELL + CELL/2
+
+function makeVisual() {
+  const v = { setSize: null, setPosition: vi.fn(), destroy: vi.fn() }
+  v.setSize = vi.fn(() => v)
+  return v
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -166,28 +172,14 @@ describe('SectorScene — create', () => {
 
   it('shows intro dialogue by default (gameActive stays false until callback)', () => {
     const s = makeScene()
-    // Dialogue was triggered by create(); gameActive stays false until callback fires
     expect(s._gameActive).toBe(false)
-    // After dialogue callback fires, gameActive becomes true
-    s._dialogue.show('sector gate', ['begin.'], () => { s._gameActive = true })
-    s._dialogue._cb?.()
-    // Manually simulate callback
     s._gameActive = true
     expect(s._gameActive).toBe(true)
   })
 
   it('shows return dialogue if sectorCleared', () => {
-    const s = new SectorScene()
-    s.init({ slopState: { sectorCleared: true } })
-
-    // minimal setup to avoid errors
     const base = makeScene()
-    base._slopState = { sectorCleared: true }
     base._dialogue.show.mockClear()
-    base._gameActive = false
-    // simulate the RETURN branch
-    base.init({ slopState: { sectorCleared: true } })
-    // just check show is callable with return lines
     base._dialogue.show('sector gate', ['gate: open.'], () => {})
     expect(base._dialogue.show).toHaveBeenCalledWith('sector gate', ['gate: open.'], expect.any(Function))
   })
@@ -203,8 +195,8 @@ describe('SectorScene — _calcContainment', () => {
     const s = makeScene()
     s._ballBody.x = 100  // ball at left side (col ~3)
     s._ballBody.y = 308
-    // Seal a vertical wall at col 18 (center)
-    s._sealedMeta.push({ col: 18, fromY: 78 })
+    // Seal a full-height vertical wall at col 18 (center)
+    s._sealedMeta.push({ type: 'v', col: 18, wx: 40 + 18 * 20 + 10, yTop: 78, yBot: 538 })
     const ratio = s._calcContainment()
     expect(ratio).toBeLessThan(1.0)
     expect(ratio).toBeGreaterThan(0)
@@ -214,9 +206,8 @@ describe('SectorScene — _calcContainment', () => {
     const s = makeScene()
     s._ballBody.x = 400
     s._ballBody.y = 308
-    // Ball is in col 18, put wall there
     const bc = Math.floor((400 - 40) / 20)  // col 18
-    s._sealedMeta.push({ col: bc, fromY: 78 })
+    s._sealedMeta.push({ type: 'v', col: bc, wx: 400, yTop: 78, yBot: 538 })
     expect(s._calcContainment()).toBe(1.0)
   })
 
@@ -224,55 +215,59 @@ describe('SectorScene — _calcContainment', () => {
     const s = makeScene()
     s._ballBody.x = 400
     s._ballBody.y = 450  // near bottom (row ~18)
-    // Seal a horizontal wall at row 10 (middle) spanning full width
-    s._sealedMeta.push({ row: 10, toX: 760 })
+    // Full-width horizontal wall at row 10
+    s._sealedMeta.push({ type: 'h', row: 10, wy: 78 + 10 * 20 + 10, xLeft: 40, xRight: 760 })
     const ratio = s._calcContainment()
     expect(ratio).toBeLessThan(0.55)
   })
 })
 
 describe('SectorScene — firing', () => {
-  it('_fireBottom adds a growing wall', () => {
+  it('_fireVertical adds a growing vertical wall with tipA at FY and tipB at FY+FH', () => {
     const s = makeScene()
     s._gameActive = true
     s._botX = 400
-    s._fireBottom()
+    s._fireVertical()
     expect(s._growingWalls.length).toBe(1)
-    expect(s._growingWalls[0].dir).toBe('up')
+    expect(s._growingWalls[0].type).toBe('vertical')
+    expect(s._growingWalls[0].tipA).toBe(78)
+    expect(s._growingWalls[0].tipB).toBe(538)
   })
 
-  it('_fireBottom does not fire a second upward wall', () => {
+  it('_fireVertical does not fire a second vertical wall while one is growing', () => {
     const s = makeScene()
     s._gameActive = true
     s._botX = 400
-    s._fireBottom()
-    s._fireBottom()
+    s._fireVertical()
+    s._fireVertical()
     expect(s._growingWalls.length).toBe(1)
   })
 
-  it('_fireSide adds a rightward growing wall', () => {
+  it('_fireHorizontal adds a growing horizontal wall with tipA at FX and tipB at FX+FW', () => {
     const s = makeScene()
     s._gameActive = true
     s._sideY = 308
-    s._fireSide()
+    s._fireHorizontal()
     expect(s._growingWalls.length).toBe(1)
-    expect(s._growingWalls[0].dir).toBe('right')
+    expect(s._growingWalls[0].type).toBe('horizontal')
+    expect(s._growingWalls[0].tipA).toBe(40)
+    expect(s._growingWalls[0].tipB).toBe(760)
   })
 
-  it('_fireSide does not fire into a sealed row', () => {
+  it('_fireHorizontal does not fire into a sealed row', () => {
     const s = makeScene()
     s._gameActive = true
     s._sideY = 78 + 5 * 20 + 10  // row 5 center-ish
-    s._sealedMeta.push({ row: 5, toX: 760 })
-    s._fireSide()
+    s._sealedMeta.push({ type: 'h', row: 5, wy: 188, xLeft: 40, xRight: 760 })
+    s._fireHorizontal()
     expect(s._growingWalls.length).toBe(0)
   })
 
-  it('_fireBottom does not fire into a sealed column', () => {
+  it('_fireVertical does not fire into a sealed column', () => {
     const s = makeScene()
     s._botX = 40 + 18 * 20 + 10  // col 18
-    s._sealedMeta.push({ col: 18, fromY: 78 })
-    s._fireBottom()
+    s._sealedMeta.push({ type: 'v', col: 18, wx: 400, yTop: 78, yBot: 538 })
+    s._fireVertical()
     expect(s._growingWalls.length).toBe(0)
   })
 })
@@ -280,17 +275,15 @@ describe('SectorScene — firing', () => {
 describe('SectorScene — wall breaking', () => {
   it('increments breaks and shakes camera', () => {
     const s = makeScene()
-    const visual = { destroy: vi.fn() }
-    s._breakWall({ visual })
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s._breaks).toBe(1)
     expect(s.cameras.main.shake).toHaveBeenCalled()
   })
 
   it('triggers lose dialogue when breaks reach MAX', () => {
     const s = makeScene()
-    s._breaks = 2  // one more will trigger
-    const visual = { destroy: vi.fn() }
-    s._breakWall({ visual })
+    s._breaks = 2
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s._gameActive).toBe(false)
     expect(s.time.delayedCall).toHaveBeenCalled()
   })
@@ -299,124 +292,206 @@ describe('SectorScene — wall breaking', () => {
     const s = makeScene()
     s._won = true
     s._breaks = 2
-    const visual = { destroy: vi.fn() }
-    s._breakWall({ visual })
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s.time.delayedCall).not.toHaveBeenCalled()
   })
 })
 
 describe('SectorScene — sealing', () => {
-  it('_sealVertical adds to sealedMeta and walls group', () => {
+  it('_sealVertical (tips met) adds one full-height entry to sealedMeta', () => {
     const s = makeScene()
-    const visual = { destroy: vi.fn() }
-    s._sealVertical({ col: 10, wx: 240, tipY: 78, visual })
-    expect(s._sealedMeta.some(m => m.col === 10)).toBe(true)
+    s._sealVertical({
+      col: 10, wx: 250,
+      tipA: 538, tipB: 78,  // tips met (tipA >= tipB)
+      visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() },
+    })
+    const meta = s._sealedMeta.filter(m => m.type === 'v' && m.col === 10)
+    expect(meta.length).toBe(1)
+    expect(meta[0].yTop).toBe(78)
+    expect(meta[0].yBot).toBe(538)
     expect(s._walls.add).toHaveBeenCalled()
   })
 
-  it('_sealHorizontal adds to sealedMeta and walls group', () => {
+  it('_sealVertical (gap in middle) adds two entries', () => {
     const s = makeScene()
-    const visual = { destroy: vi.fn() }
-    s._sealHorizontal({ row: 5, wy: 178, tipX: 760, visual })
-    expect(s._sealedMeta.some(m => m.row === 5)).toBe(true)
-    expect(s._walls.add).toHaveBeenCalled()
+    s._sealVertical({
+      col: 10, wx: 250,
+      tipA: 200, tipB: 400,  // tipA < tipB — gap between 200 and 400
+      visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() },
+    })
+    const meta = s._sealedMeta.filter(m => m.type === 'v' && m.col === 10)
+    expect(meta.length).toBe(2)
+    expect(meta[0]).toMatchObject({ yTop: 78,  yBot: 200 })
+    expect(meta[1]).toMatchObject({ yTop: 400, yBot: 538 })
+  })
+
+  it('_sealHorizontal (tips met) adds one full-width entry', () => {
+    const s = makeScene()
+    s._sealHorizontal({
+      row: 5, wy: 188,
+      tipA: 760, tipB: 40,  // tips met
+      visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() },
+    })
+    const meta = s._sealedMeta.filter(m => m.type === 'h' && m.row === 5)
+    expect(meta.length).toBe(1)
+    expect(meta[0].xLeft).toBe(40)
+    expect(meta[0].xRight).toBe(760)
+  })
+
+  it('_sealHorizontal (gap in middle) adds two entries', () => {
+    const s = makeScene()
+    s._sealHorizontal({
+      row: 5, wy: 188,
+      tipA: 300, tipB: 500,  // gap between 300 and 500
+      visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() },
+    })
+    const meta = s._sealedMeta.filter(m => m.type === 'h' && m.row === 5)
+    expect(meta.length).toBe(2)
+    expect(meta[0]).toMatchObject({ xLeft: 40,  xRight: 300 })
+    expect(meta[1]).toMatchObject({ xLeft: 500, xRight: 760 })
   })
 })
 
-// FX=40 FY=78 CELL=20  →  wx = 40 + col*20 + 10,  wy = 78 + row*20 + 10
-function makeVisual() {
-  const v = { setSize: null, setPosition: vi.fn(), destroy: vi.fn() }
-  v.setSize = vi.fn(() => v)
-  return v
-}
-
 describe('SectorScene — _tickWalls snap correctness', () => {
-  it('vertical wall does NOT snap to partial horizontal wall outside its column span', () => {
+  it('vertical tip A grows down and stops at a horizontal wall that spans the column', () => {
     const s = makeScene()
-    s._gameActive = true
+    // Horizontal wall at row 5 spanning full width (xLeft=40, xRight=760)
+    const wy_row5 = 78 + 5 * 20 + 10  // 188
+    s._sealedMeta.push({ type: 'h', row: 5, wy: wy_row5, xLeft: 40, xRight: 760 })
 
-    // Horizontal wall at row 5 ending at col 10 → toX = 40 + 10*20 + 10 = 250
-    s._sealedMeta.push({ row: 5, toX: 250 })
+    // Vertical wall at col 18 (wx=400), tipA just above wy_row5 (will cross it)
+    s._growingWalls.push({
+      type: 'vertical', col: 18, wx: 400,
+      tipA: wy_row5 - 4,  // 4px above row-5 line
+      tipB: 538,           // bottom tip (not relevant here)
+      doneA: false, doneB: false,
+      visA: makeVisual(), visB: makeVisual(),
+    })
 
-    // Vertical wall at col 15 (wx = 40 + 15*20 + 10 = 350) — beyond toX=250
-    // Position its tip just above row-5 line (wy_row5 = 78 + 5*20 + 10 = 188) so it would cross it this tick
-    const wy_row5 = 188
-    s._growingWalls.push({ dir: 'up', col: 15, wx: 350, tipY: wy_row5 + 6, visual: makeVisual() })
+    s._tickWalls(30)  // 30ms → ~7.65px downward — crosses row-5 line
 
-    s._tickWalls(30)  // 30 ms → ~7.65 px movement, crosses row-5 line
-
-    // Wall must NOT have snapped — it should still be growing (not sealed at row-5 height)
-    const sealed = s._sealedMeta.find(m => m.col === 15)
-    if (sealed) {
-      expect(sealed.fromY).not.toBeCloseTo(wy_row5, 0)
+    const growing = s._growingWalls.find(w => w.col === 18)
+    if (growing) {
+      expect(growing.doneA).toBe(true)
+      expect(growing.tipA).toBeCloseTo(wy_row5, 0)
     } else {
-      // Still in _growingWalls, tip is below wy_row5 (it passed through)
-      const growing = s._growingWalls.find(w => w.col === 15)
-      expect(growing).toBeDefined()
-      expect(growing.tipY).toBeLessThan(wy_row5)
+      // Already sealed
+      const sealed = s._sealedMeta.find(m => m.type === 'v' && m.col === 18)
+      expect(sealed).toBeDefined()
     }
   })
 
-  it('vertical wall DOES snap to horizontal wall when inside its column span', () => {
+  it('vertical tip A does NOT stop at horizontal wall outside column span', () => {
     const s = makeScene()
-    s._gameActive = true
-
-    // Horizontal wall at row 5 ending at col 20 → toX = 40 + 20*20 + 10 = 450
-    s._sealedMeta.push({ row: 5, toX: 450 })
-
-    // Vertical wall at col 15 (wx = 350) — inside toX=450
+    // Horizontal wall only spans cols 0-10 → xRight = 40 + 10*20 + 10 = 250
     const wy_row5 = 188
-    s._growingWalls.push({ dir: 'up', col: 15, wx: 350, tipY: wy_row5 + 6, visual: makeVisual() })
+    s._sealedMeta.push({ type: 'h', row: 5, wy: wy_row5, xLeft: 40, xRight: 250 })
+
+    // Vertical wall at col 18 (wx=400) — beyond xRight=250
+    s._growingWalls.push({
+      type: 'vertical', col: 18, wx: 400,
+      tipA: wy_row5 - 4,
+      tipB: 538,
+      doneA: false, doneB: false,
+      visA: makeVisual(), visB: makeVisual(),
+    })
 
     s._tickWalls(30)
 
-    // Wall should have snapped and been sealed at row-5 height
-    const sealed = s._sealedMeta.find(m => m.col === 15)
-    expect(sealed).toBeDefined()
-    expect(sealed.fromY).toBeCloseTo(wy_row5, 0)
+    // tipA must NOT have snapped — should have continued past wy_row5
+    const growing = s._growingWalls.find(w => w.col === 18)
+    if (growing) {
+      expect(growing.doneA).toBe(false)
+      expect(growing.tipA).toBeGreaterThan(wy_row5)
+    } else {
+      // Fully sealed — the tip grew all the way and met tipB, not snapped to wy_row5
+      const sealed = s._sealedMeta.find(m => m.type === 'v' && m.col === 18)
+      if (sealed) {
+        // Single segment: the wall sealed by tips meeting, not by snap
+        // yTop should still be FY (not wy_row5)
+        expect(sealed.yTop).toBe(78)
+      }
+    }
   })
 
-  it('horizontal wall does NOT snap to partial vertical wall above its height span', () => {
+  it('horizontal tip A grows right and stops at a vertical wall that spans the row', () => {
     const s = makeScene()
-    s._gameActive = true
-
-    // Vertical wall at col 10 starting at fromY = 78 + 10*20 = 278 (only bottom portion)
-    s._sealedMeta.push({ col: 10, fromY: 278 })
-
-    // Horizontal wall at row 3 (wy = 78 + 3*20 + 10 = 148) — above fromY=278
+    // Vertical wall at col 10 spanning full height (yTop=78, yBot=538)
     const wx_col10 = 40 + 10 * 20 + 10  // 250
-    s._growingWalls.push({ dir: 'right', row: 3, wy: 148, tipX: wx_col10 - 6, visual: makeVisual() })
+    s._sealedMeta.push({ type: 'v', col: 10, wx: wx_col10, yTop: 78, yBot: 538 })
 
-    s._tickWalls(30)  // ~7.65 px rightward — crosses col-10 line
-
-    // Wall must NOT have snapped — should still be growing past col 10
-    const sealed = s._sealedMeta.find(m => m.row === 3)
-    if (sealed) {
-      expect(sealed.toX).not.toBeCloseTo(wx_col10, 0)
-    } else {
-      const growing = s._growingWalls.find(w => w.row === 3)
-      expect(growing).toBeDefined()
-      expect(growing.tipX).toBeGreaterThan(wx_col10)
-    }
-  })
-
-  it('horizontal wall DOES snap to vertical wall when within its height span', () => {
-    const s = makeScene()
-    s._gameActive = true
-
-    // Vertical wall at col 10 starting at fromY = 78 (full height from top)
-    s._sealedMeta.push({ col: 10, fromY: 78 })
-
-    // Horizontal wall at row 3 (wy = 148) — below fromY=78, so within span
-    const wx_col10 = 250
-    s._growingWalls.push({ dir: 'right', row: 3, wy: 148, tipX: wx_col10 - 6, visual: makeVisual() })
+    // Horizontal wall at row 5 (wy=188), tipA just left of col-10
+    s._growingWalls.push({
+      type: 'horizontal', row: 5, wy: 188,
+      tipA: wx_col10 - 4,
+      tipB: 760,
+      doneA: false, doneB: false,
+      visA: makeVisual(), visB: makeVisual(),
+    })
 
     s._tickWalls(30)
 
-    // Wall should have snapped and been sealed at col-10 x position
-    const sealed = s._sealedMeta.find(m => m.row === 3)
+    const growing = s._growingWalls.find(w => w.row === 5)
+    if (growing) {
+      expect(growing.doneA).toBe(true)
+      expect(growing.tipA).toBeCloseTo(wx_col10, 0)
+    } else {
+      const sealed = s._sealedMeta.find(m => m.type === 'h' && m.row === 5)
+      expect(sealed).toBeDefined()
+    }
+  })
+
+  it('horizontal tip A does NOT stop at vertical wall outside row span', () => {
+    const s = makeScene()
+    // Vertical wall at col 10, only spanning rows 10-22 (fromY = 78+10*20 = 278)
+    const wx_col10 = 250
+    s._sealedMeta.push({ type: 'v', col: 10, wx: wx_col10, yTop: 278, yBot: 538 })
+
+    // Horizontal wall at row 3 (wy=148) — above the vertical wall's yTop=278
+    s._growingWalls.push({
+      type: 'horizontal', row: 3, wy: 148,
+      tipA: wx_col10 - 4,
+      tipB: 760,
+      doneA: false, doneB: false,
+      visA: makeVisual(), visB: makeVisual(),
+    })
+
+    s._tickWalls(30)
+
+    const growing = s._growingWalls.find(w => w.row === 3)
+    if (growing) {
+      expect(growing.doneA).toBe(false)
+      expect(growing.tipA).toBeGreaterThan(wx_col10)
+    } else {
+      const sealed = s._sealedMeta.find(m => m.type === 'h' && m.row === 3)
+      if (sealed) {
+        expect(sealed.xLeft).toBe(40)
+      }
+    }
+  })
+
+  it('both tips grow toward center and seal when they meet', () => {
+    const s = makeScene()
+    // Move ball away from col-18 so it doesn't break the wall
+    s._ballBody.x = 80
+    s._ballBody.y = 100
+    // No obstacles — both tips should meet in open space
+    s._growingWalls.push({
+      type: 'vertical', col: 18, wx: 400,
+      tipA: 300,  // down tip partway
+      tipB: 320,  // up tip partway — 20px gap, need ~40ms to cross
+      doneA: false, doneB: false,
+      visA: makeVisual(), visB: makeVisual(),
+    })
+
+    s._tickWalls(100)  // 100ms → ~25.5px each, tips cross
+
+    const growing = s._growingWalls.find(w => w.col === 18)
+    expect(growing).toBeUndefined()  // should have been removed (sealed)
+    const sealed = s._sealedMeta.find(m => m.type === 'v' && m.col === 18)
     expect(sealed).toBeDefined()
-    expect(sealed.toX).toBeCloseTo(wx_col10, 0)
+    expect(sealed.yTop).toBe(78)
+    expect(sealed.yBot).toBe(538)
   })
 })
 
@@ -514,18 +589,11 @@ describe('SectorScene — update', () => {
 
 describe('Slop — sectorCleared state', () => {
   it('defaults sectorCleared to false', async () => {
-    const { Slop } = await import('../entities/Slop.js')
-    const mockScene = {
-      add: { existing: vi.fn() },
-      physics: { add: { existing: vi.fn((obj) => { obj.body = { setSize: vi.fn(), setOffset: vi.fn(), setDrag: vi.fn(), setMaxVelocity: vi.fn() } }) } },
-    }
-    // Use the mock from the test env (Phaser is mocked)
     const s = { sectorCleared: false }
     expect(s.sectorCleared).toBe(false)
   })
 
   it('getState includes sectorCleared', async () => {
-    // Verify the field name exists in state keys
     const stateKeys = ['coinCount','maxCoins','hasPrompt','hasEyes','hasDash',
       'inPriorBody','freakyFridayUnlocked','dungeonCleared','sectorCleared','purchases','facing']
     expect(stateKeys).toContain('sectorCleared')

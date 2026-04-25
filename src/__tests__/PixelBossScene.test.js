@@ -181,7 +181,7 @@ describe('PixelBossScene — _calcContainment', () => {
 
   it('returns 1.0 with no balls', () => {
     const s = makeScene()
-    s._sealedMeta.push({ col: 18, fromY: 78 })
+    s._sealedMeta.push({ type: 'v', col: 18, wx: 400, yTop: 78, yBot: 538 })
     // balls array is empty
     expect(s._calcContainment()).toBe(1.0)
   })
@@ -193,7 +193,7 @@ describe('PixelBossScene — _calcContainment', () => {
     s._balls[0].body.y = 308
     s._balls[1].body.x = 100
     s._balls[1].body.y = 340
-    s._sealedMeta.push({ col: 18, fromY: 78 })
+    s._sealedMeta.push({ type: 'v', col: 18, wx: 400, yTop: 78, yBot: 538 })
     const ratio = s._calcContainment()
     expect(ratio).toBeLessThan(1.0)
     expect(ratio).toBeGreaterThan(0)
@@ -202,16 +202,13 @@ describe('PixelBossScene — _calcContainment', () => {
   it('accounts for all balls (union of reachable cells)', () => {
     const s = makeScene()
     s._startGame()
-    // Ball 1 left of a vertical wall, ball 2 right of it
     s._balls[0].body.x = 100  // col ~3
     s._balls[0].body.y = 308
     s._balls[1].body.x = 700  // col ~33
     s._balls[1].body.y = 308
-    // A full-height vertical wall at col 18 (center) doesn't help —
-    // balls are on opposite sides, so reachable area is nearly the whole field
-    s._sealedMeta.push({ col: 18, fromY: 78 })
+    // A full-height vertical wall at col 18 doesn't help — balls on opposite sides
+    s._sealedMeta.push({ type: 'v', col: 18, wx: 400, yTop: 78, yBot: 538 })
     const ratio = s._calcContainment()
-    // Both sides are reachable, so ratio should be close to 1.0
     expect(ratio).toBeGreaterThan(0.9)
   })
 })
@@ -246,7 +243,7 @@ describe('PixelBossScene — _splitBalls', () => {
 describe('PixelBossScene — _breakWall', () => {
   it('increments breaks', () => {
     const s = makeScene()
-    s._breakWall({ visual: { destroy: vi.fn() } })
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s._breaks).toBe(1)
   })
 
@@ -255,7 +252,7 @@ describe('PixelBossScene — _breakWall', () => {
     s._gameActive = true
     s._startGame()
     s._breaks = 2
-    s._breakWall({ visual: { destroy: vi.fn() } })
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s._gameActive).toBe(false)
     expect(s.time.delayedCall).toHaveBeenCalled()
   })
@@ -264,27 +261,35 @@ describe('PixelBossScene — _breakWall', () => {
     const s = makeScene()
     s._won = true
     s._breaks = 2
-    s._breakWall({ visual: { destroy: vi.fn() } })
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s.time.delayedCall).not.toHaveBeenCalled()
   })
 })
 
 describe('PixelBossScene — sealing', () => {
-  it('_sealVertical pushes to sealedMeta and splits', () => {
+  it('_sealVertical (tips met) pushes to sealedMeta and splits', () => {
     const s = makeScene()
     s._startGame()
     const countBefore = s._balls.length
-    s._sealVertical({ col: 10, wx: 240, tipY: 78, visual: { destroy: vi.fn() } })
-    expect(s._sealedMeta.some(m => m.col === 10)).toBe(true)
+    s._sealVertical({
+      col: 10, wx: 240,
+      tipA: 538, tipB: 78,  // tips met
+      visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() },
+    })
+    expect(s._sealedMeta.some(m => m.type === 'v' && m.col === 10)).toBe(true)
     expect(s._balls.length).toBe(countBefore + 1)
   })
 
-  it('_sealHorizontal pushes to sealedMeta and splits', () => {
+  it('_sealHorizontal (tips met) pushes to sealedMeta and splits', () => {
     const s = makeScene()
     s._startGame()
     const countBefore = s._balls.length
-    s._sealHorizontal({ row: 5, wy: 178, tipX: 760, visual: { destroy: vi.fn() } })
-    expect(s._sealedMeta.some(m => m.row === 5)).toBe(true)
+    s._sealHorizontal({
+      row: 5, wy: 178,
+      tipA: 760, tipB: 40,  // tips met
+      visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() },
+    })
+    expect(s._sealedMeta.some(m => m.type === 'h' && m.row === 5)).toBe(true)
     expect(s._balls.length).toBe(countBefore + 1)
   })
 })

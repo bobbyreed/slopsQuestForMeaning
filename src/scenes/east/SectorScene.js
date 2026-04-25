@@ -1,8 +1,8 @@
 // SectorScene — Jezzball-style containment minigame.
 // Guards entry to the east dungeon.
 //
-// Bottom launcher : ← → to aim, SPACE to fire  (wall grows upward)
-// Side launcher   : ↑ ↓ to aim, CTRL  to fire  (wall grows rightward)
+// Vertical launcher   : ← → to aim, SPACE to fire  (walls from top AND bottom)
+// Horizontal launcher : ↑ ↓ to aim, CTRL  to fire  (walls from left AND right)
 // Goal: isolate the signal to ≤30% of the field within 3 breaks.
 
 import Phaser from 'phaser'
@@ -23,7 +23,7 @@ const ROWS = FH / CELL   // 23
 
 // ── Tuning ────────────────────────────────────────────────────────────────────
 const BALL_SPEED  = 185
-const WALL_GROW   = 255   // px/s
+const WALL_GROW   = 255   // px/s (each half travels half the field — same feel)
 const CURSOR_SPD  = 310   // px/s
 const WIN_RATIO   = 0.30
 const MAX_BREAKS  = 3
@@ -38,8 +38,9 @@ const INTRO = [
   '.',
   'isolate it to 30% of the chamber or less.',
   '.',
-  'bottom launcher: ← → to aim, SPACE to fire.',
-  'side launcher:   ↑ ↓ to aim, CTRL  to fire.',
+  'SPACE: vertical wall — grows from top AND bottom simultaneously.',
+  'CTRL:  horizontal wall — grows from left AND right simultaneously.',
+  '← → aim vertical.   ↑ ↓ aim horizontal.',
   '.',
   'signal hits a growing wall — the wall breaks. you lose a charge.',
   'three charges. zero: gate stays closed.',
@@ -134,18 +135,28 @@ export class SectorScene extends BaseGameScene {
     this._ballGlow = this.add.circle(sx, sy, 18, 0xff8800, 0.22).setDepth(12)
     this._ballVis  = this.add.circle(sx, sy,  7, 0xffaa22).setDepth(13)
 
-    // ── Launchers ─────────────────────────────────────────────────────────────
+    // ── Launchers — two cursors per axis ──────────────────────────────────────
     this._botX  = FX + FW / 2
     this._sideY = FY + FH / 2
 
-    this._botCursor  = this.add.rectangle(this._botX,   FY + FH + 14, 16,  8, 0x88aaff).setDepth(10)
-    this._sideCursor = this.add.rectangle(FX - 14, this._sideY,        8, 16, 0x88aaff).setDepth(10)
-    this._botGuide   = this.add.rectangle(this._botX,   FY + FH +  4,  2, 12, 0x445599, 0.5).setDepth(9)
-    this._sideGuide  = this.add.rectangle(FX -  4, this._sideY,        12,  2, 0x445599, 0.5).setDepth(9)
+    // Vertical (SPACE): cursors top + bottom
+    this._botCursor = this.add.rectangle(this._botX, FY + FH + 14, 16,  8, 0x88aaff).setDepth(10)
+    this._topCursor = this.add.rectangle(this._botX, FY - 14,       16,  8, 0x88aaff).setDepth(10)
+    this._botGuide  = this.add.rectangle(this._botX, FY + FH + 4,    2, 12, 0x445599, 0.5).setDepth(9)
+    this._topGuide  = this.add.rectangle(this._botX, FY - 4,          2, 12, 0x445599, 0.5).setDepth(9)
+
+    // Horizontal (CTRL): cursors left + right
+    this._sideCursorL = this.add.rectangle(FX - 14,       this._sideY, 8, 16, 0x88aaff).setDepth(10)
+    this._sideCursorR = this.add.rectangle(FX + FW + 14,  this._sideY, 8, 16, 0x88aaff).setDepth(10)
+    this._sideGuideL  = this.add.rectangle(FX - 4,        this._sideY, 12, 2, 0x445599, 0.5).setDepth(9)
+    this._sideGuideR  = this.add.rectangle(FX + FW + 4,   this._sideY, 12, 2, 0x445599, 0.5).setDepth(9)
 
     // ── Growing / sealed wall state ───────────────────────────────────────────
-    // growingWalls: { dir:'up'|'right', col|row, wx|wy, tipY|tipX, visual }
-    // sealedMeta:   { col, fromRow } | { row, toCol }
+    // growingWalls: { type:'vertical'|'horizontal', col|row, wx|wy,
+    //                 tipA (near edge tip), tipB (far edge tip),
+    //                 doneA, doneB, visA, visB }
+    // sealedMeta:  { type:'v', col, wx, yTop, yBot }
+    //            | { type:'h', row, wy, xLeft, xRight }
     this._growingWalls = []
     this._sealedMeta   = []
 
@@ -203,12 +214,14 @@ export class SectorScene extends BaseGameScene {
 
     const grid = Array.from({ length: ROWS }, () => new Array(COLS).fill(0))
     for (const m of this._sealedMeta) {
-      if (m.col !== undefined) {
-        const fr = Math.max(0, Math.min(ROWS - 1, Math.floor((m.fromY - FY) / CELL)))
-        for (let r = fr; r < ROWS; r++) grid[r][m.col] = 1
+      if (m.type === 'v') {
+        const rTop = Math.max(0, Math.floor((m.yTop - FY) / CELL))
+        const rBot = Math.min(ROWS - 1, Math.floor((m.yBot - FY) / CELL))
+        for (let r = rTop; r <= rBot; r++) grid[r][m.col] = 1
       } else {
-        const tc = Math.max(0, Math.min(COLS - 1, Math.floor((m.toX - FX) / CELL)))
-        for (let c = 0; c <= tc; c++) grid[m.row][c] = 1
+        const cLeft  = Math.max(0, Math.floor((m.xLeft  - FX) / CELL))
+        const cRight = Math.min(COLS - 1, Math.floor((m.xRight - FX) / CELL))
+        for (let c = cLeft; c <= cRight; c++) grid[m.row][c] = 1
       }
     }
 
@@ -239,31 +252,52 @@ export class SectorScene extends BaseGameScene {
 
   // ── Firing ────────────────────────────────────────────────────────────────
 
-  _fireBottom() {
-    if (this._growingWalls.some(w => w.dir === 'up')) return
+  _fireVertical() {
+    if (this._growingWalls.some(w => w.type === 'vertical')) return
     const col = Math.max(0, Math.min(COLS - 1,
       Math.round((this._botX - FX - CELL / 2) / CELL)
     ))
-    if (this._sealedMeta.some(m => m.col === col)) return
+    if (this._sealedMeta.some(m => m.type === 'v' && m.col === col)) return
 
-    const wx     = FX + col * CELL + CELL / 2
-    const visual = this.add.rectangle(wx, FY + FH, WALL_PX, 1, 0x44aaff, 0.9).setDepth(8)
-    this._growingWalls.push({ dir: 'up', col, wx, tipY: FY + FH, visual })
+    const wx   = FX + col * CELL + CELL / 2
+    const visA = this.add.rectangle(wx, FY,       WALL_PX, 1, 0x44aaff, 0.9).setDepth(8)
+    const visB = this.add.rectangle(wx, FY + FH,  WALL_PX, 1, 0x44aaff, 0.9).setDepth(8)
+    this._growingWalls.push({
+      type: 'vertical', col, wx,
+      tipA: FY,       // grows DOWN
+      tipB: FY + FH,  // grows UP
+      doneA: false, doneB: false,
+      visA, visB,
+    })
   }
 
-  _fireSide() {
-    if (this._growingWalls.some(w => w.dir === 'right')) return
+  _fireHorizontal() {
+    if (this._growingWalls.some(w => w.type === 'horizontal')) return
     const row = Math.max(0, Math.min(ROWS - 1,
       Math.round((this._sideY - FY - CELL / 2) / CELL)
     ))
-    if (this._sealedMeta.some(m => m.row === row)) return
+    if (this._sealedMeta.some(m => m.type === 'h' && m.row === row)) return
 
-    const wy     = FY + row * CELL + CELL / 2
-    const visual = this.add.rectangle(FX, wy, 1, WALL_PX, 0x44aaff, 0.9).setDepth(8)
-    this._growingWalls.push({ dir: 'right', row, wy, tipX: FX, visual })
+    const wy   = FY + row * CELL + CELL / 2
+    const visA = this.add.rectangle(FX,       wy, 1, WALL_PX, 0x44aaff, 0.9).setDepth(8)
+    const visB = this.add.rectangle(FX + FW,  wy, 1, WALL_PX, 0x44aaff, 0.9).setDepth(8)
+    this._growingWalls.push({
+      type: 'horizontal', row, wy,
+      tipA: FX,        // grows RIGHT
+      tipB: FX + FW,   // grows LEFT
+      doneA: false, doneB: false,
+      visA, visB,
+    })
   }
 
   // ── Growing wall tick ─────────────────────────────────────────────────────
+  //
+  // Each wall is a pair of half-walls growing from opposite field edges toward
+  // the center. They seal when both halves stop (met each other, hit a sealed
+  // perpendicular wall, or reached the far edge).
+  //
+  // Snapping only occurs when the tip crosses a sealed wall whose span actually
+  // covers this column/row — eliminating phantom collision from partial walls.
 
   _tickWalls(delta) {
     const dt   = delta / 1000
@@ -272,65 +306,96 @@ export class SectorScene extends BaseGameScene {
     for (let i = 0; i < this._growingWalls.length; i++) {
       const gw = this._growingWalls[i]
 
-      if (gw.dir === 'up') {
-        const prevTipY = gw.tipY
-        gw.tipY -= WALL_GROW * dt
-
-        // Snap to first horizontal sealed wall hit going upward —
-        // only if this column is within the horizontal wall's actual span.
-        let snapY = null
-        for (const m of this._sealedMeta) {
-          if (m.row !== undefined) {
-            const wy = FY + m.row * CELL + CELL / 2
-            if (wy < prevTipY && wy >= gw.tipY && gw.wx <= m.toX) {
-              if (snapY === null || wy > snapY) snapY = wy
+      if (gw.type === 'vertical') {
+        // tipA grows DOWN (FY → FY+FH), tipB grows UP (FY+FH → FY)
+        if (!gw.doneA) {
+          const prevA = gw.tipA
+          gw.tipA = Math.min(FY + FH, gw.tipA + WALL_GROW * dt)
+          for (const m of this._sealedMeta) {
+            if (m.type === 'h' && m.xLeft <= gw.wx && gw.wx <= m.xRight) {
+              if (m.wy > prevA && m.wy <= gw.tipA) {
+                gw.tipA = m.wy; gw.doneA = true; break
+              }
             }
           }
+          if (gw.tipA >= FY + FH) gw.doneA = true
         }
-        if (snapY !== null) gw.tipY = snapY
 
-        const wallH  = (FY + FH) - gw.tipY
-        const wallCY = gw.tipY + wallH / 2
-        gw.visual.setSize(WALL_PX, Math.max(1, wallH)).setPosition(gw.wx, wallCY)
+        if (!gw.doneB) {
+          const prevB = gw.tipB
+          gw.tipB = Math.max(FY, gw.tipB - WALL_GROW * dt)
+          for (const m of this._sealedMeta) {
+            if (m.type === 'h' && m.xLeft <= gw.wx && gw.wx <= m.xRight) {
+              if (m.wy < prevB && m.wy >= gw.tipB) {
+                gw.tipB = m.wy; gw.doneB = true; break
+              }
+            }
+          }
+          if (gw.tipB <= FY) gw.doneB = true
+        }
 
-        if (this._ballOverlaps(gw.wx, wallCY, WALL_PX + 10, wallH + 10)) {
+        // Tips met in open space
+        if (!gw.doneA && !gw.doneB && gw.tipA >= gw.tipB) {
+          gw.doneA = gw.doneB = true
+        }
+
+        const hA = Math.max(1, gw.tipA - FY)
+        const hB = Math.max(1, FY + FH - gw.tipB)
+        gw.visA.setSize(WALL_PX, hA).setPosition(gw.wx, FY + hA / 2)
+        gw.visB.setSize(WALL_PX, hB).setPosition(gw.wx, gw.tipB + hB / 2)
+
+        if (this._ballOverlaps(gw.wx, FY + hA / 2,      WALL_PX + 10, hA + 10) ||
+            this._ballOverlaps(gw.wx, gw.tipB + hB / 2, WALL_PX + 10, hB + 10)) {
           this._breakWall(gw); done.push(i); continue
         }
 
-        const stopReached = gw.tipY <= FY || snapY !== null
-        if (stopReached) {
-          if (gw.tipY < FY) gw.tipY = FY
+        if (gw.doneA && gw.doneB) {
           this._sealVertical(gw); done.push(i)
         }
 
-      } else {  // right
-        const prevTipX = gw.tipX
-        gw.tipX += WALL_GROW * dt
-
-        // Snap to first vertical sealed wall hit going right —
-        // only if this row is within the vertical wall's actual span.
-        let snapX = null
-        for (const m of this._sealedMeta) {
-          if (m.col !== undefined) {
-            const wx = FX + m.col * CELL + CELL / 2
-            if (wx > prevTipX && wx <= gw.tipX && gw.wy >= m.fromY) {
-              if (snapX === null || wx < snapX) snapX = wx
+      } else { // horizontal
+        // tipA grows RIGHT (FX → FX+FW), tipB grows LEFT (FX+FW → FX)
+        if (!gw.doneA) {
+          const prevA = gw.tipA
+          gw.tipA = Math.min(FX + FW, gw.tipA + WALL_GROW * dt)
+          for (const m of this._sealedMeta) {
+            if (m.type === 'v' && m.yTop <= gw.wy && gw.wy <= m.yBot) {
+              if (m.wx > prevA && m.wx <= gw.tipA) {
+                gw.tipA = m.wx; gw.doneA = true; break
+              }
             }
           }
+          if (gw.tipA >= FX + FW) gw.doneA = true
         }
-        if (snapX !== null) gw.tipX = snapX
 
-        const wallW  = gw.tipX - FX
-        const wallCX = FX + wallW / 2
-        gw.visual.setSize(Math.max(1, wallW), WALL_PX).setPosition(wallCX, gw.wy)
+        if (!gw.doneB) {
+          const prevB = gw.tipB
+          gw.tipB = Math.max(FX, gw.tipB - WALL_GROW * dt)
+          for (const m of this._sealedMeta) {
+            if (m.type === 'v' && m.yTop <= gw.wy && gw.wy <= m.yBot) {
+              if (m.wx < prevB && m.wx >= gw.tipB) {
+                gw.tipB = m.wx; gw.doneB = true; break
+              }
+            }
+          }
+          if (gw.tipB <= FX) gw.doneB = true
+        }
 
-        if (this._ballOverlaps(wallCX, gw.wy, wallW + 10, WALL_PX + 10)) {
+        if (!gw.doneA && !gw.doneB && gw.tipA >= gw.tipB) {
+          gw.doneA = gw.doneB = true
+        }
+
+        const wA = Math.max(1, gw.tipA - FX)
+        const wB = Math.max(1, FX + FW - gw.tipB)
+        gw.visA.setSize(wA, WALL_PX).setPosition(FX + wA / 2, gw.wy)
+        gw.visB.setSize(wB, WALL_PX).setPosition(gw.tipB + wB / 2, gw.wy)
+
+        if (this._ballOverlaps(FX + wA / 2,      gw.wy, wA + 10, WALL_PX + 10) ||
+            this._ballOverlaps(gw.tipB + wB / 2, gw.wy, wB + 10, WALL_PX + 10)) {
           this._breakWall(gw); done.push(i); continue
         }
 
-        const stopReached = gw.tipX >= FX + FW || snapX !== null
-        if (stopReached) {
-          if (gw.tipX > FX + FW) gw.tipX = FX + FW
+        if (gw.doneA && gw.doneB) {
           this._sealHorizontal(gw); done.push(i)
         }
       }
@@ -351,7 +416,8 @@ export class SectorScene extends BaseGameScene {
   // ── Wall outcomes ─────────────────────────────────────────────────────────
 
   _breakWall(gw) {
-    gw.visual.destroy()
+    gw.visA?.destroy()
+    gw.visB?.destroy()
     this._breaks++
     this.cameras.main.shake(150, 0.006)
     this.cameras.main.flash(200, 100, 20, 10, true)
@@ -366,32 +432,49 @@ export class SectorScene extends BaseGameScene {
   }
 
   _sealVertical(gw) {
-    gw.visual.destroy()
-    const topY   = gw.tipY
-    const height = (FY + FH) - topY
-    const midY   = topY + height / 2
-
-    const rect = this.add.rectangle(gw.wx, midY, WALL_PX, height, 0x2266cc).setDepth(7)
-    this.physics.add.existing(rect, true)
-    this._walls.add(rect)
-
-    this._sealedMeta.push({ col: gw.col, fromY: topY })
+    gw.visA.destroy()
+    gw.visB.destroy()
+    if (gw.tipA >= gw.tipB) {
+      // Tips met — one continuous wall spanning the full column
+      this._addVerticalWall(gw.col, gw.wx, FY, FY + FH)
+    } else {
+      // Stopped at different horizontal walls — two separate segments
+      this._addVerticalWall(gw.col, gw.wx, FY,      gw.tipA)
+      this._addVerticalWall(gw.col, gw.wx, gw.tipB, FY + FH)
+    }
     this._updateHUD()
     this._checkWin()
   }
 
-  _sealHorizontal(gw) {
-    gw.visual.destroy()
-    const width = gw.tipX - FX
-    const midX  = FX + width / 2
-
-    const rect = this.add.rectangle(midX, gw.wy, width, WALL_PX, 0x2266cc).setDepth(7)
+  _addVerticalWall(col, wx, yTop, yBot) {
+    const height = yBot - yTop
+    if (height < 2) return
+    const rect = this.add.rectangle(wx, yTop + height / 2, WALL_PX, height, 0x2266cc).setDepth(7)
     this.physics.add.existing(rect, true)
     this._walls.add(rect)
+    this._sealedMeta.push({ type: 'v', col, wx, yTop, yBot })
+  }
 
-    this._sealedMeta.push({ row: gw.row, toX: gw.tipX })
+  _sealHorizontal(gw) {
+    gw.visA.destroy()
+    gw.visB.destroy()
+    if (gw.tipA >= gw.tipB) {
+      this._addHorizontalWall(gw.row, gw.wy, FX, FX + FW)
+    } else {
+      this._addHorizontalWall(gw.row, gw.wy, FX,      gw.tipA)
+      this._addHorizontalWall(gw.row, gw.wy, gw.tipB, FX + FW)
+    }
     this._updateHUD()
     this._checkWin()
+  }
+
+  _addHorizontalWall(row, wy, xLeft, xRight) {
+    const width = xRight - xLeft
+    if (width < 2) return
+    const rect = this.add.rectangle(xLeft + width / 2, wy, width, WALL_PX, 0x2266cc).setDepth(7)
+    this.physics.add.existing(rect, true)
+    this._walls.add(rect)
+    this._sealedMeta.push({ type: 'h', row, wy, xLeft, xRight })
   }
 
   _checkWin() {
@@ -431,7 +514,7 @@ export class SectorScene extends BaseGameScene {
     this._checkPauseKey()
     this._dialogue.update()
 
-    // Ball speed normalisation (keeps constant speed despite physics drift)
+    // Ball speed normalisation
     const speed = this._ballBody.body.speed
     if (speed > 0 && Math.abs(speed - BALL_SPEED) > 20) {
       const ang = Math.atan2(this._ballBody.body.velocity.y, this._ballBody.body.velocity.x)
@@ -450,13 +533,17 @@ export class SectorScene extends BaseGameScene {
     if (up.isDown)    this._sideY = Math.max(FY + CELL / 2,        this._sideY - CURSOR_SPD * dt)
     if (down.isDown)  this._sideY = Math.min(FY + FH - CELL / 2,  this._sideY + CURSOR_SPD * dt)
 
-    if (Phaser.Input.Keyboard.JustDown(space))         this._fireBottom()
-    if (Phaser.Input.Keyboard.JustDown(this._ctrlKey)) this._fireSide()
+    if (Phaser.Input.Keyboard.JustDown(space))         this._fireVertical()
+    if (Phaser.Input.Keyboard.JustDown(this._ctrlKey)) this._fireHorizontal()
 
-    this._botCursor.setPosition(this._botX,  FY + FH + 14)
-    this._sideCursor.setPosition(FX - 14,    this._sideY)
-    this._botGuide.setPosition(this._botX,   FY + FH + 4)
-    this._sideGuide.setPosition(FX - 4,      this._sideY)
+    this._botCursor.setPosition(this._botX,     FY + FH + 14)
+    this._topCursor.setPosition(this._botX,     FY - 14)
+    this._botGuide.setPosition(this._botX,      FY + FH + 4)
+    this._topGuide.setPosition(this._botX,      FY - 4)
+    this._sideCursorL.setPosition(FX - 14,      this._sideY)
+    this._sideCursorR.setPosition(FX + FW + 14, this._sideY)
+    this._sideGuideL.setPosition(FX - 4,        this._sideY)
+    this._sideGuideR.setPosition(FX + FW + 4,   this._sideY)
 
     this._tickWalls(delta)
     this._updateHUD()
