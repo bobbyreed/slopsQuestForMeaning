@@ -111,3 +111,90 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 34**
 > That's great. I'll deploy and check it out. For now, keep working towards the MVP.
+
+**Prompt 35**
+> *(text lost to session compaction — drove: Add EastScene and WestScene stubs; prompt tutorial; journal Entry 008)*
+
+**Prompt 36**
+> *(text lost to session compaction — drove: Preserve dungeon state across minigame via pause/resume overlay)*
+
+**Prompt 37**
+> *(text lost to session compaction — drove: Add Render boss encounter and dash power unlock)*
+
+**Prompt 38**
+> *(text lost to session compaction — drove: Add Freaky Friday shop item; centralize skin logic in Slop)*
+
+**Prompt 39**
+> *(text lost to session compaction — drove: Add grand purse 300 coins; boss Render dialogue in bold caps)*
+
+**Prompt 40**
+> *(text lost to session compaction — drove: Add RenderBossScene — 4-phase multi-column typing boss fight)*
+
+**Prompt 41**
+> *(text lost to session compaction — drove: Add pause menu overlay with inventory, map, terminal, journal tabs)*
+
+**Prompt 42**
+> *(text lost to session compaction — drove: Add east world — chasm barrier, 3×4 scene grid, Shard enemy, The Cast town)*
+
+---
+
+## 2026-04-22
+
+**Prompt 43**
+> *(text lost to session compaction — drove: Fix terminal visibility, arrow keys, dash, and post-boss black screen)*
+
+---
+
+## 2026-04-23
+
+**Prompt 44**
+> *(text lost to session compaction — drove: Fix WCAG contrast on all map/scene text; add contrast+colorblind tests)*
+
+**Prompt 45**
+> *(text lost to session compaction — drove: Add SectorScene Jezzball minigame as east dungeon entrance)*
+
+**Prompt 46**
+> *(text lost to session compaction — drove: Add PixelBossScene: THE PIXEL multi-ball Jezzball east dungeon boss)*
+
+**Prompt 47**
+> *(text lost to session compaction — drove: Add west world: corpus-themed dungeon with INDEX GATE, ARCHIVE town, and DUPLICATE boss)*
+
+**Prompt 48**
+> *(text lost to session compaction — drove: Add final dungeon: Prior's gate + THE CONVERGENCE boss)*
+
+---
+
+## 2026-04-25
+
+**Prompt 49**
+> Hey claude. Let's work on the ads for the site. I want to set this up to work with the google ads platform since we are already on Firebase. Does that sound like a good choice? We should probably set up the log in system as well. The log in will use firebase auth and we will save data using firestore.
+
+**Prompt 50** *(answer to auth method question)*
+> Let's do email and password and/or federate log-in like google.
+
+**Prompt 51** *(answer to login gate question)*
+> Optional — play without logging in (Recommended)
+
+**Prompt 52**
+> Okay. I'll update adsense and firebase. In the meantime, There is a bug in jezzball minigame. The horizontal bar hit the first vertical bar and stopped. But the area without the horizontal bar, acted as if it was there to the new bars, but not to the ball. Please thoroughly test this to better understand what I'm trying to articulate and then work on a fix.
+
+**Prompt 53**
+> I've added everything to firebase, but haven't added the rewarded and standard to ad sense because the site is still setting up.
+
+**Prompt 54**
+> I see the unit creation console. What type of ads should these be?
+
+**Prompt 55**
+> Here is the code: [AdSense ins tag with publisher ca-pub-1260609255146382, slot 7447181148]
+
+**Prompt 56**
+> The ads.txt status says not found. Is this something we need to set up?
+
+**Prompt 57**
+> Done. Let's move back to the game. Let's add a developer menu that allows me to skip through states of the game for testing. What kind of ideas do you have for how we can hide that?
+
+**Prompt 58**
+> Let's go with your recommendation. I don't think we need the localhost safety though. Eventually I think it will be fun for saavy players to find this as well.
+
+**Prompt 59**
+> Have you been keeping up with history.md and journal.html? Take a bit to make sure those are up to date. Ensure that history.md is not truncate but includes all prompts. This experiment won't work without a full record.
