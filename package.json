@@ -12,6 +12,7 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "firebase": "^12.12.1",
     "phaser": "^3.88.0"
   },
   "devDependencies": {

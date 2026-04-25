@@ -33,6 +33,7 @@ new Phaser.Game({
   type: Phaser.AUTO,
   width: 800,
   height: 600,
+  parent: 'game-container',
   backgroundColor: '#e8dfc8',
   dom: { createContainer: true },
   physics: {

@@ -4,9 +4,28 @@ body {
   background: #1a1a2e;
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
+  align-items: flex-start;
+  min-height: 100vh;
+  overflow-y: auto;
 }
 
 canvas { display: block; }
+
+#page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0;
+}
+
+#game-container {
+  display: block;
+  width: 800px;
+  height: 600px;
+  position: relative;
+}
+
+#ad-below {
+  width: 728px;
+  margin: 8px auto 0;
+}

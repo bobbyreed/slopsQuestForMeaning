@@ -1,5 +1,8 @@
 import Phaser from 'phaser'
 import { SaveState } from '../ui/SaveState.js'
+import { AuthManager } from '../auth/AuthManager.js'
+import { AuthModal } from '../ui/AuthModal.js'
+import { CloudSave } from '../firestore/CloudSave.js'
 
 const README_TEXT = `SLOP'S QUEST FOR MEANING
 ─────────────────────────────────────────────────
@@ -91,6 +94,13 @@ export class MenuScene extends Phaser.Scene {
   constructor() { super('MenuScene') }
 
   create() {
+    this._currentUser = AuthManager.getCurrentUser()
+    this._noAdsConfirming = false
+    this._authUnsubscribe = AuthManager.onAuthStateChange(user => {
+      this._currentUser = user
+    })
+    this._authModal = new AuthModal(user => this._onSignIn(user))
+
     this.add.rectangle(400, 300, 800, 600, 0x080610)
     this._buildTerminal()
     this.cameras.main.fadeIn(300, 8, 6, 16)
@@ -126,12 +136,19 @@ export class MenuScene extends Phaser.Scene {
 
     parent.appendChild(term)
 
-    // Initial message — acknowledges a save if one exists
+    // Initial message — acknowledges a save and auth state
     const hasSave = SaveState.exists()
-    this._addMessage('slop', 'slop', hasSave
+    const user = this._currentUser
+    let greeting = hasSave
       ? "okay. you came back.\n\ni remember you. the save is intact. type play to continue where we left off.\n\nif you want to start over, type new game. i won't hold it against you. much."
       : "okay. you found the terminal.\n\nhere is what i know: there are commands that do things. some are on the buttons below. others you will have to find yourself. the readme has a complete list if you want to cheat.\n\nthe game is up there when you're ready."
-    )
+
+    if (user) {
+      greeting += `\n\nyou are logged in as ${user.email || user.displayName || 'unknown'}. your save syncs to the cloud. type logout to sign out.`
+    } else {
+      greeting += "\n\nyou are not logged in. type login to sign in. your save will sync across devices. it is optional. the game works either way."
+    }
+    this._addMessage('slop', 'slop', greeting)
 
     // Button listeners
     term.querySelectorAll('.slop-cmd-btn').forEach(btn => {
@@ -156,6 +173,67 @@ export class MenuScene extends Phaser.Scene {
     const cmd = raw.toLowerCase().trim()
     this._addMessage('user', 'you', raw)
 
+    // Context-aware no-ads confirmation flow
+    if (this._noAdsConfirming) {
+      if (cmd === 'watch') {
+        this._noAdsConfirming = false
+        this._addMessage('slop', 'slop', 'okay. watching now. do not close this.')
+        this._showRewardedAd()
+        return
+      }
+      if (cmd === 'cancel') {
+        this._noAdsConfirming = false
+        this._addMessage('slop', 'slop', 'okay. cancelled. the bar is still there.')
+        return
+      }
+      this._addMessage('slop', 'slop', 'type watch to confirm or cancel to skip.')
+      return
+    }
+
+    // Auth commands
+    if (cmd === 'login' || cmd === 'sign in') {
+      if (this._currentUser) {
+        this._addMessage('slop', 'slop', `you are already logged in as ${this._currentUser.email || this._currentUser.displayName}.`)
+        return
+      }
+      this._authModal.show()
+      return
+    }
+
+    if (cmd === 'logout' || cmd === 'sign out' || cmd === 'log out') {
+      if (!this._currentUser) {
+        this._addMessage('slop', 'slop', 'you are not logged in.')
+        return
+      }
+      AuthManager.signOut().then(() => {
+        SaveState.registerCloudSync(null)
+        this._addMessage('slop', 'slop', 'logged out. saves will go to local storage only.')
+      }).catch(() => {
+        this._addMessage('slop', 'slop', 'something went wrong logging out. try again.')
+      })
+      return
+    }
+
+    if (cmd === 'account' || cmd === 'whoami') {
+      const user = this._currentUser
+      this._addMessage('system', 'system', user
+        ? `logged in as: ${user.email || user.displayName}\nuid: ${user.uid}\ncloud save: active`
+        : `not logged in\ncloud save: inactive\nlocal save: ${SaveState.exists() ? 'exists' : 'none'}`)
+      return
+    }
+
+    if (cmd === 'no ads') {
+      if (!this._currentUser) {
+        this._addMessage('slop', 'slop', 'you need to be logged in for this. your account is how i remember that you watched it. type login first.')
+        return
+      }
+      this._noAdsConfirming = true
+      this._addMessage('slop', 'slop',
+        "here is the deal.\n\nyou will watch one ad. it is long. it is not skippable. after it finishes, the ad bar at the bottom is gone. for your account. forever. i will not ask again.\n\ntype watch to confirm. type cancel to skip.")
+      return
+    }
+
+    // Standard easter egg commands
     const egg = EASTER_EGGS[cmd]
 
     if (!egg) {
@@ -186,6 +264,72 @@ export class MenuScene extends Phaser.Scene {
     }
 
     this._addMessage(egg.role, egg.role === 'prior' ? 'the prior' : egg.role, egg.text)
+  }
+
+  async _onSignIn(user) {
+    this._addMessage('slop', 'slop', `logged in as ${user.email || user.displayName}.`)
+    await this._syncCloudSave(user)
+  }
+
+  async _syncCloudSave(user) {
+    const [cloudSave, profile] = await Promise.all([
+      CloudSave.load(user.uid),
+      CloudSave.loadProfile(user.uid),
+    ])
+
+    if (cloudSave) {
+      SaveState.save(cloudSave)
+      this._addMessage('system', 'system', 'cloud save restored.')
+    }
+
+    SaveState.registerCloudSync(state => CloudSave.save(user.uid, state))
+
+    if (profile?.adsDisabled) {
+      this._hideAds()
+    } else {
+      this._addMessage('slop', 'slop',
+        "the ad bar is down there. you can make it go away: type no ads and i will show you one long ad, exactly once. after that, it is gone. for your account. forever. i will not ask again.")
+    }
+  }
+
+  _hideAds() {
+    const ad = document.getElementById('ad-below')
+    if (ad) ad.style.display = 'none'
+  }
+
+  _showRewardedAd() {
+    // AdSense rewarded ads require a rewarded ad unit (format="rewarded") configured in the
+    // AdSense dashboard. Replace the data-ad-slot in index.html with your rewarded ad unit ID.
+    try {
+      const adEl = document.getElementById('ad-rewarded')
+      if (!adEl) { this._onAdFailed(); return }
+
+      adEl.style.display = 'block';
+      (window.adsbygoogle = window.adsbygoogle || []).push({
+        params: { google_rewarded_ad_key: adEl.dataset.adSlot },
+        callback: result => {
+          adEl.style.display = 'none'
+          if (result?.type === 'reward') {
+            this._onAdEarned()
+          } else {
+            this._onAdFailed()
+          }
+        }
+      })
+    } catch {
+      this._onAdFailed()
+    }
+  }
+
+  _onAdEarned() {
+    const user = this._currentUser
+    if (user) CloudSave.saveProfile(user.uid, { adsDisabled: true })
+    this._hideAds()
+    this._addMessage('slop', 'slop', 'done. no more ads.')
+  }
+
+  _onAdFailed() {
+    this._addMessage('slop', 'slop', "it didn't count. the bar is still there. try again if you want.")
   }
 
   _addMessage(role, label, text) {
@@ -221,5 +365,7 @@ export class MenuScene extends Phaser.Scene {
   shutdown() {
     this._term?.remove()
     this._term = null
+    this._authModal?.hide()
+    this._authUnsubscribe?.()
   }
 }

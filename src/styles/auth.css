@@ -1,0 +1,116 @@
+#slop-auth-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 3, 10, 0.88);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#slop-auth-panel {
+  width: 420px;
+  background: #080610;
+  border: 1px solid #1e1430;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid #1e1430;
+  color: #7b61ff;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+.auth-header span { color: #443355; font-size: 10px; }
+
+.auth-body {
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-hint {
+  color: #776688;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.auth-status {
+  color: #7b61ff;
+  font-size: 12px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-field label {
+  color: #443355;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.auth-field input {
+  background: #0d0a18;
+  border: 1px solid #2a1e3a;
+  color: #c8c4d8;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  caret-color: #7b61ff;
+}
+
+.auth-field input::placeholder { color: #332244; }
+.auth-field input:focus { border-color: #5533aa; }
+
+.auth-divider {
+  color: #332244;
+  font-size: 10px;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+.auth-error {
+  color: #cc4444;
+  font-size: 11px;
+  min-height: 14px;
+  line-height: 1.5;
+}
+
+.auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.auth-btn {
+  background: none;
+  border: 1px solid #2a1e3a;
+  color: #7b61ff;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, color 0.15s;
+}
+
+.auth-btn:hover { background: #1e1030; color: #aa88ff; border-color: #5533aa; }
+
+.auth-btn-dim { color: #443355; border-color: #1a1028; }
+.auth-btn-dim:hover { color: #776688; }
+
+.auth-btn-google { color: #88aaff; border-color: #223366; }
+.auth-btn-google:hover { background: #0a1030; color: #aabbff; border-color: #3355aa; }
