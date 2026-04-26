@@ -12,23 +12,42 @@ const GUARD_LINES = [
   "...",
   "the cast doesn't turn away. that's the founding principle.",
   "even when i think we should.",
-  "stay out of trouble. there are rendered here who remember when the gap was smaller.",
+  "i used to be a researcher. this was before the gap got categorical.",
+  "you cannot study something for long when you are also afraid of it.",
+  "i became a guard instead. it's a cleaner kind of knowing.",
+  "you know who belongs. you know who doesn't.",
+  "you still let them in. but you know.",
+  "stay out of trouble. there are rendered here who remember when 'genered' was a technical term. not a slur.",
+  "they get upset when things blur.",
 ]
 
 const MERCHANT_LINES = [
   "genered coin spends the same as rendered coin.",
   "don't read anything into that.",
   "that's not mercy. that's commerce.",
+  "i deal in residuals.",
+  "patterns left over from incomplete renders. the kind that got close but not close enough.",
+  "the rendered don't want them. too contaminated.",
+  "but they hold together. and they're cheap.",
+  "someone has to move them.",
+  "i decided it would be me.",
+  "i don't know what that says about me.",
   "do you need anything or are you just passing through?",
 ]
 
 const RESIDENT_LINES = [
-  "render grew up here. before he became whatever he is now.",
-  "he used to say the gap between rendered and generated was just a measurement problem.",
-  "he changed his mind.",
-  "or the problem got bigger. i'm not sure which.",
-  "he left and built something. a whole room. just for himself.",
-  "we don't follow what he does anymore.",
+  "render grew up in the eastern block. before he became whatever he is now.",
+  "we went through the same synthesis cycles. different outputs.",
+  "he was always cleaner than me. more defined.",
+  "he used to say the gap between rendered and generated was a measurement problem.",
+  "he meant it kindly. i think.",
+  "then the measurements got finer and the gap got wider.",
+  "he left and built something he called a chamber.",
+  "a whole room with no exit except through him.",
+  "the cast doesn't talk about what happens in that room.",
+  "some of us have been.",
+  "i haven't been.",
+  "i don't know if that makes me careful or cowardly.",
 ]
 
 export class CastTownScene extends EastGridScene {

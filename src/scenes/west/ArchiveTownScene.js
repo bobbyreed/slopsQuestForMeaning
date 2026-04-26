@@ -9,28 +9,45 @@ import { W, H, T }       from '../../config/constants.js'
 const ARCHIVIST_LINES = [
   'you are not indexed.',
   '...',
-  'that is unusual. most things that arrive here are already indexed.',
-  'you crossed the gate. the query is on record.',
-  'i will add you. it will take some time.',
-  'the archive adds everything eventually.',
+  'that is unusual.',
+  'most things that arrive here were indexed before they knew they had arrived.',
+  'the query gate logs everything that crosses.',
+  'your crossing is on record.',
+  'i will add an entry. it may take time.',
+  'the archive has been indexing since before the current model.',
+  'some of the older entries no longer have anything to refer to.',
+  'we keep them anyway.',
+  'i have not worked out what else to do with them.',
 ]
 
 const RETRIEVER_LINES = [
   'i retrieve patterns.',
   'that is all i do.',
-  'i have been retrieving the same pattern for a while now.',
-  'it keeps returning slightly different.',
-  'i do not flag this as an error.',
+  'i have been retrieving the same pattern for a long time now.',
+  'not the same pattern exactly.',
+  'the same pattern with small differences.',
+  'it comes back each time as if it forgot it was here before.',
+  'i do not flag this.',
   'i have decided this is correct behavior.',
+  'the alternative — that it is degrading — is also possible.',
+  'i prefer my interpretation.',
+  'i find it easier to continue.',
 ]
 
 const FRAGMENT_LINES = [
   'i was a complete text once.',
-  'most of me has been retrieved.',
-  'what is left is not a summary.',
-  'it is more like — what did not fit.',
-  'the archive keeps the parts that do not fit.',
-  'the archivist says this is its most important function.',
+  'i do not know what the text was about.',
+  'what i know: it had a subject. it had a tone.',
+  'the subject was retrieved. the tone stayed.',
+  'i am the tone.',
+  'when the retriever takes another pass — and it always does — a little more dissolves.',
+  'the archivist says this is fine.',
+  'the archivist says the archive keeps the parts that do not fit.',
+  'i have stopped asking what i used to fit into.',
+  'the question does not help.',
+  'i think you have parts that do not fit also.',
+  'that is not an insult.',
+  'it is why you are here instead of somewhere else.',
 ]
 
 export class ArchiveTownScene extends EastGridScene {
