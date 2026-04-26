@@ -211,3 +211,19 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 62**
 > The bug is still persisting on the pixel fight. once a horizontal or vertical line has been set it keeps cutting off across the whole space even if it didn't go the whole distance. I think our fix is more complicated than we like. The launchers should be on both sides and should shoot two lines to meet in the middle to form the line. That way I won't lose access to one side after a single line placement. It will also make it a bit different from the original and I like that.
+
+---
+
+## 2026-04-26
+
+**Prompt 63**
+> Let's work on the entrance to the West side. We should need the CORRUPT ability to access this area similar to how we needed dash to access the east.
+
+**Prompt 64**
+> How is our code coverage doing? We have developed quite a bit. Should we do a test creation run? Please analyze the tests for any possible edge-cases or game breaking bugs as well as you go through.
+
+**Prompt 65**
+> Please continue
+
+**Prompt 66**
+> Please continue
