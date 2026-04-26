@@ -294,3 +294,145 @@ describe('WestGateScene — update', () => {
     expect(s._botX).toBe(prev)
   })
 })
+
+// Constants matching the scene
+const FX = 40, FY = 78, FW = 720, FH = 460, CELL = 20
+
+describe('WestGateScene — _fireBottom', () => {
+  it('creates a growing vertical wall', () => {
+    const s = makeScene()
+    s._gameActive = true
+    s._fireBottom()
+    expect(s._growingWalls).toHaveLength(1)
+    expect(s._growingWalls[0].dir).toBe('up')
+  })
+
+  it('does not fire a second vertical wall while one is growing', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'up', col: 10, wx: 240, tipY: 300,
+      visual: { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() } })
+    s._fireBottom()
+    expect(s._growingWalls).toHaveLength(1)
+  })
+
+  it('does not fire into a sealed column', () => {
+    const s = makeScene()
+    s._sealedMeta.push({ col: 18, fromY: FY })
+    s._botX = FX + 18 * CELL + CELL / 2   // aim at col 18
+    s._fireBottom()
+    expect(s._growingWalls).toHaveLength(0)
+  })
+})
+
+describe('WestGateScene — _fireSide', () => {
+  it('creates a growing horizontal wall', () => {
+    const s = makeScene()
+    s._gameActive = true
+    s._fireSide()
+    expect(s._growingWalls).toHaveLength(1)
+    expect(s._growingWalls[0].dir).toBe('right')
+  })
+
+  it('does not fire a second horizontal wall while one is growing', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'right', row: 5, wy: 188, tipX: FX,
+      visual: { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() } })
+    s._fireSide()
+    expect(s._growingWalls).toHaveLength(1)
+  })
+
+  it('does not fire into a sealed row', () => {
+    const s = makeScene()
+    s._sealedMeta.push({ row: 11, toX: FX + FW })
+    s._sideY = FY + 11 * CELL + CELL / 2
+    s._fireSide()
+    expect(s._growingWalls).toHaveLength(0)
+  })
+})
+
+describe('WestGateScene — _tickWalls', () => {
+  function mockVisual() {
+    return { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() }
+  }
+
+  it('moves vertical wall tip upward', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'up', col: 10, wx: 240, tipY: 400, visual: mockVisual() })
+    s._ballBody.x = 700; s._ballBody.y = 400
+    const tipBefore = s._growingWalls[0].tipY
+    s._tickWalls(16)
+    expect(s._growingWalls[0].tipY).toBeLessThan(tipBefore)
+  })
+
+  it('seals vertical wall when tip reaches field top', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'up', col: 10, wx: 240, tipY: FY + 2, visual: mockVisual() })
+    s._ballBody.x = 700; s._ballBody.y = 400
+    s._tickWalls(100)
+    expect(s._sealedMeta.some(m => m.col === 10)).toBe(true)
+    expect(s._growingWalls).toHaveLength(0)
+  })
+
+  it('breaks vertical wall when ball overlaps', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'up', col: 18, wx: 400, tipY: 300, visual: mockVisual() })
+    s._ballBody.x = 400; s._ballBody.y = 400  // directly overlapping the growing wall
+    s._tickWalls(16)
+    expect(s._breaks).toBe(1)
+    expect(s._growingWalls).toHaveLength(0)
+  })
+
+  it('moves horizontal wall tip rightward', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'right', row: 5, wy: 188, tipX: FX + 10, visual: mockVisual() })
+    s._ballBody.x = 700; s._ballBody.y = 400
+    const tipBefore = s._growingWalls[0].tipX
+    s._tickWalls(16)
+    expect(s._growingWalls[0].tipX).toBeGreaterThan(tipBefore)
+  })
+
+  it('seals horizontal wall when tip reaches field right edge', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'right', row: 5, wy: 188, tipX: FX + FW - 2, visual: mockVisual() })
+    s._ballBody.x = 100; s._ballBody.y = 400
+    s._tickWalls(100)
+    expect(s._sealedMeta.some(m => m.row === 5)).toBe(true)
+    expect(s._growingWalls).toHaveLength(0)
+  })
+
+  it('breaks horizontal wall when ball overlaps', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'right', row: 11, wy: FY + 11 * CELL + CELL / 2, tipX: 400, visual: mockVisual() })
+    s._ballBody.x = 200; s._ballBody.y = FY + 11 * CELL + CELL / 2  // in the wall row
+    s._tickWalls(16)
+    expect(s._breaks).toBe(1)
+    expect(s._growingWalls).toHaveLength(0)
+  })
+
+  it('does NOT snap vertical wall to a horizontal wall that does not reach its column (phantom snap fix)', () => {
+    const s = makeScene()
+    const wy = FY + 10 * CELL + CELL / 2   // row 10 y = 288
+    // Horizontal wall ends at x=200, col 18 is at x=400 — span does NOT cover col 18
+    s._sealedMeta.push({ row: 10, toX: 200 })
+    s._growingWalls.push({ dir: 'up', col: 18, wx: 400, tipY: wy + 3, visual: mockVisual() })
+    s._ballBody.x = 700; s._ballBody.y = 400
+    s._tickWalls(16)   // tip moves ~4px, passes through wy=288
+    // With bug: wall snaps and seals → sealedMeta grows to 2
+    // With fix: no snap, wall continues → sealedMeta stays at 1
+    expect(s._sealedMeta).toHaveLength(1)
+  })
+
+  it('does NOT snap horizontal wall to a vertical wall that does not reach its row (phantom snap fix)', () => {
+    const s = makeScene()
+    const wx = FX + 10 * CELL + CELL / 2   // col 10 x = 250
+    const gwy = FY + 5 * CELL + CELL / 2   // row 5 y = 188
+    // Vertical wall starts at fromY=300 — below row 5's wy=188 (wall does NOT cover that row)
+    s._sealedMeta.push({ col: 10, fromY: 300 })
+    s._growingWalls.push({ dir: 'right', row: 5, wy: gwy, tipX: wx - 3, visual: mockVisual() })
+    s._ballBody.x = 700; s._ballBody.y = 400
+    s._tickWalls(16)   // tip moves ~4px, passes through wx=250
+    // With bug: wall snaps and seals → sealedMeta grows to 2
+    // With fix: no snap → sealedMeta stays at 1
+    expect(s._sealedMeta).toHaveLength(1)
+  })
+})

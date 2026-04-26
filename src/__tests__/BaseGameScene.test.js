@@ -258,3 +258,59 @@ describe('BaseGameScene._sceneTransition', () => {
     expect(s.cameras.main.fade).not.toHaveBeenCalled()
   })
 })
+
+describe('BaseGameScene._activateCorrupt', () => {
+  function makeTile(x, y) {
+    return {
+      x, y, width: 20, height: 20, active: true,
+      destroy: vi.fn().mockImplementation(function () { this.active = false }),
+    }
+  }
+
+  it('destroys tiles within 100px range', () => {
+    const s = makeBase()
+    s.slop = { ...s.slop, x: 100, y: 100 }
+    const near = makeTile(150, 100)   // distance = 50
+    const far  = makeTile(300, 100)   // distance = 200
+    s._corruptibles = { getChildren: vi.fn(() => [near, far]) }
+    s._activateCorrupt()
+    expect(near.destroy).toHaveBeenCalled()
+    expect(far.destroy).not.toHaveBeenCalled()
+  })
+
+  it('skips inactive tiles', () => {
+    const s = makeBase()
+    s.slop = { ...s.slop, x: 100, y: 100 }
+    const tile = makeTile(110, 100)
+    tile.active = false
+    s._corruptibles = { getChildren: vi.fn(() => [tile]) }
+    s._activateCorrupt()
+    expect(tile.destroy).not.toHaveBeenCalled()
+  })
+
+  it('does not throw when _corruptibles is not set', () => {
+    const s = makeBase()
+    s.slop = { ...s.slop, x: 100, y: 100 }
+    expect(() => s._activateCorrupt()).not.toThrow()
+  })
+
+  it('adds a tween for the expanding ring', () => {
+    const s = makeBase()
+    s.slop = { ...s.slop, x: 100, y: 100 }
+    s._corruptibles = { getChildren: vi.fn(() => []) }
+    const callsBefore = s.tweens.add.mock.calls.length
+    s._activateCorrupt()
+    expect(s.tweens.add.mock.calls.length).toBeGreaterThan(callsBefore)
+  })
+
+  it('boundary: dist === RANGE is included, dist > RANGE is excluded', () => {
+    const s = makeBase()
+    s.slop = { ...s.slop, x: 0, y: 0 }
+    const atEdge    = makeTile(100, 0)  // exactly 100 — included (guard is >, not >=)
+    const justOutside = makeTile(101, 0)
+    s._corruptibles = { getChildren: vi.fn(() => [atEdge, justOutside]) }
+    s._activateCorrupt()
+    expect(atEdge.destroy).toHaveBeenCalled()
+    expect(justOutside.destroy).not.toHaveBeenCalled()
+  })
+})

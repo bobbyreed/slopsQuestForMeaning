@@ -277,3 +277,52 @@ describe('WorldScene', () => {
     })
   })
 })
+
+describe('WorldScene — west barrier', () => {
+  it('_buildWestBarrier populates _westBarrierTiles when hasEyes is true', () => {
+    const w = makeWorld({ slopState: { hasEyes: true } })
+    w.create()
+    expect(w._westBarrierTiles.length).toBeGreaterThan(0)
+  })
+
+  it('does not build barrier when hasEyes is false', () => {
+    const w = makeWorld({ slopState: { hasEyes: false } })
+    w.create()
+    expect(w._westBarrierTiles).toHaveLength(0)
+  })
+
+  it('does not build barrier when westBarrierDestroyed is true', () => {
+    const w = makeWorld({ slopState: { hasEyes: true, westBarrierDestroyed: true } })
+    w.create()
+    expect(w._westBarrierTiles).toHaveLength(0)
+  })
+
+  it('_activateCorrupt override sets _westBarrierDestroyed when all tiles are gone', () => {
+    const w = makeWorld({ slopState: { hasEyes: true } })
+    w.create()
+    // Mark all barrier tiles as inactive (simulating corrupt destroying them)
+    w._westBarrierTiles.forEach(t => { t.active = false })
+    // Mock _corruptibles.getChildren to return empty (tiles already gone)
+    w._corruptibles.getChildren.mockReturnValue([])
+    w.slop.x = 50
+    w.slop.y = 300
+    w._activateCorrupt()
+    expect(w._westBarrierDestroyed).toBe(true)
+    expect(w.slop.westBarrierDestroyed).toBe(true)
+  })
+
+  it('_activateCorrupt override does NOT set flag when some tiles remain active', () => {
+    const w = makeWorld({ slopState: { hasEyes: true } })
+    w.create()
+    // Leave some tiles active
+    if (w._westBarrierTiles.length > 1) {
+      w._westBarrierTiles[0].active = false
+      // w._westBarrierTiles[1] stays active
+    }
+    w._corruptibles.getChildren.mockReturnValue([])
+    w.slop.x = 50
+    w.slop.y = 300
+    w._activateCorrupt()
+    expect(w._westBarrierDestroyed).toBe(false)
+  })
+})

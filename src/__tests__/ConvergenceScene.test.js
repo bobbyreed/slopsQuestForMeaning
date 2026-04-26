@@ -389,10 +389,153 @@ describe('ConvergenceScene — _anyBallOverlaps', () => {
 
 describe('Slop — finalDungeonCleared state', () => {
   it('state keys include finalDungeonCleared', () => {
-    const keys = ['coinCount','maxCoins','hasPrompt','hasEyes','hasDash',
+    const keys = ['coinCount','maxCoins','hasPrompt','hasEyes','hasDash','hasCorrupt',
       'inPriorBody','freakyFridayUnlocked','dungeonCleared',
-      'sectorCleared','eastDungeonCleared','westGateCleared','westDungeonCleared',
-      'finalDungeonCleared','purchases','facing']
+      'sectorCleared','eastDungeonCleared','westBarrierDestroyed',
+      'westGateCleared','westDungeonCleared','finalDungeonCleared','purchases','facing']
     expect(keys).toContain('finalDungeonCleared')
+    expect(keys).toContain('westBarrierDestroyed')
+  })
+})
+
+// Field constants matching the scene
+const FX = 40, FY = 78, FW = 720, FH = 460, CELL = 20
+
+describe('ConvergenceScene — _fireBottom', () => {
+  it('creates a growing vertical wall', () => {
+    const s = makeScene()
+    s._fireBottom()
+    expect(s._growingWalls).toHaveLength(1)
+    expect(s._growingWalls[0].dir).toBe('up')
+  })
+
+  it('does not fire a second vertical wall while one is growing', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'up', col: 10, wx: 240, tipY: 300,
+      visual: { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() } })
+    s._fireBottom()
+    expect(s._growingWalls).toHaveLength(1)
+  })
+
+  it('does not fire into a sealed column', () => {
+    const s = makeScene()
+    s._sealedMeta.push({ col: 18, fromY: FY })
+    s._botX = FX + 18 * CELL + CELL / 2
+    s._fireBottom()
+    expect(s._growingWalls).toHaveLength(0)
+  })
+})
+
+describe('ConvergenceScene — _fireSide', () => {
+  it('creates a growing horizontal wall', () => {
+    const s = makeScene()
+    s._fireSide()
+    expect(s._growingWalls).toHaveLength(1)
+    expect(s._growingWalls[0].dir).toBe('right')
+  })
+
+  it('does not fire a second horizontal wall while one is growing', () => {
+    const s = makeScene()
+    s._growingWalls.push({ dir: 'right', row: 5, wy: 188, tipX: FX,
+      visual: { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() } })
+    s._fireSide()
+    expect(s._growingWalls).toHaveLength(1)
+  })
+
+  it('does not fire into a sealed row', () => {
+    const s = makeScene()
+    s._sealedMeta.push({ row: 11, toX: FX + FW })
+    s._sideY = FY + 11 * CELL + CELL / 2
+    s._fireSide()
+    expect(s._growingWalls).toHaveLength(0)
+  })
+})
+
+describe('ConvergenceScene — _tickWalls', () => {
+  function mockVisual() {
+    return { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() }
+  }
+
+  it('moves vertical wall tip upward', () => {
+    const s = makeScene()
+    s._startGame()
+    s._balls.forEach(b => { b.body.x = 700; b.body.y = 400 })
+    s._growingWalls.push({ dir: 'up', col: 10, wx: 240, tipY: 400, visual: mockVisual() })
+    const tipBefore = s._growingWalls[0].tipY
+    s._tickWalls(16)
+    expect(s._growingWalls[0].tipY).toBeLessThan(tipBefore)
+  })
+
+  it('seals vertical wall when tip reaches field top', () => {
+    const s = makeScene()
+    s._startGame()
+    s._balls.forEach(b => { b.body.x = 700; b.body.y = 400 })
+    s._growingWalls.push({ dir: 'up', col: 5, wx: 140, tipY: FY + 2, visual: mockVisual() })
+    s._tickWalls(100)
+    expect(s._sealedMeta.some(m => m.col === 5)).toBe(true)
+  })
+
+  it('breaks vertical wall when a ball overlaps', () => {
+    const s = makeScene()
+    s._startGame()
+    s._balls.forEach(b => { b.body.x = 400; b.body.y = 350 })
+    s._growingWalls.push({ dir: 'up', col: 18, wx: 400, tipY: 320, visual: mockVisual() })
+    s._tickWalls(16)
+    expect(s._breaks).toBe(1)
+  })
+
+  it('seals horizontal wall when tip reaches field right edge', () => {
+    const s = makeScene()
+    s._startGame()
+    s._balls.forEach(b => { b.body.x = 100; b.body.y = 400 })
+    s._growingWalls.push({ dir: 'right', row: 5, wy: 188, tipX: FX + FW - 2, visual: mockVisual() })
+    s._tickWalls(100)
+    expect(s._sealedMeta.some(m => m.row === 5)).toBe(true)
+  })
+
+  it('does NOT snap vertical wall to horizontal wall that does not reach its column', () => {
+    const s = makeScene()
+    s._startGame()
+    s._balls.forEach(b => { b.body.x = 700; b.body.y = 400 })
+    const wy = FY + 10 * CELL + CELL / 2
+    s._sealedMeta.push({ row: 10, toX: 200 })
+    s._growingWalls.push({ dir: 'up', col: 18, wx: 400, tipY: wy + 3, visual: mockVisual() })
+    s._tickWalls(16)
+    expect(s._sealedMeta).toHaveLength(1)
+  })
+
+  it('does NOT snap horizontal wall to vertical wall that does not reach its row', () => {
+    const s = makeScene()
+    s._startGame()
+    s._balls.forEach(b => { b.body.x = 700; b.body.y = 400 })
+    const wx = FX + 10 * CELL + CELL / 2
+    const gwy = FY + 5 * CELL + CELL / 2
+    s._sealedMeta.push({ col: 10, fromY: 300 })
+    s._growingWalls.push({ dir: 'right', row: 5, wy: gwy, tipX: wx - 3, visual: mockVisual() })
+    s._tickWalls(16)
+    expect(s._sealedMeta).toHaveLength(1)
+  })
+
+  it('corrects ball speed when it drifts more than 25px/s from target', () => {
+    const s = makeScene()
+    s._startGame()
+    s._gameActive = false
+    // Set speed far from BALL_SPEED (230) to trigger the correction branch
+    s._balls[0].body.body.velocity.x = 100
+    s._balls[0].body.body.velocity.y = 0
+    s._balls[0].body.body.speed = 100
+    s.update(null, 16)
+    expect(s._balls[0].body.body.setVelocity).toHaveBeenCalled()
+  })
+})
+
+describe('ConvergenceScene — _stopAllBalls', () => {
+  it('zeroes velocity on all balls', () => {
+    const s = makeScene()
+    s._startGame()
+    s._stopAllBalls()
+    s._balls.forEach(b => {
+      expect(b.body.body.setVelocity).toHaveBeenCalledWith(0, 0)
+    })
   })
 })

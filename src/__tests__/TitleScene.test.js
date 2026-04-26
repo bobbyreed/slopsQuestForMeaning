@@ -91,4 +91,32 @@ describe('TitleScene', () => {
       expect(() => withComplete[0].onComplete()).not.toThrow()
     })
   })
+
+  describe('create — input listener callbacks', () => {
+    it('fires the 1800ms delayedCall to mark scene ready', () => {
+      const t = makeTitle()
+      t.create()
+      const readyCb = t.time.delayedCall.mock.calls.find(c => c[0] === 1800)?.[1]
+      readyCb()
+      expect(t._ready).toBe(true)
+    })
+
+    it('keyboard listener fires _proceed', () => {
+      const t = makeTitle()
+      t.create()
+      t._ready = true
+      const keydownCb = t.input.keyboard.on.mock.calls.find(c => c[0] === 'keydown')?.[1]
+      keydownCb()
+      expect(t.cameras.main.fade).toHaveBeenCalled()
+    })
+
+    it('pointer listener fires _proceed', () => {
+      const t = makeTitle()
+      t.create()
+      t._ready = true
+      const pointerCb = t.input.on.mock.calls.find(c => c[0] === 'pointerdown')?.[1]
+      pointerCb()
+      expect(t.cameras.main.fade).toHaveBeenCalled()
+    })
+  })
 })

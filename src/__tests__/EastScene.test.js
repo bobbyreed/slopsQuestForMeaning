@@ -111,4 +111,26 @@ describe('EastScene', () => {
       expect(s.scene.start).toHaveBeenCalledWith('SectorScene', expect.anything())
     })
   })
+
+  describe('_spawnChasmEmbers — onRepeat callback', () => {
+    it('fires ember tween onRepeat without throwing', () => {
+      const s = makeScene()
+      // create() calls _spawnChasmEmbers which registers tweens with onRepeat
+      const emberTween = s.tweens.add.mock.calls.find(c => c[0]?.onRepeat)
+      expect(emberTween).toBeTruthy()
+      expect(() => emberTween[0].onRepeat()).not.toThrow()
+    })
+  })
+
+  describe('_showHint — inner tween onComplete', () => {
+    it('fires fade-out onComplete, resetting _chasmHinted', () => {
+      const s = makeScene()
+      s._showHint('cross with dash')
+      const hintDelayCb = s.time.delayedCall.mock.calls.find(c => c[0] === 2400)?.[1]
+      hintDelayCb?.()
+      const lastTween = s.tweens.add.mock.calls.at(-1)?.[0]
+      expect(() => lastTween?.onComplete?.()).not.toThrow()
+      expect(s._chasmHinted).toBe(false)
+    })
+  })
 })

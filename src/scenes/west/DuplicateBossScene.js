@@ -338,7 +338,7 @@ export class DuplicateBossScene extends BaseGameScene {
 
         let snapY = null
         for (const m of this._sealedMeta) {
-          if (m.row !== undefined) {
+          if (m.row !== undefined && m.toX >= gw.wx) {
             const wy = FY + m.row * CELL + CELL / 2
             if (wy < prevTipY && wy >= gw.tipY) {
               if (snapY === null || wy > snapY) snapY = wy
@@ -366,7 +366,7 @@ export class DuplicateBossScene extends BaseGameScene {
 
         let snapX = null
         for (const m of this._sealedMeta) {
-          if (m.col !== undefined) {
+          if (m.col !== undefined && m.fromY <= gw.wy) {
             const wx = FX + m.col * CELL + CELL / 2
             if (wx > prevTipX && wx <= gw.tipX) {
               if (snapX === null || wx < snapX) snapX = wx

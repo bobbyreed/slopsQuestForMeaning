@@ -427,9 +427,11 @@ describe('PixelBossScene — _anyBallOverlaps', () => {
 
 describe('Slop — eastDungeonCleared state', () => {
   it('state keys include eastDungeonCleared', () => {
-    const keys = ['coinCount','maxCoins','hasPrompt','hasEyes','hasDash',
+    const keys = ['coinCount','maxCoins','hasPrompt','hasEyes','hasDash','hasCorrupt',
       'inPriorBody','freakyFridayUnlocked','dungeonCleared',
-      'sectorCleared','eastDungeonCleared','purchases','facing']
+      'sectorCleared','eastDungeonCleared','westBarrierDestroyed',
+      'westGateCleared','westDungeonCleared','finalDungeonCleared','purchases','facing']
     expect(keys).toContain('eastDungeonCleared')
+    expect(keys).toContain('westBarrierDestroyed')
   })
 })

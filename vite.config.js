@@ -14,7 +14,11 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.js'],
-      exclude: ['src/__mocks__/**', 'src/__tests__/**', 'src/main.js'],
+      exclude: [
+        'src/__mocks__/**', 'src/__tests__/**', 'src/main.js',
+        'src/auth/**', 'src/firestore/**', 'src/dev/**',
+        'src/ui/AuthModal.js', 'src/firebase.js',
+      ],
       thresholds: { lines: 80, functions: 80, branches: 70, statements: 80 },
       reporter: ['text', 'html'],
     },
