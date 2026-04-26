@@ -183,7 +183,7 @@ export class WestC3Scene extends EastGridScene {
   constructor() {
     super('WestC3Scene', {
       bg: 0x020208, wallColor: 0x080814,
-      nav: { north: 'WestB3Scene', south: 'DuplicateBossScene', east: 'WestC2Scene', west: null },
+      nav: { north: 'WestB3Scene', south: 'TypingMinigameScene', east: 'WestC2Scene', west: null },
       coins: [[220, 280], [580, 320]],
       enemies: [[280, 200, Enemy], [520, 200, Enemy], [300, 380, Shard], [500, 380, Shard]],
       lines: [

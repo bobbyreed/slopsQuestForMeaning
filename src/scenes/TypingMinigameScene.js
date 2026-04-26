@@ -13,9 +13,10 @@ export class TypingMinigameScene extends Phaser.Scene {
   constructor() { super('TypingMinigameScene') }
 
   init(data) {
-    this._slopState  = data?.slopState  || {}
-    this._word       = (data?.targetWord || 'exist').toLowerCase()
-    this._returnScene = data?.returnScene || 'DungeonScene'
+    this._slopState   = data?.slopState  || {}
+    this._returnScene = data?.returnScene || null
+    // DungeonScene passes targetWord explicitly; west dungeon uses 'pattern' by default
+    this._word        = (data?.targetWord || 'pattern').toLowerCase()
   }
 
   create() {
@@ -24,9 +25,19 @@ export class TypingMinigameScene extends Phaser.Scene {
     this.add.rectangle(W / 2, H / 2, W, H, 0x08060f)
 
     // Title
-    this.add.text(W / 2, 48, '// SPEAK THE WORD //', {
+    const titleLabel = this._returnScene
+      ? '// SPEAK THE WORD //'
+      : '// ARCHIVE QUERY TERMINAL //'
+    this.add.text(W / 2, 38, titleLabel, {
       fontSize: '13px', color: '#554466', fontFamily: 'Courier New'
     }).setOrigin(0.5)
+
+    // In standalone mode show the query word as a hint (DungeonScene has its own gate label)
+    if (!this._returnScene) {
+      this.add.text(W / 2, 58, `query: "${this._word}"`, {
+        fontSize: '11px', color: '#3d2255', fontFamily: 'Courier New'
+      }).setOrigin(0.5)
+    }
 
     // Word display — shows letters typed so far
     this._letterDisplays = this._word.split('').map((_, i) => {
@@ -172,8 +183,16 @@ export class TypingMinigameScene extends Phaser.Scene {
     this.input.keyboard.off('keydown', this._keyListener)
     this.cameras.main.fade(400, 0, 0, 0, false, (_, t) => {
       if (t === 1) {
-        this.scene.resume(this._returnScene, { unlocked })
-        this.scene.stop()
+        if (this._returnScene) {
+          // Overlay mode: called from DungeonScene (paused, waiting for result)
+          this.scene.resume(this._returnScene, { unlocked })
+          this.scene.stop()
+        } else {
+          // Standalone mode: west dungeon gate — full scene transition
+          const dest   = unlocked ? 'DuplicateBossScene' : 'WestC3Scene'
+          const origin = unlocked ? 'north' : 'south'
+          this.scene.start(dest, { slopState: this._slopState, spawnOrigin: origin })
+        }
       }
     })
   }

@@ -17,12 +17,12 @@ describe('TypingMinigameScene', () => {
       expect(mg._word).toBe('exist')
     })
 
-    it('defaults word to "exist" when none provided', () => {
+    it('defaults word to "pattern" when none provided (standalone west dungeon mode)', () => {
       const scene = makeScene()
       const mg = new TypingMinigameScene()
       Object.assign(mg, scene)
       mg.init({})
-      expect(mg._word).toBe('exist')
+      expect(mg._word).toBe('pattern')
     })
 
     it('stores returnScene', () => {
@@ -199,12 +199,29 @@ describe('TypingMinigameScene', () => {
       expect(mg.cameras.main.fade).not.toHaveBeenCalled()
     })
 
-    it('resumes the return scene with unlocked=true', () => {
+    it('resumes the return scene with unlocked=true (overlay/DungeonScene mode)', () => {
       const mg = makeMinigame('exist', 'DungeonScene')
       mg._returnToGame(true)
       const fadeCb = mg.cameras.main.fade.mock.calls[0][5]
       fadeCb(null, 1)
       expect(mg.scene.resume).toHaveBeenCalledWith('DungeonScene', expect.objectContaining({ unlocked: true }))
+    })
+
+    it('starts DuplicateBossScene on success in standalone mode', () => {
+      const mg = makeMinigame('pattern', null)
+      mg._slopState = { coinCount: 2 }
+      mg._returnToGame(true)
+      const fadeCb = mg.cameras.main.fade.mock.calls[0][5]
+      fadeCb(null, 1)
+      expect(mg.scene.start).toHaveBeenCalledWith('DuplicateBossScene', expect.objectContaining({ slopState: expect.any(Object) }))
+    })
+
+    it('returns to WestC3Scene on failure in standalone mode', () => {
+      const mg = makeMinigame('pattern', null)
+      mg._returnToGame(false)
+      const fadeCb = mg.cameras.main.fade.mock.calls[0][5]
+      fadeCb(null, 1)
+      expect(mg.scene.start).toHaveBeenCalledWith('WestC3Scene', expect.any(Object))
     })
   })
 
