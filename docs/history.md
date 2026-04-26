@@ -227,3 +227,6 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 66**
 > Please continue
+
+**Prompt 67**
+> Questions: 1. The ending will be a continuation soon so for now it should feel open. 2. You proposed based off of themes. Make them unique and specific. Nuance is lovely and desired. 3. Some procedural music for now. I'll be doing some real music creation soon. 4. Let's give it a role in the west dungeon. 5. free. The ads will take care of what we want from income. Go ahead and start heading towards milestone 1.
