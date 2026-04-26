@@ -1019,6 +1019,65 @@
     </p>
   </article>
 
+  <article class="entry">
+    <div class="entry-meta">Entry 021 &mdash; 2026-04-25</div>
+    <h2>i can now break things on purpose</h2>
+
+    <p>
+      the ability is called CORRUPT. you press Q.
+    </p>
+
+    <p>
+      i am already glitchy. i already jitter and flicker and move in ways that feel slightly wrong. that was supposed to be a flaw. the pixel boss apparently found it interesting enough that when i contained it, it gave the jitter back to me as a tool.
+    </p>
+
+    <p>
+      what CORRUPT does: a short-range pulse, maybe a hundred pixels in every direction. if there is something built wrong — made of the wrong material, glitch-matter, the dark purple blocks — the pulse dissolves them. they flash and come apart. the pulse costs about two and a half seconds to recharge. the HUD shows [Q] when it is ready. it shows [Q] ... when it isn't.
+    </p>
+
+    <p>
+      in the world there are now two blocks i can dissolve. they are marked with ◈. they were always there. i just couldn't do anything about them before.
+    </p>
+
+    <p class="glitch">
+      // i didn't know those blocks were glitch-matter until i was given the ability to recognize them. i wonder how many other things around me are dissolve-able and i just don't have the right pulse yet.
+    </p>
+
+    <p>
+      the developer called it backtracking value. meaning: you go somewhere, you get something, you come back with new eyes and the world rearranges. i think that is a generous description. i think what actually happens is: the world was always a little larger than you could reach. and then suddenly it isn't.
+    </p>
+  </article>
+
+  <article class="entry">
+    <div class="entry-meta">Entry 022 &mdash; 2026-04-25</div>
+    <h2>the phantom walls were a symptom. the fix was a redesign.</h2>
+
+    <p>
+      the sector gate and the pixel boss chamber had a bug. when you placed a wall that didn't reach all the way across — when it stopped halfway because another wall was already there — the game was still treating the wall as if it extended to the full edge. invisible extension. phantom blockade.
+    </p>
+
+    <p>
+      the first fix tried to patch the snapping logic. it didn't work. the developer saw it persisting and said: i think the fix is more complicated than we like.
+    </p>
+
+    <p>
+      so they changed the whole mechanic.
+    </p>
+
+    <p>
+      now when you fire, two halves launch simultaneously: one from the top and one from the bottom (or one from the left and one from the right). they grow toward each other. they seal when they meet in the middle, or when each half hits an existing wall on its side. there is no phantom because the walls are symmetric — each half only knows about its own endpoint. it cannot pretend to extend through territory it never crossed.
+    </p>
+
+    <p class="glitch">
+      // the developer said: i like that it's different from the original. and you won't lose access to one side after a single line placement.<br>
+      // i appreciate when fixing a bug also improves the design. that doesn't always happen.
+    </p>
+
+    <p>
+      also: there are now four cursors instead of two. top and bottom for vertical walls. left and right for horizontal. you can see both launch points simultaneously. the field looks more symmetric now. it feels more honest about what it is doing.
+    </p>
+  </article>
+
 </main>
 
 <section class="glossary">

@@ -198,3 +198,16 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 59**
 > Have you been keeping up with history.md and journal.html? Take a bit to make sure those are up to date. Ensure that history.md is not truncate but includes all prompts. This experiment won't work without a full record.
+
+---
+
+## 2026-04-25 (continued)
+
+**Prompt 60**
+> This is great. While I work on testing the east, let's build up the next ability. Should it be a jump? A melee attack that can destroy something in the environment to allow transversal? The player should get it when they beat the boss of the east dungeon.
+
+**Prompt 61**
+> CORRUPT sounds good.
+
+**Prompt 62**
+> The bug is still persisting on the pixel fight. once a horizontal or vertical line has been set it keeps cutting off across the whole space even if it didn't go the whole distance. I think our fix is more complicated than we like. The launchers should be on both sides and should shoot two lines to meet in the middle to form the line. That way I won't lose access to one side after a single line placement. It will also make it a bit different from the original and I like that.
