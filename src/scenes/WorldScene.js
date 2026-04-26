@@ -71,6 +71,9 @@ export class WorldScene extends BaseGameScene {
     }
     this.slop = new Slop(this, startX, startY, this._returnState || {})
     if (this._returnState?.hasEyes) this.slop.applyEyes()
+    this._westBarrierDestroyed = this.slop.westBarrierDestroyed
+    this._westBarrierTiles = []
+    this._westHintShown = false
 
     if (this._spawnOrigin === 'dungeon' && this._returnState?.dungeonCleared) {
       this.time.delayedCall(700, () => this._showOneTimeHint("the dungeon is behind you. that counts."))
@@ -89,6 +92,7 @@ export class WorldScene extends BaseGameScene {
 
     this._corruptibles = this.physics.add.staticGroup()
     this._buildCorruptibles()
+    if (this._hasEyes && !this._westBarrierDestroyed) this._buildWestBarrier()
 
     this.physics.add.collider(this.slop, this._walls)
     this.physics.add.collider(this.slop, this._corruptibles)
@@ -142,6 +146,30 @@ export class WorldScene extends BaseGameScene {
         fontSize: '9px', color: '#882299', fontFamily: 'Courier New',
       }).setOrigin(0.5).setDepth(5)
     })
+  }
+
+  _buildWestBarrier() {
+    // 4 corruptible tiles that fill the west gap (y 240–360), requiring CORRUPT to open
+    ;[[16, 255, 28, 30], [16, 285, 28, 30], [16, 315, 28, 30], [16, 345, 28, 30]].forEach(([x, y, w, h]) => {
+      const rect = this.add.rectangle(x, y, w, h, 0x220033)
+      this.physics.add.existing(rect, true)
+      this._corruptibles.add(rect)
+      this._westBarrierTiles.push(rect)
+      this.add.text(x, y, '◈', {
+        fontSize: '10px', color: '#771199', fontFamily: 'Courier New',
+      }).setOrigin(0.5).setDepth(6)
+    })
+  }
+
+  _activateCorrupt() {
+    super._activateCorrupt()
+    if (!this._westBarrierDestroyed && this._westBarrierTiles.length > 0) {
+      if (this._westBarrierTiles.every(t => !t.active)) {
+        this._westBarrierDestroyed = true
+        this.slop.westBarrierDestroyed = true
+        this.time.delayedCall(420, () => this._showOneTimeHint('the barrier is gone. west is open.'))
+      }
+    }
   }
 
   _buildWalls(hasEyes = false) {
@@ -261,10 +289,22 @@ export class WorldScene extends BaseGameScene {
 
     if (this._hasEyes) {
       const inGap = this.slop.y > 240 && this.slop.y < 360
-      if (inGap && this.slop.x < 20) {
+      if (inGap && this.slop.x < 20 && this._westBarrierDestroyed) {
         this._sceneTransition('WestScene', { slopState: this.slop.getState() })
       } else if (inGap && this.slop.x > W - 20) {
         this._sceneTransition('EastScene', { slopState: this.slop.getState() })
+      }
+
+      if (!this._westBarrierDestroyed) {
+        const nearBarrier = this.slop.x < 130 && this.slop.y > 230 && this.slop.y < 370
+        if (nearBarrier) {
+          if (!this.slop.hasCorrupt) {
+            this._showAreaHint('something corrupted blocks the path west')
+          } else if (!this._westHintShown) {
+            this._westHintShown = true
+            this._showOneTimeHint('[Q] to breach the barrier')
+          }
+        }
       }
     }
 

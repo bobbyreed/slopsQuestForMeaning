@@ -25,6 +25,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
     this.dungeonCleared = state.dungeonCleared ?? false
     this.sectorCleared       = state.sectorCleared       ?? false
     this.eastDungeonCleared  = state.eastDungeonCleared  ?? false
+    this.westBarrierDestroyed = state.westBarrierDestroyed ?? false
     this.westGateCleared     = state.westGateCleared     ?? false
     this.westDungeonCleared  = state.westDungeonCleared  ?? false
     this.finalDungeonCleared = state.finalDungeonCleared ?? false
@@ -164,6 +165,7 @@ export class Slop extends Phaser.Physics.Arcade.Sprite {
       dungeonCleared: this.dungeonCleared,
       sectorCleared:       this.sectorCleared,
       eastDungeonCleared:  this.eastDungeonCleared,
+      westBarrierDestroyed: this.westBarrierDestroyed,
       westGateCleared:     this.westGateCleared,
       westDungeonCleared:  this.westDungeonCleared,
       finalDungeonCleared: this.finalDungeonCleared,

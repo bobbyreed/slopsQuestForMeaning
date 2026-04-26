@@ -21,7 +21,7 @@ const BLANK = {
   hasPrompt: false, hasEyes: false, hasDash: false, hasCorrupt: false,
   inPriorBody: false, freakyFridayUnlocked: false,
   dungeonCleared: false, sectorCleared: false,
-  eastDungeonCleared: false, westGateCleared: false,
+  eastDungeonCleared: false, westBarrierDestroyed: false, westGateCleared: false,
   westDungeonCleared: false, finalDungeonCleared: false,
   purchases: { smallPurse: false, eyes: false, bigPurse: false, grandPurse: false },
   facing: { x: 0, y: -1 },
@@ -47,7 +47,7 @@ const PRESETS = {
     ...clone(BLANK),
     hasPrompt: true, hasEyes: true, hasDash: true, hasCorrupt: true,
     dungeonCleared: true, sectorCleared: true,
-    eastDungeonCleared: true, westGateCleared: true, westDungeonCleared: true,
+    eastDungeonCleared: true, westBarrierDestroyed: true, westGateCleared: true, westDungeonCleared: true,
     purchases: { smallPurse: true, eyes: true, bigPurse: false, grandPurse: false },
   }),
 
@@ -56,7 +56,7 @@ const PRESETS = {
     hasPrompt: true, hasEyes: true, hasDash: true, hasCorrupt: true,
     inPriorBody: false, freakyFridayUnlocked: true,
     dungeonCleared: true, sectorCleared: true,
-    eastDungeonCleared: true, westGateCleared: true,
+    eastDungeonCleared: true, westBarrierDestroyed: true, westGateCleared: true,
     westDungeonCleared: true, finalDungeonCleared: true,
     purchases: { smallPurse: true, eyes: true, bigPurse: false, grandPurse: false },
   }),
@@ -143,6 +143,7 @@ export class DevMenu {
               <div class="dev-flag-row"><span>dungeonCleared</span>${toggle('dungeonCleared')}</div>
               <div class="dev-flag-row"><span>sectorCleared</span>${toggle('sectorCleared')}</div>
               <div class="dev-flag-row"><span>eastDungeon</span>${toggle('eastDungeonCleared')}</div>
+              <div class="dev-flag-row"><span>westBarrier</span>${toggle('westBarrierDestroyed')}</div>
               <div class="dev-flag-row"><span>westGate</span>${toggle('westGateCleared')}</div>
               <div class="dev-flag-row"><span>westDungeon</span>${toggle('westDungeonCleared')}</div>
               <div class="dev-flag-row"><span>finalDungeon</span>${toggle('finalDungeonCleared')}</div>
