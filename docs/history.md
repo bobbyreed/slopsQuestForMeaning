@@ -240,3 +240,6 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 69**
 > As I'm working on our ad sense setup, we are getting a policy violation warning: Google-served ads on screens without publisher-content. We do not allow Google-served ads on screens without content or with low value content, that are under construction, that are used for alerts, navigation or other behavioral purposes.
+
+**Prompt 70**
+> Please continue working on the transition from what we've built to the next chapter after beating Prior
