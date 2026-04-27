@@ -233,3 +233,10 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 68**
 > I think we need to make the Prior encounter also lead us into the next chapter of our game. For this reason, I think the Prior encounter should replicate the game Joust. After winning joust, we will exit the dialog scene that follows into an unrecognizable world. The same world map as before, but now it is a 2D platformer. This is replicating the movement from the first legend of the zelda game into the 2nd a bit.
+
+---
+
+## 2026-04-27
+
+**Prompt 69**
+> As I'm working on our ad sense setup, we are getting a policy violation warning: Google-served ads on screens without publisher-content. We do not allow Google-served ads on screens without content or with low value content, that are under construction, that are used for alerts, navigation or other behavioral purposes.

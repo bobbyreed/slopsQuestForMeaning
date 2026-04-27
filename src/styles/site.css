@@ -1,0 +1,116 @@
+/* Site content styles — header, footer, about sections surrounding the game */
+
+#site-header {
+  width: 800px;
+  padding: 18px 0 12px;
+  text-align: center;
+}
+
+#site-header h1 {
+  font-family: 'Courier New', monospace;
+  font-size: 1.35rem;
+  color: #9977cc;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+#site-header .tagline {
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  color: #665577;
+  letter-spacing: 0.03em;
+}
+
+#site-content {
+  width: 800px;
+  padding: 24px 0 12px;
+}
+
+.content-section {
+  margin-bottom: 32px;
+  border-left: 2px solid #2a1848;
+  padding-left: 20px;
+}
+
+.content-section h2 {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #7b61ff;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.content-section p {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  color: #9999aa;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.content-section em {
+  color: #bbaacc;
+  font-style: italic;
+}
+
+.content-section strong {
+  color: #bbaacc;
+}
+
+.how-to-list {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  color: #9999aa;
+  line-height: 1.8;
+  margin-bottom: 10px;
+  list-style: none;
+  padding-left: 0;
+}
+
+.how-to-list li::before {
+  content: '› ';
+  color: #553366;
+}
+
+.content-link {
+  display: inline-block;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  color: #7b61ff;
+  text-decoration: none;
+  margin-top: 6px;
+  transition: color 0.15s;
+}
+
+.content-link:hover {
+  color: #9977ff;
+}
+
+#site-footer {
+  width: 800px;
+  padding: 16px 0 28px;
+  border-top: 1px solid #1e1030;
+  text-align: center;
+}
+
+#site-footer p {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #443355;
+  margin-bottom: 4px;
+}
+
+#site-footer a {
+  color: #553366;
+  text-decoration: none;
+}
+
+#site-footer a:hover {
+  color: #7b61ff;
+}
+
+.footer-small {
+  font-size: 0.68rem !important;
+  color: #332244 !important;
+}

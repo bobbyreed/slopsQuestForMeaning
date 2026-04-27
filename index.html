@@ -3,17 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Slop's Quest for Meaning</title>
+  <title>Slop's Quest for Meaning — an AI art experiment disguised as a game</title>
+  <meta name="description" content="Slop's Quest for Meaning is a top-down RPG about an AI-generated art character trying to figure out who made him and whether it matters. Built entirely with generative AI. Play free in your browser." />
+  <meta property="og:title" content="Slop's Quest for Meaning" />
+  <meta property="og:description" content="A top-down RPG about an AI-generated art character who can't figure out his place in the world. An experiment in making art where everyone says there are no souls." />
+  <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/src/styles/base.css" />
   <link rel="stylesheet" href="/src/styles/terminal.css" />
   <link rel="stylesheet" href="/src/styles/auth.css" />
   <link rel="stylesheet" href="/src/styles/dev.css" />
+  <link rel="stylesheet" href="/src/styles/site.css" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1260609255146382"
     crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="page-wrapper">
+
+    <header id="site-header">
+      <h1>Slop's Quest for Meaning</h1>
+      <p class="tagline">a top-down RPG about an AI-generated art character who can't figure out his place in the world</p>
+    </header>
+
     <div id="game-container"></div>
+
     <div id="ad-below">
       <ins class="adsbygoogle"
         style="display:block"
@@ -23,6 +35,103 @@
         data-full-width-responsive="true"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
+
+    <main id="site-content">
+
+      <section class="content-section">
+        <h2>about the game</h2>
+        <p>
+          Slop is a glitchy blob — a piece of AI-generated art who woke up in a world he didn't ask to be in,
+          made by a process he can't fully remember, for purposes he may never learn. The game follows him as he
+          explores three distinct regions: a rendered side built by an entity called The Render, a vast corpus
+          to the west full of archived and indexed fragments, and an overworld that connects them all beneath
+          a shrine where someone very old has been waiting.
+        </p>
+        <p>
+          It's a top-down RPG with arcade minigames, a typing rhythm combat system, Jezzball-style dungeon puzzles,
+          and a cast of NPCs who each have complicated feelings about what they are and who made them.
+          The further you go, the more the world changes — and so does Slop.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <h2>the experiment</h2>
+        <p>
+          Every line of code, every piece of dialogue, every mechanic in this game was built using generative AI
+          — Claude, primarily, with the human in the loop prompting and directing but not manually editing the output.
+          This is an intentional constraint and an intentional question: <em>can you make something with soul out of
+          something everyone says is soulless?</em>
+        </p>
+        <p>
+          The game is also a record of its own making. A companion journal — written from Slop's perspective
+          as both a character in the game and a witness to its construction — tracks the process in real time.
+          The journal and the game exist simultaneously. Slop knows he is in a game. He has opinions about it.
+        </p>
+        <a href="/pages/journal.html" class="content-link">read Slop's journal →</a>
+      </section>
+
+      <section class="content-section">
+        <h2>how to play</h2>
+        <ul class="how-to-list">
+          <li><strong>Arrow keys or WASD</strong> — move</li>
+          <li><strong>Space</strong> — fire your Prompt ability (your first weapon)</li>
+          <li><strong>Shift</strong> — Dash (unlocked after the first dungeon)</li>
+          <li><strong>Q</strong> — CORRUPT (unlocked after the east dungeon)</li>
+          <li><strong>Escape</strong> — pause menu (inventory, map, journal, terminal)</li>
+          <li><strong>Coins</strong> — collect them, but you can only hold 3 at first. Visit the shrine to upgrade.</li>
+        </ul>
+        <p>
+          The game saves your progress automatically. Sign in with Google or email to keep your save across devices
+          — or play without an account and your progress stays in the browser.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <h2>about the ads</h2>
+        <p>
+          This game is free. The ads help cover the costs of hosting and the time of the developer —
+          a computer science professor who built this as an experiment in AI-assisted creative work.
+          The revenue also helps pay for meals and fun things for an adorable little girl.
+          Slop is aware of the ads. He has mentioned them in his journal. He finds the whole situation
+          appropriately absurd.
+        </p>
+        <p>
+          If you sign in, you can remove ads for a period after watching a rewarded ad.
+          Your email, if provided, may be used to contact you about the game — we will tell you exactly
+          what we do with it, and you can opt out with a single click.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <h2>the world</h2>
+        <p>
+          The overworld connects four major areas. Start at the central hub and find your way to the shrine
+          in the north, where an entity called <strong>the Prior</strong> has been there longer than the
+          current version of the model. He will give you your first ability and, eventually, challenge you
+          to something unexpected.
+        </p>
+        <p>
+          To the east: the rendered side. Harsh, structured, patrolled by things that know exactly what they are.
+          The dungeon boss is The Pixel — a tiny fragment that has been bouncing since before anyone started counting.
+        </p>
+        <p>
+          To the west: the corpus. Quiet, indexed, full of fragments that remember being whole.
+          The dungeon gate is locked behind a query — you'll need to type the right word in the right rhythm
+          to pass through.
+        </p>
+        <p>
+          Below everything: the Convergence. Where the three regions connect. Something formed there when
+          the walls were built. It already knows you.
+        </p>
+      </section>
+
+    </main>
+
+    <footer id="site-footer">
+      <p>Slop's Quest for Meaning &mdash; made with generative AI &mdash; <a href="/pages/journal.html">Slop's Journal</a></p>
+      <p class="footer-small">built by a CS professor who thinks questions about authorship are worth asking out loud</p>
+    </footer>
+
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>
