@@ -243,3 +243,6 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 70**
 > Please continue working on the transition from what we've built to the next chapter after beating Prior
+
+**Prompt 71**
+> Let's do some loops on the gdd and polish it up. After that, let's update the readme to be a proper readme under the terminal commands. This is great! I'm loving your progress!
