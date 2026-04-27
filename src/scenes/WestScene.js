@@ -115,7 +115,7 @@ export class WestScene extends BaseGameScene {
       this._sceneTransition('WorldScene', { slopState: this.slop.getState(), spawnOrigin: 'west' })
     }
     if (inGap && this.slop.x < 20) {
-      this._sceneTransition('WestGateScene', { slopState: this.slop.getState(), spawnOrigin: 'east' })
+      this._sceneTransition('WestJoustScene', { slopState: this.slop.getState(), spawnOrigin: 'east' })
     }
 
     this._hud.update()

@@ -26,6 +26,7 @@ import {
   WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,
 } from './scenes/west/WestGridScenes.js'
 import { WestGateScene }      from './scenes/west/WestGateScene.js'
+import { WestJoustScene }     from './scenes/west/WestJoustScene.js'
 import { ArchiveTownScene }   from './scenes/west/ArchiveTownScene.js'
 import { DuplicateBossScene }    from './scenes/west/DuplicateBossScene.js'
 import { JoustScene }            from './scenes/JoustScene.js'
@@ -50,7 +51,7 @@ new Phaser.Game({
     EastA0Scene, EastA1Scene, EastA2Scene, EastA3Scene,
     EastB0Scene, EastB1Scene, CastTownScene, EastB3Scene,
     EastC0Scene, EastC1Scene, EastC2Scene, EastC3Scene,
-    WestGateScene, ArchiveTownScene, DuplicateBossScene,
+    WestGateScene, WestJoustScene, ArchiveTownScene, DuplicateBossScene,
     WestA0Scene, WestA1Scene, WestA2Scene, WestA3Scene,
     WestB0Scene, WestB1Scene, WestB3Scene,
     WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,

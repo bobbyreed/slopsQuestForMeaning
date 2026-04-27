@@ -33,6 +33,7 @@ import {
   WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,
 } from '../scenes/west/WestGridScenes.js'
 import { WestGateScene }        from '../scenes/west/WestGateScene.js'
+import { WestJoustScene }       from '../scenes/west/WestJoustScene.js'
 import { ArchiveTownScene }     from '../scenes/west/ArchiveTownScene.js'
 import { DuplicateBossScene }   from '../scenes/west/DuplicateBossScene.js'
 import { ConvergenceScene }     from '../scenes/ConvergenceScene.js'
@@ -151,7 +152,7 @@ const SCENE_MANIFEST = [
     name: 'WestScene',
     exits: [
       { method: '_sceneTransition', args: ['WorldScene', {}] },
-      { method: '_sceneTransition', args: ['WestGateScene', {}] },
+      { method: '_sceneTransition', args: ['WestJoustScene', {}] },
     ],
     makeClean: () => { const s = new WestScene(); s.init({ slopState: { hasEyes: true } }); s.create(); return s },
   },
@@ -241,6 +242,14 @@ const SCENE_MANIFEST = [
       { method: '_loseTransition', args: [] },
     ],
     makeClean: () => { const s = new WestGateScene(); s.init({ slopState: {} }); s.create(); return s },
+  },
+  {
+    name: 'WestJoustScene',
+    exits: [
+      { method: '_winTransition',  args: [] },
+      { method: '_loseTransition', args: [] },
+    ],
+    makeClean: () => { const s = new WestJoustScene(); s.init({ slopState: {} }); s.create(); return s },
   },
   {
     name: 'WestA0Scene',

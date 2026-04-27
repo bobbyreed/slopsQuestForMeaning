@@ -28,7 +28,7 @@ describe('WestScene', () => {
       expect(s.slop.x).toBe(W - 60)
     })
 
-    it('spawns slop at left edge when spawnOrigin is west (entry from WestGateScene)', () => {
+    it('spawns slop at left edge when spawnOrigin is west (entry from WestJoustScene)', () => {
       const s = makeScene({ spawnOrigin: 'west' })
       expect(s.slop.x).toBe(60)
     })
@@ -57,14 +57,14 @@ describe('WestScene', () => {
       expect(s.scene.start).toHaveBeenCalledWith('WorldScene', expect.objectContaining({ spawnOrigin: 'west' }))
     })
 
-    it('transitions west (to WestGateScene) when slop exits left gap', () => {
+    it('transitions west (to WestJoustScene) when slop exits left gap', () => {
       const s = makeScene()
       s.slop.x = 10
       s.slop.y = H / 2  // in vertical gap (240-360)
       s.update(null, 16)
       const fadeCb = s.cameras.main.fade.mock.calls[0]?.[5]
       if (fadeCb) fadeCb(null, 1)
-      expect(s.scene.start).toHaveBeenCalledWith('WestGateScene', expect.objectContaining({ spawnOrigin: 'east' }))
+      expect(s.scene.start).toHaveBeenCalledWith('WestJoustScene', expect.objectContaining({ spawnOrigin: 'east' }))
     })
 
     it('does not transition when slop is outside the gap', () => {
