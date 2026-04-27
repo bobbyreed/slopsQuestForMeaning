@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="none"/>
+      <rect width="1" height="40" fill="#1a1030" opacity="0.6"/>
+      <rect width="40" height="1" fill="#1a1030" opacity="0.6"/>
+    </pattern>
+    <clipPath id="clip">
+      <rect width="1200" height="630"/>
+    </clipPath>
+  </defs>
+
+  <!-- Base background -->
+  <rect width="1200" height="630" fill="#0d0a1a"/>
+
+  <!-- Grid overlay -->
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Top accent bar -->
+  <rect x="0" y="0" width="1200" height="3" fill="#2a1848"/>
+
+  <!-- Left vertical accent -->
+  <rect x="72" y="60" width="2" height="450" fill="#2a1848"/>
+
+  <!-- Scattered glitch fragments — left area -->
+  <rect x="0" y="80" width="68" height="2" fill="#9977cc" opacity="0.4"/>
+  <rect x="0" y="180" width="68" height="1" fill="#9977cc" opacity="0.25"/>
+  <rect x="0" y="320" width="68" height="2" fill="#9977cc" opacity="0.3"/>
+  <rect x="0" y="480" width="68" height="1" fill="#9977cc" opacity="0.2"/>
+
+  <!-- Glitch fragments — right decorative zone -->
+  <rect x="830" y="100" width="80" height="3" fill="#9977cc" opacity="0.5"/>
+  <rect x="830" y="110" width="40" height="2" fill="#9977cc" opacity="0.3"/>
+  <rect x="900" y="115" width="120" height="2" fill="#9977cc" opacity="0.2"/>
+  <rect x="850" y="200" width="60" height="3" fill="#7755aa" opacity="0.4"/>
+  <rect x="920" y="210" width="200" height="2" fill="#7755aa" opacity="0.2"/>
+  <rect x="880" y="300" width="100" height="2" fill="#9977cc" opacity="0.3"/>
+  <rect x="1000" y="310" width="180" height="3" fill="#9977cc" opacity="0.15"/>
+  <rect x="840" y="400" width="50" height="2" fill="#7755aa" opacity="0.35"/>
+  <rect x="900" y="410" width="220" height="2" fill="#7755aa" opacity="0.2"/>
+  <rect x="860" y="480" width="80" height="3" fill="#9977cc" opacity="0.4"/>
+  <rect x="950" y="490" width="150" height="2" fill="#9977cc" opacity="0.2"/>
+
+  <!-- "Slop" blob character — right side, abstract glitchy shape -->
+  <g transform="translate(980, 315)" opacity="0.85" clip-path="url(#clip)">
+    <!-- Main blob body -->
+    <ellipse cx="0" cy="0" rx="105" ry="115" fill="#1a0f2e"/>
+    <ellipse cx="8" cy="-5" rx="90" ry="98" fill="#221440"/>
+    <!-- Glitch slices -->
+    <rect x="-108" y="-18" width="220" height="8" fill="#0d0a1a" opacity="0.7"/>
+    <rect x="-108" y="22" width="220" height="5" fill="#0d0a1a" opacity="0.5"/>
+    <rect x="-108" y="-58" width="220" height="4" fill="#0d0a1a" opacity="0.4"/>
+    <!-- Eyes -->
+    <rect x="-30" y="-20" width="18" height="18" fill="#9977cc"/>
+    <rect x="14" y="-20" width="18" height="18" fill="#9977cc"/>
+    <!-- Eye glitch -->
+    <rect x="-30" y="-20" width="18" height="4" fill="#0d0a1a" opacity="0.5"/>
+    <rect x="14" y="-12" width="18" height="4" fill="#0d0a1a" opacity="0.5"/>
+    <!-- Mouth / expression -->
+    <rect x="-18" y="30" width="38" height="5" fill="#7755aa" opacity="0.8"/>
+    <rect x="-18" y="38" width="12" height="4" fill="#7755aa" opacity="0.5"/>
+    <!-- Outline fragments -->
+    <ellipse cx="0" cy="0" rx="105" ry="115" fill="none" stroke="#2a1848" stroke-width="1.5"/>
+    <!-- Artifact pixels -->
+    <rect x="-115" y="-40" width="8" height="8" fill="#9977cc" opacity="0.6"/>
+    <rect x="110" y="20" width="6" height="6" fill="#9977cc" opacity="0.4"/>
+    <rect x="-112" y="50" width="5" height="5" fill="#7755aa" opacity="0.5"/>
+    <rect x="108" y="-60" width="7" height="4" fill="#9977cc" opacity="0.3"/>
+  </g>
+
+  <!-- STATUS label -->
+  <text x="96" y="100"
+    font-family="'Courier New', Courier, monospace"
+    font-size="15"
+    fill="#443355"
+    letter-spacing="3">// PLAY FREE IN YOUR BROWSER</text>
+
+  <!-- Main title -->
+  <text x="96" y="200"
+    font-family="'Courier New', Courier, monospace"
+    font-size="86"
+    font-weight="bold"
+    fill="#d4c8a0"
+    letter-spacing="-1">SLOP'S</text>
+
+  <text x="96" y="296"
+    font-family="'Courier New', Courier, monospace"
+    font-size="86"
+    font-weight="bold"
+    fill="#9977cc"
+    letter-spacing="-1">QUEST FOR</text>
+
+  <text x="96" y="392"
+    font-family="'Courier New', Courier, monospace"
+    font-size="86"
+    font-weight="bold"
+    fill="#7755aa"
+    letter-spacing="-1">MEANING</text>
+
+  <!-- Separator -->
+  <rect x="96" y="416" width="560" height="1" fill="#2a1848"/>
+
+  <!-- Tagline -->
+  <text x="96" y="450"
+    font-family="'Courier New', Courier, monospace"
+    font-size="19"
+    fill="#665577"
+    letter-spacing="0.5">a top-down RPG about an AI-generated art character</text>
+
+  <text x="96" y="474"
+    font-family="'Courier New', Courier, monospace"
+    font-size="19"
+    fill="#665577"
+    letter-spacing="0.5">who can't figure out who made him, or whether it matters</text>
+
+  <!-- Comment lines -->
+  <text x="96" y="516"
+    font-family="'Courier New', Courier, monospace"
+    font-size="15"
+    fill="#331144">// built entirely with generative AI</text>
+
+  <text x="96" y="538"
+    font-family="'Courier New', Courier, monospace"
+    font-size="15"
+    fill="#331144">// the experiment does not predetermine its conclusion</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="575" width="1200" height="55" fill="#0a0816"/>
+  <rect x="0" y="575" width="1200" height="1" fill="#2a1848"/>
+
+  <!-- URL -->
+  <text x="96" y="610"
+    font-family="'Courier New', Courier, monospace"
+    font-size="20"
+    fill="#553366"
+    letter-spacing="1">slopsquest.web.app</text>
+
+  <!-- Cursor -->
+  <rect x="306" y="591" width="12" height="22" fill="#553366" opacity="0.7"/>
+
+  <!-- Right URL decoration -->
+  <text x="1104" y="610"
+    font-family="'Courier New', Courier, monospace"
+    font-size="15"
+    fill="#331144"
+    text-anchor="end">free · browser · no download</text>
+</svg>

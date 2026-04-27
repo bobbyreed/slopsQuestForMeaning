@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generate social-preview.png</title>
+<style>body{background:#111;color:#999;font-family:monospace;padding:40px;text-align:center}</style>
+</head>
+<body>
+  <p>rendering…</p>
+  <canvas id="c" width="1200" height="630" style="max-width:100%;border:1px solid #333"></canvas>
+  <br><br>
+  <button onclick="dl()" style="font-family:monospace;font-size:16px;padding:10px 24px;background:#2a1848;color:#9977cc;border:1px solid #553366;cursor:pointer">download social-preview.png</button>
+  <p style="font-size:12px;color:#443355">save it as <code>public/social-preview.png</code> in the repo</p>
+  <script>
+    const img = new Image()
+    img.onload = () => {
+      const c = document.getElementById('c')
+      c.getContext('2d').drawImage(img, 0, 0)
+      document.querySelector('p').textContent = 'done — click download'
+    }
+    img.src = '/social-preview.svg'
+    function dl() {
+      const a = document.createElement('a')
+      a.download = 'social-preview.png'
+      a.href = document.getElementById('c').toDataURL('image/png')
+      a.click()
+    }
+  </script>
+</body>
+</html>
