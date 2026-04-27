@@ -143,6 +143,7 @@ export class NorthShrineScene extends BaseGameScene {
     const st = this._slopState
     this._allCleared = !!(st.dungeonCleared && st.eastDungeonCleared && st.westDungeonCleared)
     this._finalDungeonCleared = !!st.finalDungeonCleared
+    this._chapter2Unlocked    = !!st.chapter2Unlocked
   }
 
   create() {
@@ -256,10 +257,17 @@ export class NorthShrineScene extends BaseGameScene {
   _triggerGateDialogue() {
     this._gateTriggered = true
     if (this._finalDungeonCleared) {
-      this._dialogue.show('the prior', GATE_RETURN_LINES, () => this._returnToWorld())
+      const after = this._chapter2Unlocked
+        ? () => this._returnToWorld()
+        : () => this._triggerJoust()
+      this._dialogue.show('the prior', GATE_RETURN_LINES, after)
     } else {
       this._dialogue.show('the prior', GATE_LINES, () => this._enterConvergence())
     }
+  }
+
+  _triggerJoust() {
+    this._sceneTransition('JoustScene', { slopState: this.slop.getState() })
   }
 
   _enterConvergence() {

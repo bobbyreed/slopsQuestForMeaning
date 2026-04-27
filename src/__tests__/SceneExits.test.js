@@ -36,6 +36,8 @@ import { WestGateScene }        from '../scenes/west/WestGateScene.js'
 import { ArchiveTownScene }     from '../scenes/west/ArchiveTownScene.js'
 import { DuplicateBossScene }   from '../scenes/west/DuplicateBossScene.js'
 import { ConvergenceScene }     from '../scenes/ConvergenceScene.js'
+import { JoustScene }           from '../scenes/JoustScene.js'
+import { PlatformerWorldScene } from '../scenes/PlatformerWorldScene.js'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -318,6 +320,39 @@ const SCENE_MANIFEST = [
     makeClean: () => {
       const s = new NorthShrineScene()
       s.init({ slopState: { hasPrompt: true, dungeonCleared: true, eastDungeonCleared: true, westDungeonCleared: true } })
+      s.create()
+      return s
+    },
+  },
+  {
+    name: 'NorthShrineScene (gate — post-final, Joust)',
+    exits: [{ method: '_triggerJoust', args: [] }],
+    makeClean: () => {
+      const s = new NorthShrineScene()
+      s.init({ slopState: { hasPrompt: true, dungeonCleared: true, eastDungeonCleared: true, westDungeonCleared: true, finalDungeonCleared: true } })
+      s.create()
+      return s
+    },
+  },
+  {
+    name: 'JoustScene',
+    exits: [
+      { method: '_winTransition',  args: [] },
+      { method: '_loseTransition', args: [] },
+    ],
+    makeClean: () => {
+      const s = new JoustScene()
+      s.init({ slopState: {} })
+      s.create()
+      return s
+    },
+  },
+  {
+    name: 'PlatformerWorldScene',
+    exits: [{ method: '_winTransition', args: [] }],
+    makeClean: () => {
+      const s = new PlatformerWorldScene()
+      s.init({ slopState: {} })
       s.create()
       return s
     },

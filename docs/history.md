@@ -230,3 +230,6 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 67**
 > Questions: 1. The ending will be a continuation soon so for now it should feel open. 2. You proposed based off of themes. Make them unique and specific. Nuance is lovely and desired. 3. Some procedural music for now. I'll be doing some real music creation soon. 4. Let's give it a role in the west dungeon. 5. free. The ads will take care of what we want from income. Go ahead and start heading towards milestone 1.
+
+**Prompt 68**
+> I think we need to make the Prior encounter also lead us into the next chapter of our game. For this reason, I think the Prior encounter should replicate the game Joust. After winning joust, we will exit the dialog scene that follows into an unrecognizable world. The same world map as before, but now it is a 2D platformer. This is replicating the movement from the first legend of the zelda game into the 2nd a bit.
