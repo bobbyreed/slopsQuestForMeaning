@@ -102,10 +102,15 @@ describe('NorthShrineScene', () => {
       expect(s._finalDungeonCleared).toBe(true)
     })
 
-    it('spawns gate visuals when allCleared', () => {
-      const s = allClearedScene()
+    it('spawns gate visuals when allCleared and priorGateUnlocked', () => {
+      const s = allClearedScene({ priorGateUnlocked: true })
       expect(s._gateX).toBeDefined()
       expect(s._gateY).toBeDefined()
+    })
+
+    it('does not spawn gate when allCleared but priorGateUnlocked is false', () => {
+      const s = allClearedScene()
+      expect(s._gateX).toBeUndefined()
     })
 
     it('does not spawn gate when not all cleared', () => {
@@ -129,11 +134,61 @@ describe('NorthShrineScene', () => {
     })
 
     it('gate uses return dialogue when finalDungeonCleared', () => {
-      const s = allClearedScene({ finalDungeonCleared: true })
+      const s = allClearedScene({ finalDungeonCleared: true, priorGateUnlocked: true })
       s._returnToWorld = vi.fn()
       s._triggerGateDialogue()
       // Should show dialogue (not immediately call _returnToWorld — dialogue runs)
       expect(s._gateTriggered).toBe(true)
+    })
+
+    describe("prior menu", () => {
+      it('_openPriorMenu sets _priorMenuOpen and _priorMenuTriggered', () => {
+        const s = allClearedScene()
+        s._openPriorMenu()
+        expect(s._priorMenuOpen).toBe(true)
+        expect(s._priorMenuTriggered).toBe(true)
+      })
+
+      it('TALK option shows dialogue and sets priorGateUnlocked after callback', () => {
+        const s = allClearedScene()
+        s._openPriorMenu()
+        s._dialogue.show = vi.fn()
+        s._priorMenuCursor = 0  // TALK
+        s._selectPriorMenu()
+        expect(s._dialogue.show).toHaveBeenCalledWith('the prior', expect.any(Array), expect.any(Function))
+        const cb = s._dialogue.show.mock.calls[0][2]
+        cb()
+        expect(s.slop.priorGateUnlocked).toBe(true)
+        expect(s._priorGateUnlocked).toBe(true)
+        expect(s._gateX).toBeDefined()
+      })
+
+      it('SHOP option triggers shop greeting', () => {
+        const s = allClearedScene()
+        s._openPriorMenu()
+        s._triggerShopGreeting = vi.fn()
+        s._priorMenuCursor = 1  // SHOP
+        s._selectPriorMenu()
+        expect(s._triggerShopGreeting).toHaveBeenCalled()
+      })
+
+      it('LEAVE option calls _returnToWorld', () => {
+        const s = allClearedScene()
+        s._openPriorMenu()
+        s._returnToWorld = vi.fn()
+        s._priorMenuCursor = 2  // LEAVE
+        s._selectPriorMenu()
+        expect(s._returnToWorld).toHaveBeenCalled()
+      })
+
+      it('_selectPriorMenu resets _priorMenuTriggered allowing re-open via SHOP path', () => {
+        const s = allClearedScene()
+        s._openPriorMenu()
+        s._triggerShopGreeting = vi.fn()
+        s._priorMenuCursor = 1
+        s._selectPriorMenu()
+        expect(s._priorMenuTriggered).toBe(false)
+      })
     })
   })
 

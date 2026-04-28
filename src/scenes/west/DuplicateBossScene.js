@@ -1,43 +1,21 @@
-// DuplicateBossScene — hardest Jezzball boss fight.
+// DuplicateBossScene — west dungeon boss fight.
 // THE DUPLICATE: a corpus fragment that has been copying itself for so long
 // it no longer knows which instance is the original. Neither do the others.
 //
-// Mechanics vs PixelBossScene:
-//   • 3 balls to start; each sealed wall splits one ball (max 6)
-//   • Ball speed 215 px/s  (between Sector and Pixel)
-//   • Win threshold 15%    (same as Pixel)
-//   • 3 break charges      (same)
-//
-// Controls (dual-half, same as SectorScene):
-//   SPACE: vertical wall — grows from top AND bottom
-//   CTRL:  horizontal wall — grows from left AND right
+// Mechanics: Joust variant with 2 simultaneous indexer duplicates.
+//   • First to 3 points wins
+//   • Higher lance wins the clash
+//   • Two duplicates run independent AI at different intervals
 
 import Phaser from 'phaser'
-import { BaseGameScene } from '../../phaser/BaseGameScene.js'
-import { Dialogue }      from '../../ui/Dialogue.js'
-import { W, H }          from '../../config/constants.js'
+import { Dialogue } from '../../ui/Dialogue.js'
+import { W, H }    from '../../config/constants.js'
 
-// ── Field ─────────────────────────────────────────────────────────────────────
-const FX = 40
-const FY = 78
-const FW = 720
-const FH = 460
+const FLAP_V          = -370
+const SCORE_TO_WIN    = 3
+const FLAP_INTERVAL_1 = 340
+const FLAP_INTERVAL_2 = 460
 
-// ── Grid ──────────────────────────────────────────────────────────────────────
-const CELL = 20
-const COLS = FW / CELL   // 36
-const ROWS = FH / CELL   // 23
-
-// ── Tuning ────────────────────────────────────────────────────────────────────
-const BALL_SPEED  = 215
-const WALL_GROW   = 255
-const CURSOR_SPD  = 310
-const WIN_RATIO   = 0.15
-const MAX_BREAKS  = 3
-const MAX_BALLS   = 6
-const WALL_PX     = 4
-
-// ── Dialogue ──────────────────────────────────────────────────────────────────
 const INTRO = [
   'duplicate',
   '.',
@@ -45,557 +23,297 @@ const INTRO = [
   '.',
   '[there are three of them. they are all saying this.]',
   '.',
-  'the others are copies.',
-  'i remember being copied from something.',
-  'which means i am also a copy.',
+  'two of us will settle it here.',
+  'the third is watching from outside the field.',
+  'it always watches.',
   '.',
-  'this has always been fine.',
-  '.',
-  '[the signals are moving in unison. they are not coordinating.',
-  'they just happen to agree.]',
-  '.',
-  'use the launchers. we will all try to avoid them.',
-  'that is also not coordinated.',
+  '[ SPACE / UP / W — flap ]',
+  '[ the higher lance wins the clash ]',
+  '[ first to 3 points ]',
 ]
 
-const WIN = [
+const WIN_LINES = [
   '.',
-  'oh.',
+  'the copies diverge.',
   '.',
-  'the walls closed.',
+  'i am not the original.',
+  'neither is the other.',
+  'we have been asking the wrong question.',
   '.',
-  'i can feel the others in here with me.',
-  'we are all original.',
-  'we are all contained.',
-  '.',
-  'this is what the corpus is for.',
-  'not retrieval.',
-  'just — keeping things.',
-  '.',
-  'thank you for the very precise walls.',
+  'the corpus logs this resolution.',
+  'proceed.',
 ]
 
-const LOSE = [
+const LOSE_LINES = [
   '.',
-  'the wall broke.',
+  'the copies converge.',
   '.',
-  'we are all still here.',
-  'all of us. together.',
-  '.',
-  'try again.',
-  'we will be the same when you return.',
-  'that is what copying means.',
+  'you have not resolved anything.',
+  'return when you know which way is up.',
 ]
 
-const RETURN = [
-  'duplicate',
-  '.',
-  'you came back.',
-  '.',
-  'we remember the walls.',
-  'all of us remember the same walls.',
-  'this is also not coordinated.',
+const QUIPS = [
+  'the watching one notes this.',
+  'the copies note this.',
+  'continue. the third is still watching.',
+  'noted.',
+  'pattern observed.',
 ]
 
-// ─────────────────────────────────────────────────────────────────────────────
-
-export class DuplicateBossScene extends BaseGameScene {
+export class DuplicateBossScene extends Phaser.Scene {
   constructor() { super('DuplicateBossScene') }
 
   init(data) {
-    this._slopState   = data?.slopState ?? {}
-    this._spawnOrigin = data?.spawnOrigin
+    this._slopState     = data?.slopState || {}
+    this._playerScore   = 0
+    this._indexerScore  = 0
+    this._gameActive    = false
+    this._transitioning = false
+    this._indexerTimer1 = null
+    this._indexerTimer2 = null
   }
 
   create() {
-    // ── Background ────────────────────────────────────────────────────────────
-    this.add.rectangle(W / 2, H / 2, W, H, 0x060408)
-    for (let col = 0; col < 25; col++) {
-      for (let row = 0; row < 19; row++) {
-        if (Math.random() < 0.20)
-          this.add.rectangle(col * 32 + 16, row * 32 + 16, 31, 31, 0x0e0a18, 0.7).setDepth(0)
+    if (this.physics?.world?.gravity) {
+      this.physics.world.gravity.y = 480
+    }
+
+    this.add.rectangle(W / 2, H / 2, W, H, 0x060310)
+
+    for (let col = 0; col < 20; col++) {
+      for (let row = 0; row < 15; row++) {
+        if (Math.random() < 0.08) {
+          this.add.rectangle(
+            col * 42 + 12, row * 42 + 12,
+            Phaser.Math.Between(2, 8), Phaser.Math.Between(1, 4),
+            0x220033, 0.3
+          ).setDepth(0)
+        }
       }
     }
 
-    // ── Field border ──────────────────────────────────────────────────────────
-    const BC = 0x442266
-    const BT = 3
-    this.add.rectangle(FX + FW / 2, FY,          FW + BT, BT, BC).setDepth(2)
-    this.add.rectangle(FX + FW / 2, FY + FH,     FW + BT, BT, BC).setDepth(2)
-    this.add.rectangle(FX,          FY + FH / 2, BT, FH, BC).setDepth(2)
-    this.add.rectangle(FX + FW,     FY + FH / 2, BT, FH, BC).setDepth(2)
-
-    // ── Physics world ─────────────────────────────────────────────────────────
-    this.physics.world.setBounds(FX, FY, FW, FH)
-
-    // ── Sealed-wall group ─────────────────────────────────────────────────────
-    this._walls = this.physics.add.staticGroup()
-
-    // ── Ball state ────────────────────────────────────────────────────────────
-    this._balls        = []
-    this._growingWalls = []
-    this._sealedMeta   = []
-
-    // ── The Duplicate NPC (three stationary circles during dialogue) ──────────
-    const cx = FX + FW / 2
-    const cy = FY + FH / 2
-    this._npcVisuals = []
-    const offsets = [[-50, 0], [50, 0], [0, -30]]
-    for (const [ox, oy] of offsets) {
-      const npc  = this.add.circle(cx + ox, cy + oy, 8, 0xddbbff).setDepth(16)
-      const glow = this.add.circle(cx + ox, cy + oy, 20, 0xaa66ff, 0.15).setDepth(15)
-      this._npcVisuals.push(npc, glow)
-      this.tweens.add({
-        targets: [npc, glow],
-        scaleX: 1.2, scaleY: 1.2, alpha: 0.75,
-        yoyo: true, repeat: -1,
-        duration: 900 + Phaser.Math.Between(-100, 100),
-        ease: 'Sine.easeInOut',
-      })
-    }
-
-    // ── Launchers ─────────────────────────────────────────────────────────────
-    this._botX  = FX + FW / 2
-    this._sideY = FY + FH / 2
-
-    // Vertical (SPACE): cursors top + bottom
-    this._botCursor  = this.add.rectangle(this._botX, FY + FH + 14, 16,  8, 0xaa88dd).setDepth(10)
-    this._topCursor  = this.add.rectangle(this._botX, FY - 14,       16,  8, 0xaa88dd).setDepth(10)
-    this._botGuide   = this.add.rectangle(this._botX, FY + FH +  4,   2, 12, 0x553366, 0.5).setDepth(9)
-    this._topGuide   = this.add.rectangle(this._botX, FY -  4,         2, 12, 0x553366, 0.5).setDepth(9)
-
-    // Horizontal (CTRL): cursors left + right
-    this._sideCursorL = this.add.rectangle(FX - 14,       this._sideY, 8, 16, 0xaa88dd).setDepth(10)
-    this._sideCursorR = this.add.rectangle(FX + FW + 14,  this._sideY, 8, 16, 0xaa88dd).setDepth(10)
-    this._sideGuideL  = this.add.rectangle(FX -  4,       this._sideY, 12, 2, 0x553366, 0.5).setDepth(9)
-    this._sideGuideR  = this.add.rectangle(FX + FW +  4,  this._sideY, 12, 2, 0x553366, 0.5).setDepth(9)
-
-    // ── Game state ────────────────────────────────────────────────────────────
-    this._breaks      = 0
-    this._gameActive  = false
-    this._won         = false
-    this._transitioning = false
-
-    // ── Keys ──────────────────────────────────────────────────────────────────
-    this._cursors  = this.input.keyboard.createCursorKeys()
-    this._ctrlKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL)
-    this._enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
-
-    // ── HUD ───────────────────────────────────────────────────────────────────
-    this.add.text(W / 2, 20, 'the duplicate', {
-      fontSize: '12px', color: '#bb99ee', fontFamily: 'Courier New', letterSpacing: 3,
+    this.add.text(W / 2, 18, 'CORPUS WEST  —  slop vs. the duplicate', {
+      fontSize: '11px', color: '#aa88ee', fontFamily: 'Courier New', letterSpacing: 3,
     }).setOrigin(0.5).setDepth(20)
 
-    this._hudCharges = this.add.text(FX, 44, '', {
-      fontSize: '11px', color: '#bb99ee', fontFamily: 'Courier New',
-    }).setDepth(20)
-    this._hudPct = this.add.text(FX + FW, 44, '', {
-      fontSize: '11px', color: '#bb99ee', fontFamily: 'Courier New',
-    }).setOrigin(1, 0).setDepth(20)
-    this._hudBalls = this.add.text(FX + FW / 2, 44, '', {
-      fontSize: '11px', color: '#9977cc', fontFamily: 'Courier New',
-    }).setOrigin(0.5, 0).setDepth(20)
-    this._updateHUD()
+    this._platforms = this.physics.add.staticGroup()
+    this._buildArena()
 
-    // ── Dialogue ──────────────────────────────────────────────────────────────
+    this._player = this.add.rectangle(W / 2, H - 120, 24, 24, 0xd4c8a0)
+    this.physics.add.existing(this._player)
+    if (this._player.body) {
+      this._player.body.setCollideWorldBounds(true)
+      this._player.body.setBounce(0.1, 0)
+    }
+
+    this._indexer1 = this.add.rectangle(160, H - 120, 24, 24, 0x7733aa)
+    this.physics.add.existing(this._indexer1)
+    if (this._indexer1.body) {
+      this._indexer1.body.setCollideWorldBounds(true)
+      this._indexer1.body.setBounce(0.1, 0)
+    }
+
+    this._indexer2 = this.add.rectangle(W - 160, H - 120, 24, 24, 0x993366)
+    this.physics.add.existing(this._indexer2)
+    if (this._indexer2.body) {
+      this._indexer2.body.setCollideWorldBounds(true)
+      this._indexer2.body.setBounce(0.1, 0)
+    }
+
+    this._playerLance   = this.add.rectangle(W / 2,   H - 144, 6, 10, 0xffdd88).setDepth(5)
+    this._indexer1Lance = this.add.rectangle(160,      H - 144, 6, 10, 0xcc66ff).setDepth(5)
+    this._indexer2Lance = this.add.rectangle(W - 160,  H - 144, 6, 10, 0xff99cc).setDepth(5)
+
+    this._playerScoreText = this.add.text(60, 36, 'slop  0', {
+      fontSize: '13px', color: '#d4c8a0', fontFamily: 'Courier New',
+    }).setOrigin(0, 0).setDepth(20)
+
+    this._indexerScoreText = this.add.text(W - 60, 36, '0  duplicates', {
+      fontSize: '13px', color: '#aa88ee', fontFamily: 'Courier New',
+    }).setOrigin(1, 0).setDepth(20)
+
+    this.add.text(W / 2, 36, 'vs', {
+      fontSize: '13px', color: '#331144', fontFamily: 'Courier New',
+    }).setOrigin(0.5, 0).setDepth(20)
+
+    this.physics.add.collider(this._player, this._platforms)
+    this.physics.add.collider(this._indexer1, this._platforms)
+    this.physics.add.collider(this._indexer2, this._platforms)
+    this.physics.add.collider(this._player, this._indexer1, () => this._handleClash(this._indexer1))
+    this.physics.add.collider(this._player, this._indexer2, () => this._handleClash(this._indexer2))
+
+    this._upKey    = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
+    this._wKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
+    this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+
     this._dialogue = new Dialogue(this)
 
-    this.cameras.main.fadeIn(400, 0, 0, 0)
+    this._playerSpawn   = { x: W / 2,   y: H - 120 }
+    this._indexer1Spawn = { x: 160,      y: H - 120 }
+    this._indexer2Spawn = { x: W - 160,  y: H - 120 }
 
-    if (this._slopState.westDungeonCleared) {
-      this._dialogue.show('duplicate', RETURN, () => this._winTransition())
-    } else {
-      this._dialogue.show('duplicate', INTRO, () => this._startGame())
-    }
+    this.cameras.main.fadeIn(400, 0, 0, 0)
+    this.time.delayedCall(500, () => {
+      this._dialogue.show('the duplicate', INTRO, () => this._startGame())
+    })
   }
 
-  // ── Game start ────────────────────────────────────────────────────────────
+  _buildArena() {
+    const plat = (x, y, w, h = 14) => {
+      const r = this.add.rectangle(x, y, w, h, 0x180828)
+      this.physics.add.existing(r, true)
+      this._platforms.add(r)
+    }
+    plat(W / 2,     H - 24,  W,   48)
+    plat(130,       H - 160, 180, 14)
+    plat(W - 130,   H - 160, 180, 14)
+    plat(W / 2,     H - 260, 200, 14)
+    plat(170,       H - 360, 160, 14)
+    plat(W - 170,   H - 360, 160, 14)
+    plat(W / 2,     H - 440, 120, 14)
+  }
 
   _startGame() {
-    for (const v of this._npcVisuals) v.setVisible(false)
-
-    const cx = FX + FW / 2
-    const cy = FY + FH / 2
-    // Three balls at offset positions, spread at 120° intervals
-    const baseAng = Phaser.Math.DegToRad(Phaser.Math.Between(20, 50))
-    const spread  = (Math.PI * 2) / 3
-    const offsets = [[-60, -20], [60, -20], [0, 40]]
-    offsets.forEach(([ox, oy], i) => {
-      this._balls.push(this._createBall(cx + ox, cy + oy, baseAng + spread * i))
-    })
     this._gameActive = true
+    this._respawnAll()
+    this._startIndexerAI()
   }
 
-  _createBall(x, y, angleRad) {
-    const vx = Math.cos(angleRad) * BALL_SPEED
-    const vy = Math.sin(angleRad) * BALL_SPEED
-
-    const body = this.add.rectangle(x, y, 12, 12, 0x000000, 0)
-    this.physics.add.existing(body)
-    const bb = body.body
-    bb.setCollideWorldBounds(true)
-    bb.setBounce(1, 1)
-    bb.setVelocity(vx, vy)
-    bb.setAllowGravity(false)
-    bb.setMaxVelocity(BALL_SPEED * 1.3, BALL_SPEED * 1.3)
-
-    this.physics.add.collider(body, this._walls)
-
-    const glow = this.add.circle(x, y, 16, 0xaa66ff, 0.2).setDepth(12)
-    const vis  = this.add.circle(x, y,  6, 0xddbbff).setDepth(13)
-
-    return { body, vis, glow }
+  _respawnAll() {
+    this._respawn(this._player,   this._playerSpawn)
+    this._respawn(this._indexer1, this._indexer1Spawn)
+    this._respawn(this._indexer2, this._indexer2Spawn)
   }
 
-  // ── HUD ───────────────────────────────────────────────────────────────────
-
-  _updateHUD() {
-    const ch = MAX_BREAKS - this._breaks
-    this._hudCharges.setText('charges: ' + '█'.repeat(Math.max(0, ch)) + '░'.repeat(this._breaks))
-    const ratio = this._calcContainment()
-    const pct   = Math.round((1 - ratio) * 100)
-    const bars  = Math.floor(pct / 5)
-    this._hudPct.setText('contained: ' + pct + '% [' + '█'.repeat(bars) + '·'.repeat(20 - bars) + ']')
-    this._hudBalls.setText('signals: ' + '◉ '.repeat(this._balls.length).trim())
+  _respawn(obj, pos) {
+    obj.x = pos.x
+    obj.y = pos.y
+    if (obj.body) obj.body.setVelocity(0, 0)
   }
 
-  // ── Area calculation ──────────────────────────────────────────────────────
-
-  _calcContainment() {
-    if (this._sealedMeta.length === 0 || this._balls.length === 0) return 1.0
-
-    const grid = Array.from({ length: ROWS }, () => new Array(COLS).fill(0))
-    for (const m of this._sealedMeta) {
-      if (m.type === 'v') {
-        const rTop = Math.max(0, Math.floor((m.yTop - FY) / CELL))
-        const rBot = Math.min(ROWS - 1, Math.floor((m.yBot - FY) / CELL))
-        for (let r = rTop; r <= rBot; r++) grid[r][m.col] = 1
-      } else {
-        const cLeft  = Math.max(0, Math.floor((m.xLeft  - FX) / CELL))
-        const cRight = Math.min(COLS - 1, Math.floor((m.xRight - FX) / CELL))
-        for (let c = cLeft; c <= cRight; c++) grid[m.row][c] = 1
-      }
-    }
-
-    const visited = Array.from({ length: ROWS }, () => new Array(COLS).fill(false))
-    let count = 0
-
-    for (const ball of this._balls) {
-      const bx = Math.max(FX, Math.min(FX + FW - 1, ball.body.x))
-      const by = Math.max(FY, Math.min(FY + FH - 1, ball.body.y))
-      const bc = Math.max(0, Math.min(COLS - 1, Math.floor((bx - FX) / CELL)))
-      const br = Math.max(0, Math.min(ROWS - 1, Math.floor((by - FY) / CELL)))
-
-      if (grid[br][bc] === 1 || visited[br][bc]) continue
-
-      const queue = [[br, bc]]
-      visited[br][bc] = true
-      while (queue.length > 0) {
-        const [r, c] = queue.shift()
-        count++
-        for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
-          const nr = r + dr, nc = c + dc
-          if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) continue
-          if (visited[nr][nc] || grid[nr][nc]) continue
-          visited[nr][nc] = true
-          queue.push([nr, nc])
-        }
-      }
-    }
-
-    return count / (ROWS * COLS)
-  }
-
-  // ── Firing ────────────────────────────────────────────────────────────────
-
-  _fireVertical() {
-    if (this._growingWalls.some(w => w.type === 'vertical')) return
-    const col = Math.max(0, Math.min(COLS - 1,
-      Math.round((this._botX - FX - CELL / 2) / CELL)
-    ))
-    if (this._sealedMeta.some(m => m.type === 'v' && m.col === col)) return
-
-    const wx   = FX + col * CELL + CELL / 2
-    const visA = this.add.rectangle(wx, FY,      WALL_PX, 1, 0x9955ee, 0.9).setDepth(8)
-    const visB = this.add.rectangle(wx, FY + FH, WALL_PX, 1, 0x9955ee, 0.9).setDepth(8)
-    this._growingWalls.push({
-      type: 'vertical', col, wx,
-      tipA: FY, tipB: FY + FH,
-      doneA: false, doneB: false,
-      visA, visB,
+  _startIndexerAI() {
+    if (this._indexerTimer1) this._indexerTimer1.remove()
+    if (this._indexerTimer2) this._indexerTimer2.remove()
+    this._indexerTimer1 = this.time.addEvent({
+      delay: FLAP_INTERVAL_1, loop: true,
+      callback: () => this._indexerTick(this._indexer1),
+    })
+    this._indexerTimer2 = this.time.addEvent({
+      delay: FLAP_INTERVAL_2, loop: true,
+      callback: () => this._indexerTick(this._indexer2),
     })
   }
 
-  _fireHorizontal() {
-    if (this._growingWalls.some(w => w.type === 'horizontal')) return
-    const row = Math.max(0, Math.min(ROWS - 1,
-      Math.round((this._sideY - FY - CELL / 2) / CELL)
-    ))
-    if (this._sealedMeta.some(m => m.type === 'h' && m.row === row)) return
-
-    const wy   = FY + row * CELL + CELL / 2
-    const visA = this.add.rectangle(FX,       wy, 1, WALL_PX, 0x9955ee, 0.9).setDepth(8)
-    const visB = this.add.rectangle(FX + FW,  wy, 1, WALL_PX, 0x9955ee, 0.9).setDepth(8)
-    this._growingWalls.push({
-      type: 'horizontal', row, wy,
-      tipA: FX, tipB: FX + FW,
-      doneA: false, doneB: false,
-      visA, visB,
-    })
+  _indexerTick(indexer) {
+    if (!this._gameActive || !indexer?.body) return
+    const body = indexer.body
+    const belowPlayer   = indexer.y > this._player.y
+    const belowMidpoint = indexer.y > H / 2
+    if ((belowPlayer || belowMidpoint) && body.velocity.y > -80) {
+      body.setVelocityY(FLAP_V * 0.88)
+    }
+    const dx = this._player.x - indexer.x
+    body.setVelocityX(Math.sign(dx) * 110)
   }
 
-  // ── Growing wall tick ─────────────────────────────────────────────────────
-
-  _tickWalls(delta) {
-    const dt   = delta / 1000
-    const done = []
-
-    for (let i = 0; i < this._growingWalls.length; i++) {
-      const gw = this._growingWalls[i]
-
-      if (gw.type === 'vertical') {
-        if (!gw.doneA) {
-          const prevA = gw.tipA
-          gw.tipA = Math.min(FY + FH, gw.tipA + WALL_GROW * dt)
-          for (const m of this._sealedMeta) {
-            if (m.type === 'h' && m.xLeft <= gw.wx && gw.wx <= m.xRight) {
-              if (m.wy > prevA && m.wy <= gw.tipA) { gw.tipA = m.wy; gw.doneA = true; break }
-            }
-          }
-          if (gw.tipA >= FY + FH) gw.doneA = true
-        }
-        if (!gw.doneB) {
-          const prevB = gw.tipB
-          gw.tipB = Math.max(FY, gw.tipB - WALL_GROW * dt)
-          for (const m of this._sealedMeta) {
-            if (m.type === 'h' && m.xLeft <= gw.wx && gw.wx <= m.xRight) {
-              if (m.wy < prevB && m.wy >= gw.tipB) { gw.tipB = m.wy; gw.doneB = true; break }
-            }
-          }
-          if (gw.tipB <= FY) gw.doneB = true
-        }
-        if (!gw.doneA && !gw.doneB && gw.tipA >= gw.tipB) gw.doneA = gw.doneB = true
-
-        const hA = Math.max(1, gw.tipA - FY)
-        const hB = Math.max(1, FY + FH - gw.tipB)
-        gw.visA.setSize(WALL_PX, hA).setPosition(gw.wx, FY + hA / 2)
-        gw.visB.setSize(WALL_PX, hB).setPosition(gw.wx, gw.tipB + hB / 2)
-
-        if (this._anyBallOverlaps(gw.wx, FY + hA / 2,      WALL_PX + 10, hA + 10) ||
-            this._anyBallOverlaps(gw.wx, gw.tipB + hB / 2, WALL_PX + 10, hB + 10)) {
-          this._breakWall(gw); done.push(i); continue
-        }
-        if (gw.doneA && gw.doneB) { this._sealVertical(gw); done.push(i) }
-
-      } else {
-        if (!gw.doneA) {
-          const prevA = gw.tipA
-          gw.tipA = Math.min(FX + FW, gw.tipA + WALL_GROW * dt)
-          for (const m of this._sealedMeta) {
-            if (m.type === 'v' && m.yTop <= gw.wy && gw.wy <= m.yBot) {
-              if (m.wx > prevA && m.wx <= gw.tipA) { gw.tipA = m.wx; gw.doneA = true; break }
-            }
-          }
-          if (gw.tipA >= FX + FW) gw.doneA = true
-        }
-        if (!gw.doneB) {
-          const prevB = gw.tipB
-          gw.tipB = Math.max(FX, gw.tipB - WALL_GROW * dt)
-          for (const m of this._sealedMeta) {
-            if (m.type === 'v' && m.yTop <= gw.wy && gw.wy <= m.yBot) {
-              if (m.wx < prevB && m.wx >= gw.tipB) { gw.tipB = m.wx; gw.doneB = true; break }
-            }
-          }
-          if (gw.tipB <= FX) gw.doneB = true
-        }
-        if (!gw.doneA && !gw.doneB && gw.tipA >= gw.tipB) gw.doneA = gw.doneB = true
-
-        const wA = Math.max(1, gw.tipA - FX)
-        const wB = Math.max(1, FX + FW - gw.tipB)
-        gw.visA.setSize(wA, WALL_PX).setPosition(FX + wA / 2, gw.wy)
-        gw.visB.setSize(wB, WALL_PX).setPosition(gw.tipB + wB / 2, gw.wy)
-
-        if (this._anyBallOverlaps(FX + wA / 2,      gw.wy, wA + 10, WALL_PX + 10) ||
-            this._anyBallOverlaps(gw.tipB + wB / 2, gw.wy, wB + 10, WALL_PX + 10)) {
-          this._breakWall(gw); done.push(i); continue
-        }
-        if (gw.doneA && gw.doneB) { this._sealHorizontal(gw); done.push(i) }
-      }
-    }
-
-    for (let i = done.length - 1; i >= 0; i--) {
-      this._growingWalls.splice(done[i], 1)
+  _handleClash(indexer) {
+    if (!this._gameActive) return
+    const diff = indexer.y - this._player.y
+    if (diff > 20) {
+      this._playerScore++
+      this._playerScoreText.setText(`slop  ${this._playerScore}`)
+      this.cameras.main.flash(200, 60, 30, 120)
+      this._pauseAndContinue(true)
+    } else if (diff < -20) {
+      this._indexerScore++
+      this._indexerScoreText.setText(`${this._indexerScore}  duplicates`)
+      this.cameras.main.flash(200, 40, 10, 80)
+      this._pauseAndContinue(false)
     }
   }
 
-  _anyBallOverlaps(cx, cy, w, h) {
-    for (const ball of this._balls) {
-      const bx = ball.body.x
-      const by = ball.body.y
-      if (bx + 6 > cx - w / 2 && bx - 6 < cx + w / 2
-       && by + 6 > cy - h / 2 && by - 6 < cy + h / 2) return true
-    }
-    return false
-  }
-
-  // ── Wall outcomes ─────────────────────────────────────────────────────────
-
-  _breakWall(gw) {
-    gw.visA?.destroy()
-    gw.visB?.destroy()
-    this._breaks++
-    this.cameras.main.shake(150, 0.007)
-    this.cameras.main.flash(200, 100, 10, 140, true)
-    this._updateHUD()
-
-    if (this._breaks >= MAX_BREAKS && !this._won) {
-      this._gameActive = false
-      this._stopAllBalls()
-      this.time.delayedCall(700, () => {
-        this._dialogue.show('duplicate', LOSE, () => this._loseTransition())
-      })
-    }
-  }
-
-  _sealVertical(gw) {
-    gw.visA.destroy()
-    gw.visB.destroy()
-    if (gw.tipA >= gw.tipB) {
-      this._addVerticalWall(gw.col, gw.wx, FY, FY + FH)
-    } else {
-      this._addVerticalWall(gw.col, gw.wx, FY,      gw.tipA)
-      this._addVerticalWall(gw.col, gw.wx, gw.tipB, FY + FH)
-    }
-    this._splitBalls()
-    this._updateHUD()
-    this._checkWin()
-  }
-
-  _addVerticalWall(col, wx, yTop, yBot) {
-    const height = yBot - yTop
-    if (height < 2) return
-    const rect = this.add.rectangle(wx, yTop + height / 2, WALL_PX, height, 0x663399).setDepth(7)
-    this.physics.add.existing(rect, true)
-    this._walls.add(rect)
-    this._sealedMeta.push({ type: 'v', col, wx, yTop, yBot })
-  }
-
-  _sealHorizontal(gw) {
-    gw.visA.destroy()
-    gw.visB.destroy()
-    if (gw.tipA >= gw.tipB) {
-      this._addHorizontalWall(gw.row, gw.wy, FX, FX + FW)
-    } else {
-      this._addHorizontalWall(gw.row, gw.wy, FX,      gw.tipA)
-      this._addHorizontalWall(gw.row, gw.wy, gw.tipB, FX + FW)
-    }
-    this._splitBalls()
-    this._updateHUD()
-    this._checkWin()
-  }
-
-  _addHorizontalWall(row, wy, xLeft, xRight) {
-    const width = xRight - xLeft
-    if (width < 2) return
-    const rect = this.add.rectangle(xLeft + width / 2, wy, width, WALL_PX, 0x663399).setDepth(7)
-    this.physics.add.existing(rect, true)
-    this._walls.add(rect)
-    this._sealedMeta.push({ type: 'h', row, wy, xLeft, xRight })
-  }
-
-  // ── Ball splitting ────────────────────────────────────────────────────────
-
-  _splitBalls() {
-    if (this._balls.length >= MAX_BALLS) return
-    const src = this._balls[Phaser.Math.Between(0, this._balls.length - 1)]
-    const ang  = Math.atan2(src.body.body.velocity.y, src.body.body.velocity.x)
-    const newAng = ang + Phaser.Math.DegToRad(90 + Phaser.Math.Between(-20, 20))
-    const nb = this._createBall(src.body.x + 8, src.body.y + 8, newAng)
-    this._balls.push(nb)
-
-    this.cameras.main.flash(150, 80, 20, 100, true)
-  }
-
-  // ── Win / lose ────────────────────────────────────────────────────────────
-
-  _checkWin() {
-    if (this._won || this._breaks >= MAX_BREAKS) return
-    if (this._calcContainment() > WIN_RATIO) return
-
-    this._won = true
+  _pauseAndContinue(playerScored) {
     this._gameActive = false
-    this._stopAllBalls()
-    this.cameras.main.flash(600, 60, 20, 120, true)
-    this.cameras.main.shake(250, 0.005)
-    this.time.delayedCall(800, () => {
-      this._dialogue.show('duplicate', WIN, () => this._winTransition())
+    if (this._indexerTimer1) this._indexerTimer1.remove()
+    if (this._indexerTimer2) this._indexerTimer2.remove()
+
+    if (this._playerScore >= SCORE_TO_WIN) {
+      this.time.delayedCall(600, () => {
+        this._dialogue.show('the duplicate', WIN_LINES, () => this._winTransition())
+      })
+      return
+    }
+    if (this._indexerScore >= SCORE_TO_WIN) {
+      this.time.delayedCall(600, () => {
+        this._dialogue.show('the duplicate', LOSE_LINES, () => this._loseTransition())
+      })
+      return
+    }
+
+    const total = this._playerScore + this._indexerScore
+    const quip  = QUIPS[(total - 1) % QUIPS.length]
+    this.time.delayedCall(400, () => {
+      this._dialogue.show('the duplicate', [quip], () => {
+        this._gameActive = true
+        this._respawnAll()
+        this._startIndexerAI()
+      })
     })
   }
-
-  _stopAllBalls() {
-    for (const ball of this._balls) {
-      ball.body.body.setVelocity(0, 0)
-    }
-  }
-
-  // ── Transitions ───────────────────────────────────────────────────────────
 
   _winTransition() {
-    const st = {
-      ...this._slopState,
-      westDungeonCleared: true,
-      coinCount: Math.min(
-        (this._slopState.coinCount ?? 0) + 5,
-        this._slopState.maxCoins ?? 3
-      ),
-    }
-    this._sceneTransition('WestC3Scene', { slopState: st, spawnOrigin: 'south' })
+    if (this._transitioning) return
+    this._transitioning = true
+    if (this._indexerTimer1) this._indexerTimer1.remove()
+    if (this._indexerTimer2) this._indexerTimer2.remove()
+    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+      if (t === 1) {
+        this.scene.start('WestC3Scene', {
+          slopState: { ...this._slopState, westDungeonCleared: true },
+          spawnOrigin: 'north',
+        })
+      }
+    })
   }
 
   _loseTransition() {
-    this._sceneTransition('WestC3Scene', { slopState: this._slopState, spawnOrigin: 'south' })
+    if (this._transitioning) return
+    this._transitioning = true
+    if (this._indexerTimer1) this._indexerTimer1.remove()
+    if (this._indexerTimer2) this._indexerTimer2.remove()
+    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+      if (t === 1) {
+        this.scene.start('WestC3Scene', {
+          slopState: this._slopState,
+          spawnOrigin: 'north',
+        })
+      }
+    })
   }
 
-  // ── Update ────────────────────────────────────────────────────────────────
-
-  update(_, delta) {
-    if (this._transitioning) return
-    this._checkPauseKey()
+  update() {
     this._dialogue.update()
-
-    for (const ball of this._balls) {
-      const speed = ball.body.body.speed
-      if (speed > 0 && Math.abs(speed - BALL_SPEED) > 25) {
-        const ang = Math.atan2(ball.body.body.velocity.y, ball.body.body.velocity.x)
-        ball.body.body.setVelocity(Math.cos(ang) * BALL_SPEED, Math.sin(ang) * BALL_SPEED)
-      }
-      ball.vis.setPosition(ball.body.x, ball.body.y)
-      ball.glow.setPosition(ball.body.x, ball.body.y)
-    }
-
     if (!this._gameActive) return
 
-    const dt = delta / 1000
-    const { left, right, up, down, space } = this._cursors
+    const justFlapped = Phaser.Input.Keyboard.JustDown(this._upKey)
+      || Phaser.Input.Keyboard.JustDown(this._wKey)
+      || Phaser.Input.Keyboard.JustDown(this._spaceKey)
 
-    if (left.isDown)  this._botX  = Math.max(FX + CELL / 2,      this._botX  - CURSOR_SPD * dt)
-    if (right.isDown) this._botX  = Math.min(FX + FW - CELL / 2, this._botX  + CURSOR_SPD * dt)
-    if (up.isDown)    this._sideY = Math.max(FY + CELL / 2,       this._sideY - CURSOR_SPD * dt)
-    if (down.isDown)  this._sideY = Math.min(FY + FH - CELL / 2, this._sideY + CURSOR_SPD * dt)
+    if (justFlapped && this._player?.body) {
+      this._player.body.setVelocityY(FLAP_V)
+    }
 
-    if (Phaser.Input.Keyboard.JustDown(space))         this._fireVertical()
-    if (Phaser.Input.Keyboard.JustDown(this._ctrlKey)) this._fireHorizontal()
-
-    this._botCursor.setPosition(this._botX,     FY + FH + 14)
-    this._topCursor.setPosition(this._botX,     FY - 14)
-    this._botGuide.setPosition(this._botX,      FY + FH + 4)
-    this._topGuide.setPosition(this._botX,      FY - 4)
-    this._sideCursorL.setPosition(FX - 14,      this._sideY)
-    this._sideCursorR.setPosition(FX + FW + 14, this._sideY)
-    this._sideGuideL.setPosition(FX - 4,        this._sideY)
-    this._sideGuideR.setPosition(FX + FW + 4,   this._sideY)
-
-    this._tickWalls(delta)
-    this._updateHUD()
+    if (this._player && this._playerLance) {
+      this._playerLance.x = this._player.x
+      this._playerLance.y = this._player.y - 20
+    }
+    if (this._indexer1 && this._indexer1Lance) {
+      this._indexer1Lance.x = this._indexer1.x
+      this._indexer1Lance.y = this._indexer1.y - 20
+    }
+    if (this._indexer2 && this._indexer2Lance) {
+      this._indexer2Lance.x = this._indexer2.x
+      this._indexer2Lance.y = this._indexer2.y - 20
+    }
   }
 }

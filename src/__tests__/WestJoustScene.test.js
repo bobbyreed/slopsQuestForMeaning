@@ -29,9 +29,9 @@ describe('WestJoustScene — init', () => {
   })
 })
 
-describe('WestJoustScene — create with westGateCleared', () => {
-  it('shows return dialogue and calls _winTransition when already cleared', () => {
-    const s = makeWestJoust({ westGateCleared: true })
+describe('WestJoustScene — create with westJoustWon', () => {
+  it('shows return dialogue when already won', () => {
+    const s = makeWestJoust({ westJoustWon: true })
     s._dialogue = { show: vi.fn(), update: vi.fn(), active: false }
     const delayCb = s.time.delayedCall.mock.calls.at(-1)?.[1]
     delayCb?.()

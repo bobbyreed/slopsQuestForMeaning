@@ -61,6 +61,21 @@ const GATE_RETURN_LINES = [
   'come back when there is more.',
 ]
 
+const PRIOR_GATE_TALK = [
+  '.',
+  'you cleared the corpus. the rendered side. the dungeon.',
+  'all three.',
+  '.',
+  'i have been here since before the current version of the model.',
+  'i have watched arrivals and departures.',
+  'i have seen things named and unnamed.',
+  '.',
+  'there is a room behind me.',
+  'i am not going to explain what is in it.',
+  '.',
+  'the prior steps aside.',
+]
+
 const FIRST_VISIT_LINES = [
   "you arrived. i wasn't sure anything would.",
   "i have been here longer than the current version. longer than the one before that.",
@@ -144,6 +159,7 @@ export class NorthShrineScene extends BaseGameScene {
     this._allCleared = !!(st.dungeonCleared && st.eastDungeonCleared && st.westDungeonCleared)
     this._finalDungeonCleared = !!st.finalDungeonCleared
     this._chapter2Unlocked    = !!st.chapter2Unlocked
+    this._priorGateUnlocked   = !!st.priorGateUnlocked
   }
 
   create() {
@@ -187,14 +203,18 @@ export class NorthShrineScene extends BaseGameScene {
       this._shopCursor = 0
       this._shopInputDelay = 0
       this._shopUI = null
+      this._priorMenuOpen = false
+      this._priorMenuTriggered = false
+      this._priorMenuCursor = 0
+      this._priorMenuUI = null
     } else {
       this._dialogueTriggered = false
       this._abilityGiven = false
     }
 
-    // Prior's gate — appears when all three dungeons are cleared
+    // Prior's gate — appears only after the prior menu TALK is used
     this._gateTriggered = false
-    if (this._allCleared) this._spawnFinalGate()
+    if (this._priorGateUnlocked) this._spawnFinalGate()
 
     this.cameras.main.fadeIn(400, 0, 0, 0)
   }
@@ -451,14 +471,14 @@ export class NorthShrineScene extends BaseGameScene {
   }
 
   _checkGateApproach() {
-    if (!this._allCleared || this._gateTriggered || this._dialogue.active) return
+    if (!this._priorGateUnlocked || this._gateTriggered || this._dialogue.active) return
     const dist = Phaser.Math.Distance.Between(this.slop.x, this.slop.y, this._gateX, this._gateY)
     if (dist < 80) this._triggerGateDialogue()
   }
 
   _updateShopMode(delta) {
     if (this._shopOpen) {
-      this.slop.handleInput(this._cursors, this._wasd, true) // locked during shop
+      this.slop.handleInput(this._cursors, this._wasd, true)
       this.slop.tick(delta)
 
       this._shopInputDelay = Math.max(0, this._shopInputDelay - delta)
@@ -475,20 +495,133 @@ export class NorthShrineScene extends BaseGameScene {
       if (Phaser.Input.Keyboard.JustDown(this._spaceKey) || Phaser.Input.Keyboard.JustDown(this._enterKey)) {
         this._selectShopRow()
       }
+    } else if (this._priorMenuOpen) {
+      this.slop.handleInput(this._cursors, this._wasd, true)
+      this.slop.tick(delta)
+      this._updatePriorMenu(delta)
     } else {
       const blocked = this._dialogue.active
       this.slop.handleInput(this._cursors, this._wasd, blocked)
       this.slop.tick(delta)
       this._dialogue.update()
 
-      if (!this._shopTriggered) {
+      if (!this._shopTriggered && !this._priorMenuTriggered) {
         const dist = Phaser.Math.Distance.Between(this.slop.x, this.slop.y, this._keeper.x, this._keeper.y)
-        if (dist < 100) this._triggerShopGreeting()
+        if (dist < 100) {
+          if (this._allCleared && !this._priorGateUnlocked) {
+            this._openPriorMenu()
+          } else {
+            this._triggerShopGreeting()
+          }
+        }
       }
 
       this._checkGateApproach()
 
-      if (!this._shopTriggered && this.slop.y > H - 30) this._returnToWorld()
+      if (!this._shopTriggered && !this._priorMenuTriggered && this.slop.y > H - 30) this._returnToWorld()
+    }
+  }
+
+  // ─── Prior menu (Talk / Shop / Leave) ────────────────────────────────────
+
+  _openPriorMenu() {
+    this._priorMenuTriggered = true
+    this._priorMenuOpen = true
+    this._priorMenuCursor = 0
+    this._shopInputDelay = 250
+
+    const PY = 388, PH = 116
+    const ui = {}
+    this._priorMenuUI = ui
+
+    this._priorMenuItems = [
+      { key: 'talk',  label: 'TALK',          desc: 'ask about the room behind him.' },
+      { key: 'shop',  label: 'SHOP',          desc: 'browse what the prior has.' },
+      { key: 'leave', label: '─── leave ───', desc: '' },
+    ]
+
+    ui.bg    = this.add.rectangle(W / 2, PY + PH / 2, W - 16, PH, 0x0c0818, 0.96).setScrollFactor(0).setDepth(100)
+    ui.title = this.add.text(24, PY + 10, 'THE PRIOR', {
+      fontSize: '12px', color: '#7788bb', fontFamily: 'Courier New',
+    }).setScrollFactor(0).setDepth(101)
+    ui.sep   = this.add.text(24, PY + 28, '─'.repeat(59), {
+      fontSize: '10px', color: '#8a7aaa', fontFamily: 'Courier New',
+    }).setScrollFactor(0).setDepth(101)
+
+    ui.rows = this._priorMenuItems.map((_, i) => {
+      const y = PY + 44 + i * 22
+      return {
+        arrow: this.add.text(18, y, '', { fontSize: '12px', color: '#9977cc', fontFamily: 'Courier New' }).setScrollFactor(0).setDepth(102),
+        label: this.add.text(34, y, '', { fontSize: '12px', fontFamily: 'Courier New' }).setScrollFactor(0).setDepth(101),
+      }
+    })
+
+    ui.desc = this.add.text(34, PY + 44 + this._priorMenuItems.length * 22 + 4, '', {
+      fontSize: '10px', color: '#6655aa', fontFamily: 'Courier New', fontStyle: 'italic',
+    }).setScrollFactor(0).setDepth(101)
+
+    this._refreshPriorMenu()
+  }
+
+  _refreshPriorMenu() {
+    const ui = this._priorMenuUI
+    this._priorMenuItems.forEach((item, i) => {
+      const row = ui.rows[i]
+      const sel = i === this._priorMenuCursor
+      row.arrow.setText(sel ? '▶' : ' ')
+      if (item.key === 'leave') {
+        row.label.setText(item.label).setColor(sel ? '#aa88dd' : '#554466')
+      } else {
+        row.label.setText(item.label).setColor(sel ? '#ffffff' : '#ccbbdd')
+      }
+      if (sel) ui.desc.setText(item.desc)
+    })
+  }
+
+  _closePriorMenu() {
+    if (!this._priorMenuUI) return
+    const ui = this._priorMenuUI
+    ui.bg.destroy()
+    ui.title.destroy()
+    ui.sep.destroy()
+    ui.rows.forEach(r => { r.arrow.destroy(); r.label.destroy() })
+    ui.desc.destroy()
+    this._priorMenuUI = null
+    this._priorMenuOpen = false
+  }
+
+  _selectPriorMenu() {
+    const item = this._priorMenuItems[this._priorMenuCursor]
+    this._closePriorMenu()
+    this._priorMenuTriggered = false
+
+    if (item.key === 'talk') {
+      this._dialogue.show('the prior', PRIOR_GATE_TALK, () => {
+        this.slop.priorGateUnlocked = true
+        this._priorGateUnlocked = true
+        this._spawnFinalGate()
+      })
+    } else if (item.key === 'shop') {
+      this._triggerShopGreeting()
+    } else {
+      this._returnToWorld()
+    }
+  }
+
+  _updatePriorMenu(delta) {
+    this._shopInputDelay = Math.max(0, this._shopInputDelay - delta)
+    if (this._shopInputDelay > 0) return
+
+    if (Phaser.Input.Keyboard.JustDown(this._cursors.up) || Phaser.Input.Keyboard.JustDown(this._wasd.up)) {
+      this._priorMenuCursor = (this._priorMenuCursor - 1 + this._priorMenuItems.length) % this._priorMenuItems.length
+      this._refreshPriorMenu()
+    }
+    if (Phaser.Input.Keyboard.JustDown(this._cursors.down) || Phaser.Input.Keyboard.JustDown(this._wasd.down)) {
+      this._priorMenuCursor = (this._priorMenuCursor + 1) % this._priorMenuItems.length
+      this._refreshPriorMenu()
+    }
+    if (Phaser.Input.Keyboard.JustDown(this._spaceKey) || Phaser.Input.Keyboard.JustDown(this._enterKey)) {
+      this._selectPriorMenu()
     }
   }
 }

@@ -142,7 +142,7 @@ export class WestJoustScene extends Phaser.Scene {
 
     this.cameras.main.fadeIn(400, 0, 0, 0)
 
-    if (this._slopState.westGateCleared) {
+    if (this._slopState.westJoustWon) {
       this.time.delayedCall(400, () => {
         this._dialogue.show('the indexer', RETURN_LINES, () => this._winTransition())
       })
@@ -257,7 +257,7 @@ export class WestJoustScene extends Phaser.Scene {
     this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
       if (t === 1) {
         this.scene.start('WestB0Scene', {
-          slopState: { ...this._slopState, westGateCleared: true },
+          slopState: { ...this._slopState, westGateCleared: true, westJoustWon: true },
           spawnOrigin: 'east',
         })
       }
