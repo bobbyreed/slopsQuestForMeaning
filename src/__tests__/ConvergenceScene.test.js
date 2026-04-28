@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 import { ConvergenceScene } from '../scenes/ConvergenceScene.js'
 
+// Field constants matching the scene
+const FX = 40, FY = 78, FW = 720, FH = 460, CELL = 20
+
 function makeKey(down = false) { return { isDown: down } }
 
 function makeCursors() {
@@ -31,6 +34,10 @@ function makeRect(x = 400, y = 308) {
     setScrollFactor: vi.fn().mockReturnThis(),
     destroy: vi.fn(),
   }
+}
+
+function mockVisual() {
+  return { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() }
 }
 
 function makeScene() {
@@ -172,7 +179,7 @@ describe('ConvergenceScene — _calcContainment', () => {
 
   it('returns 1.0 with no balls', () => {
     const s = makeScene()
-    s._sealedMeta.push({ col: 18, fromY: 78 })
+    s._sealedMeta.push({ type: 'v', col: 18, wx: FX + 18 * CELL + CELL / 2, yTop: FY, yBot: FY + FH })
     expect(s._calcContainment()).toBe(1.0)
   })
 
@@ -180,7 +187,7 @@ describe('ConvergenceScene — _calcContainment', () => {
     const s = makeScene()
     s._startGame()
     s._balls.forEach((b, i) => { b.body.x = 80 + i * 15; b.body.y = 308 })
-    s._sealedMeta.push({ col: 18, fromY: 78 })
+    s._sealedMeta.push({ type: 'v', col: 18, wx: FX + 18 * CELL + CELL / 2, yTop: FY, yBot: FY + FH })
     const ratio = s._calcContainment()
     expect(ratio).toBeLessThan(1.0)
     expect(ratio).toBeGreaterThan(0)
@@ -216,7 +223,7 @@ describe('ConvergenceScene — _splitBalls', () => {
 describe('ConvergenceScene — _breakWall', () => {
   it('increments breaks', () => {
     const s = makeScene()
-    s._breakWall({ visual: { destroy: vi.fn() } })
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s._breaks).toBe(1)
   })
 
@@ -225,7 +232,7 @@ describe('ConvergenceScene — _breakWall', () => {
     s._gameActive = true
     s._startGame()
     s._breaks = 2
-    s._breakWall({ visual: { destroy: vi.fn() } })
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s._gameActive).toBe(false)
     expect(s.time.delayedCall).toHaveBeenCalled()
   })
@@ -234,7 +241,7 @@ describe('ConvergenceScene — _breakWall', () => {
     const s = makeScene()
     s._won = true
     s._breaks = 2
-    s._breakWall({ visual: { destroy: vi.fn() } })
+    s._breakWall({ visA: { destroy: vi.fn() }, visB: { destroy: vi.fn() } })
     expect(s.time.delayedCall).not.toHaveBeenCalled()
   })
 })
@@ -244,7 +251,7 @@ describe('ConvergenceScene — sealing', () => {
     const s = makeScene()
     s._startGame()
     const countBefore = s._balls.length
-    s._sealVertical({ col: 10, wx: 240, tipY: 78, visual: { destroy: vi.fn() } })
+    s._sealVertical({ col: 10, wx: 240, tipA: FY + FH, tipB: FY, visA: mockVisual(), visB: mockVisual() })
     expect(s._sealedMeta.some(m => m.col === 10)).toBe(true)
     expect(s._balls.length).toBe(countBefore + 1)
   })
@@ -253,7 +260,7 @@ describe('ConvergenceScene — sealing', () => {
     const s = makeScene()
     s._startGame()
     const countBefore = s._balls.length
-    s._sealHorizontal({ row: 5, wy: 178, tipX: 760, visual: { destroy: vi.fn() } })
+    s._sealHorizontal({ row: 5, wy: 178, tipA: FX + FW, tipB: FX, visA: mockVisual(), visB: mockVisual() })
     expect(s._sealedMeta.some(m => m.row === 5)).toBe(true)
     expect(s._balls.length).toBe(countBefore + 1)
   })
@@ -398,79 +405,79 @@ describe('Slop — finalDungeonCleared state', () => {
   })
 })
 
-// Field constants matching the scene
-const FX = 40, FY = 78, FW = 720, FH = 460, CELL = 20
-
-describe('ConvergenceScene — _fireBottom', () => {
+describe('ConvergenceScene — _fireVertical', () => {
   it('creates a growing vertical wall', () => {
     const s = makeScene()
-    s._fireBottom()
+    s._fireVertical()
     expect(s._growingWalls).toHaveLength(1)
-    expect(s._growingWalls[0].dir).toBe('up')
+    expect(s._growingWalls[0].type).toBe('vertical')
   })
 
   it('does not fire a second vertical wall while one is growing', () => {
     const s = makeScene()
-    s._growingWalls.push({ dir: 'up', col: 10, wx: 240, tipY: 300,
-      visual: { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() } })
-    s._fireBottom()
+    s._growingWalls.push({ type: 'vertical', col: 10, wx: 240,
+      tipA: FY, tipB: FY + FH, doneA: false, doneB: false,
+      visA: mockVisual(), visB: mockVisual() })
+    s._fireVertical()
     expect(s._growingWalls).toHaveLength(1)
   })
 
   it('does not fire into a sealed column', () => {
     const s = makeScene()
-    s._sealedMeta.push({ col: 18, fromY: FY })
+    s._sealedMeta.push({ type: 'v', col: 18, wx: FX + 18 * CELL + CELL / 2, yTop: FY, yBot: FY + FH })
     s._botX = FX + 18 * CELL + CELL / 2
-    s._fireBottom()
+    s._fireVertical()
     expect(s._growingWalls).toHaveLength(0)
   })
 })
 
-describe('ConvergenceScene — _fireSide', () => {
+describe('ConvergenceScene — _fireHorizontal', () => {
   it('creates a growing horizontal wall', () => {
     const s = makeScene()
-    s._fireSide()
+    s._fireHorizontal()
     expect(s._growingWalls).toHaveLength(1)
-    expect(s._growingWalls[0].dir).toBe('right')
+    expect(s._growingWalls[0].type).toBe('horizontal')
   })
 
   it('does not fire a second horizontal wall while one is growing', () => {
     const s = makeScene()
-    s._growingWalls.push({ dir: 'right', row: 5, wy: 188, tipX: FX,
-      visual: { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() } })
-    s._fireSide()
+    s._growingWalls.push({ type: 'horizontal', row: 5, wy: 188,
+      tipA: FX, tipB: FX + FW, doneA: false, doneB: false,
+      visA: mockVisual(), visB: mockVisual() })
+    s._fireHorizontal()
     expect(s._growingWalls).toHaveLength(1)
   })
 
   it('does not fire into a sealed row', () => {
     const s = makeScene()
-    s._sealedMeta.push({ row: 11, toX: FX + FW })
+    s._sealedMeta.push({ type: 'h', row: 11, wy: FY + 11 * CELL + CELL / 2, xLeft: FX, xRight: FX + FW })
     s._sideY = FY + 11 * CELL + CELL / 2
-    s._fireSide()
+    s._fireHorizontal()
     expect(s._growingWalls).toHaveLength(0)
   })
 })
 
 describe('ConvergenceScene — _tickWalls', () => {
-  function mockVisual() {
-    return { destroy: vi.fn(), setSize: vi.fn().mockReturnThis(), setPosition: vi.fn() }
-  }
-
-  it('moves vertical wall tip upward', () => {
+  it('moves vertical wall tipB upward', () => {
     const s = makeScene()
     s._startGame()
     s._balls.forEach(b => { b.body.x = 700; b.body.y = 400 })
-    s._growingWalls.push({ dir: 'up', col: 10, wx: 240, tipY: 400, visual: mockVisual() })
-    const tipBefore = s._growingWalls[0].tipY
+    s._growingWalls.push({ type: 'vertical', col: 10, wx: 240,
+      tipA: FY, tipB: FY + FH, doneA: false, doneB: false,
+      visA: mockVisual(), visB: mockVisual() })
+    const tipBBefore = s._growingWalls[0].tipB
     s._tickWalls(16)
-    expect(s._growingWalls[0].tipY).toBeLessThan(tipBefore)
+    expect(s._growingWalls[0].tipB).toBeLessThan(tipBBefore)
   })
 
-  it('seals vertical wall when tip reaches field top', () => {
+  it('seals vertical wall when both halves finish', () => {
     const s = makeScene()
     s._startGame()
     s._balls.forEach(b => { b.body.x = 700; b.body.y = 400 })
-    s._growingWalls.push({ dir: 'up', col: 5, wx: 140, tipY: FY + 2, visual: mockVisual() })
+    // doneA true; tipB near FY so one tick finishes it
+    s._growingWalls.push({ type: 'vertical', col: 5, wx: 140,
+      tipA: FY + FH, tipB: FY + 2, doneA: true, doneB: false,
+      visA: mockVisual(), visB: mockVisual() })
     s._tickWalls(100)
     expect(s._sealedMeta.some(m => m.col === 5)).toBe(true)
   })
@@ -479,16 +486,22 @@ describe('ConvergenceScene — _tickWalls', () => {
     const s = makeScene()
     s._startGame()
     s._balls.forEach(b => { b.body.x = 400; b.body.y = 350 })
-    s._growingWalls.push({ dir: 'up', col: 18, wx: 400, tipY: 320, visual: mockVisual() })
+    // tipA has grown to y=350 — visA spans FY→350, ball at y=350 overlaps
+    s._growingWalls.push({ type: 'vertical', col: 18, wx: 400,
+      tipA: 350, tipB: FY + FH, doneA: false, doneB: false,
+      visA: mockVisual(), visB: mockVisual() })
     s._tickWalls(16)
     expect(s._breaks).toBe(1)
   })
 
-  it('seals horizontal wall when tip reaches field right edge', () => {
+  it('seals horizontal wall when both halves finish', () => {
     const s = makeScene()
     s._startGame()
     s._balls.forEach(b => { b.body.x = 100; b.body.y = 400 })
-    s._growingWalls.push({ dir: 'right', row: 5, wy: 188, tipX: FX + FW - 2, visual: mockVisual() })
+    // doneA true; tipB near FX so one tick finishes it
+    s._growingWalls.push({ type: 'horizontal', row: 5, wy: 188,
+      tipA: FX + FW, tipB: FX + 2, doneA: true, doneB: false,
+      visA: mockVisual(), visB: mockVisual() })
     s._tickWalls(100)
     expect(s._sealedMeta.some(m => m.row === 5)).toBe(true)
   })
@@ -498,8 +511,10 @@ describe('ConvergenceScene — _tickWalls', () => {
     s._startGame()
     s._balls.forEach(b => { b.body.x = 700; b.body.y = 400 })
     const wy = FY + 10 * CELL + CELL / 2
-    s._sealedMeta.push({ row: 10, toX: 200 })
-    s._growingWalls.push({ dir: 'up', col: 18, wx: 400, tipY: wy + 3, visual: mockVisual() })
+    s._sealedMeta.push({ type: 'h', row: 10, wy, xLeft: FX, xRight: 200 })   // ends at x=200, col 18 wx=400
+    s._growingWalls.push({ type: 'vertical', col: 18, wx: 400,
+      tipA: FY, tipB: wy + 3, doneA: false, doneB: false,
+      visA: mockVisual(), visB: mockVisual() })
     s._tickWalls(16)
     expect(s._sealedMeta).toHaveLength(1)
   })
@@ -510,8 +525,10 @@ describe('ConvergenceScene — _tickWalls', () => {
     s._balls.forEach(b => { b.body.x = 700; b.body.y = 400 })
     const wx = FX + 10 * CELL + CELL / 2
     const gwy = FY + 5 * CELL + CELL / 2
-    s._sealedMeta.push({ col: 10, fromY: 300 })
-    s._growingWalls.push({ dir: 'right', row: 5, wy: gwy, tipX: wx - 3, visual: mockVisual() })
+    s._sealedMeta.push({ type: 'v', col: 10, wx, yTop: 300, yBot: FY + FH })   // yTop=300 > row5 wy=188
+    s._growingWalls.push({ type: 'horizontal', row: 5, wy: gwy,
+      tipA: wx - 3, tipB: FX + FW, doneA: false, doneB: false,
+      visA: mockVisual(), visB: mockVisual() })
     s._tickWalls(16)
     expect(s._sealedMeta).toHaveLength(1)
   })
