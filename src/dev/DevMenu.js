@@ -13,6 +13,7 @@ const SCENES = [
   { key: 'WestGateScene',      label: 'W.GATE',     spawn: 'east' },
   { key: 'DuplicateBossScene', label: 'DUPLICATE',  spawn: 'west' },
   { key: 'ConvergenceScene',   label: 'FINAL',      spawn: 'shrine' },
+  { key: 'Chapter2DemoScene', label: 'CH2 DEMO',   spawn: null },
 ]
 
 // ── State presets ─────────────────────────────────────────────────────────────

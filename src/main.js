@@ -31,6 +31,7 @@ import { ArchiveTownScene }   from './scenes/west/ArchiveTownScene.js'
 import { DuplicateBossScene }    from './scenes/west/DuplicateBossScene.js'
 import { JoustScene }            from './scenes/JoustScene.js'
 import { PlatformerWorldScene }  from './scenes/PlatformerWorldScene.js'
+import { Chapter2DemoScene }     from './scenes/Chapter2DemoScene.js'
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -55,7 +56,7 @@ new Phaser.Game({
     WestA0Scene, WestA1Scene, WestA2Scene, WestA3Scene,
     WestB0Scene, WestB1Scene, WestB3Scene,
     WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,
-    JoustScene, PlatformerWorldScene,
+    JoustScene, PlatformerWorldScene, Chapter2DemoScene,
     PauseScene,
   ],
 })
