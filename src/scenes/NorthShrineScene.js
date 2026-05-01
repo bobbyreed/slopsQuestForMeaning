@@ -505,7 +505,7 @@ export class NorthShrineScene extends BaseGameScene {
       this.slop.tick(delta)
       this._dialogue.update()
 
-      if (!this._shopTriggered && !this._priorMenuTriggered) {
+      if (!this._shopTriggered && !this._priorMenuTriggered && !this._dialogue.active) {
         const dist = Phaser.Math.Distance.Between(this.slop.x, this.slop.y, this._keeper.x, this._keeper.y)
         if (dist < 100) {
           if (this._allCleared && !this._priorGateUnlocked) {

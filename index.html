@@ -148,6 +148,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('game-container').scrollIntoView({ behavior: 'instant', block: 'start' })
     })
+    window.addEventListener('keydown', (e) => {
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+        e.preventDefault()
+      }
+    }, { passive: false })
   </script>
 </body>
 </html>

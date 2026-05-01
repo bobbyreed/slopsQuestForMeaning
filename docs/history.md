@@ -246,3 +246,22 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 71**
 > Let's do some loops on the gdd and polish it up. After that, let's update the readme to be a proper readme under the terminal commands. This is great! I'm loving your progress!
+
+---
+
+## 2026-04-28
+
+**Prompt 72** *(text largely lost to session compaction — drove: Replace west dungeon Jezzball gate with WestJoustScene — the Indexer now guards the corpus entrance with a joust challenge; redesign DuplicateBossScene as a joust variant with two simultaneous AI opponents; add Prior's gate TALK / SHOP / LEAVE menu to NorthShrineScene after all three dungeons cleared; propagate the dual-half Jezzball wall system to the remaining two scenes; add Chapter 2 demo scene as a side-scrolling combat sandbox)*
+
+---
+
+## 2026-04-29
+
+**Prompt 73**
+> The joust game in the west game doesn't seem to have any ability to go left and right. The jump works great. The prior conversation after clearing the duplicate is buggy. You can't select Talk. It looks like two panels are on top of each other. Can you take a look? Once you figure out what the issue is, please create tests to check for this bug in this and future scenes.
+
+**Prompt 74**
+> Can we work on the index page? It keeps scrolling when I push space as my "any" key. Can we change the layout or add a focus or ask for a certain key that won't trigger page scroll?
+
+**Prompt 75**
+> Please take some time to update history.md and journal.html

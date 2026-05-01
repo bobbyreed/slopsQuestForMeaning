@@ -212,7 +212,7 @@ describe('JoustScene — update', () => {
     const s = makeJoust()
     s._gameActive = true
     s._dialogue = { update: vi.fn(), active: false }
-    s._player = { x: 160, y: 400, body: { setVelocityY: vi.fn() } }
+    s._player = { x: 160, y: 400, body: { setVelocityY: vi.fn(), setVelocityX: vi.fn() } }
     s._prior  = { x: 640, y: 400 }
     s._playerLance = { x: 0, y: 0 }
     s._priorLance  = { x: 0, y: 0 }
@@ -227,12 +227,62 @@ describe('JoustScene — update', () => {
     const s = makeJoust()
     s._gameActive = true
     s._dialogue = { update: vi.fn(), active: false }
-    s._player = { x: 200, y: 300, body: { setVelocityY: vi.fn() } }
+    s._player = { x: 200, y: 300, body: { setVelocityY: vi.fn(), setVelocityX: vi.fn() } }
     s._prior  = { x: 600, y: 350 }
     s._playerLance = { x: 0, y: 0 }
     s._priorLance  = { x: 0, y: 0 }
     s.update()
     expect(s._playerLance.x).toBe(200)
     expect(s._priorLance.x).toBe(600)
+  })
+
+  it('moves left when left key is held', () => {
+    const s = makeJoust()
+    s._gameActive = true
+    s._dialogue = { update: vi.fn(), active: false }
+    s._leftKey  = { isDown: true }
+    s._rightKey = { isDown: false }
+    s._aKey     = { isDown: false }
+    s._dKey     = { isDown: false }
+    s._player = { x: 160, y: 400, body: { setVelocityY: vi.fn(), setVelocityX: vi.fn() } }
+    s._prior  = { x: 640, y: 400 }
+    s._playerLance = { x: 0, y: 0 }
+    s._priorLance  = { x: 0, y: 0 }
+    s.update()
+    const vx = s._player.body.setVelocityX.mock.calls[0][0]
+    expect(vx).toBeLessThan(0)
+  })
+
+  it('moves right when right key is held', () => {
+    const s = makeJoust()
+    s._gameActive = true
+    s._dialogue = { update: vi.fn(), active: false }
+    s._leftKey  = { isDown: false }
+    s._rightKey = { isDown: true }
+    s._aKey     = { isDown: false }
+    s._dKey     = { isDown: false }
+    s._player = { x: 160, y: 400, body: { setVelocityY: vi.fn(), setVelocityX: vi.fn() } }
+    s._prior  = { x: 640, y: 400 }
+    s._playerLance = { x: 0, y: 0 }
+    s._priorLance  = { x: 0, y: 0 }
+    s.update()
+    const vx = s._player.body.setVelocityX.mock.calls[0][0]
+    expect(vx).toBeGreaterThan(0)
+  })
+
+  it('zeros horizontal velocity when no movement key held', () => {
+    const s = makeJoust()
+    s._gameActive = true
+    s._dialogue = { update: vi.fn(), active: false }
+    s._leftKey  = { isDown: false }
+    s._rightKey = { isDown: false }
+    s._aKey     = { isDown: false }
+    s._dKey     = { isDown: false }
+    s._player = { x: 160, y: 400, body: { setVelocityY: vi.fn(), setVelocityX: vi.fn() } }
+    s._prior  = { x: 640, y: 400 }
+    s._playerLance = { x: 0, y: 0 }
+    s._priorLance  = { x: 0, y: 0 }
+    s.update()
+    expect(s._player.body.setVelocityX).toHaveBeenCalledWith(0)
   })
 })

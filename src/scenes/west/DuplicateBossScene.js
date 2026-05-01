@@ -15,6 +15,7 @@ const FLAP_V          = -370
 const SCORE_TO_WIN    = 3
 const FLAP_INTERVAL_1 = 340
 const FLAP_INTERVAL_2 = 460
+const HSPEED          = 160
 
 const INTRO = [
   'duplicate',
@@ -145,6 +146,10 @@ export class DuplicateBossScene extends Phaser.Scene {
     this._upKey    = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
     this._wKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
     this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    this._leftKey  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT)
+    this._rightKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
+    this._aKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
+    this._dKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
 
     this._dialogue = new Dialogue(this)
 
@@ -301,6 +306,18 @@ export class DuplicateBossScene extends Phaser.Scene {
 
     if (justFlapped && this._player?.body) {
       this._player.body.setVelocityY(FLAP_V)
+    }
+
+    if (this._player?.body) {
+      const goLeft  = this._leftKey?.isDown  || this._aKey?.isDown
+      const goRight = this._rightKey?.isDown || this._dKey?.isDown
+      if (goLeft && !goRight) {
+        this._player.body.setVelocityX(-HSPEED)
+      } else if (goRight && !goLeft) {
+        this._player.body.setVelocityX(HSPEED)
+      } else {
+        this._player.body.setVelocityX(0)
+      }
     }
 
     if (this._player && this._playerLance) {

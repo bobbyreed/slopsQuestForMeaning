@@ -189,6 +189,36 @@ describe('NorthShrineScene', () => {
         s._selectPriorMenu()
         expect(s._priorMenuTriggered).toBe(false)
       })
+
+      it('does not re-open prior menu while dialogue is active after TALK selected', () => {
+        const s = allClearedScene()
+        // Place slop on top of keeper so proximity check fires
+        s.slop.x = s._keeper.x
+        s.slop.y = s._keeper.y
+        // Simulate state immediately after TALK is chosen: menu closed, dialogue showing
+        s._priorMenuTriggered = false
+        s._shopTriggered = false
+        s._priorMenuOpen = false
+        s._shopOpen = false
+        s._dialogue.active = true
+        const openSpy = vi.spyOn(s, '_openPriorMenu')
+        s._updateShopMode(16)
+        expect(openSpy).not.toHaveBeenCalled()
+      })
+
+      it('opens prior menu when dialogue is not active and player is near keeper', () => {
+        const s = allClearedScene()
+        s.slop.x = s._keeper.x
+        s.slop.y = s._keeper.y
+        s._priorMenuTriggered = false
+        s._shopTriggered = false
+        s._priorMenuOpen = false
+        s._shopOpen = false
+        s._dialogue.active = false
+        const openSpy = vi.spyOn(s, '_openPriorMenu')
+        s._updateShopMode(16)
+        expect(openSpy).toHaveBeenCalled()
+      })
     })
   })
 
