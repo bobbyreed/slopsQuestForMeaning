@@ -11,9 +11,9 @@ const TOOLS = [
     desc:  '11 generated backgrounds\nprev / next cycle',
   },
   {
-    key:   'Ch2SpriteViewerScene',
-    label: 'SPRITE SHEETS',
-    desc:  '6 sheets, auto-pan\n32 px/sec scan',
+    key:   'Ch2FramePickerScene',
+    label: 'FRAME PICKER',
+    desc:  'drag to define frames\noutput copyable JSON',
   },
   {
     key:   'Ch2SpriteAnimScene',

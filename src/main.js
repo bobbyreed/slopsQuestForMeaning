@@ -36,6 +36,7 @@ import { Ch2AssetViewerScene }   from './scenes/Ch2AssetViewerScene.js'
 import { Ch2SpriteViewerScene }  from './scenes/Ch2SpriteViewerScene.js'
 import { Ch2SpriteAnimScene }    from './scenes/Ch2SpriteAnimScene.js'
 import { Ch2HubScene }           from './scenes/Ch2HubScene.js'
+import { Ch2FramePickerScene }   from './scenes/Ch2FramePickerScene.js'
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -61,7 +62,7 @@ new Phaser.Game({
     WestB0Scene, WestB1Scene, WestB3Scene,
     WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,
     JoustScene, PlatformerWorldScene, Chapter2DemoScene,
-    Ch2HubScene, Ch2AssetViewerScene, Ch2SpriteViewerScene, Ch2SpriteAnimScene,
+    Ch2HubScene, Ch2AssetViewerScene, Ch2SpriteViewerScene, Ch2SpriteAnimScene, Ch2FramePickerScene,
     PauseScene,
   ],
 })
