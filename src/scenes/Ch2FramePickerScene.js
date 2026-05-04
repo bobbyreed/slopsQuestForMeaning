@@ -1,15 +1,16 @@
 // Ch2FramePickerScene — interactive sprite frame picker.
-// Click and drag on the sheet to define frame rectangles.
-// Frames are stored per sheet and output as copy-pasteable JSON.
+// Click and drag on the sheet to define frame rectangles, then save to Firestore.
 //
 // ← →    cycle sheets
 // Z      undo last frame
 // X      clear all frames on current sheet
-// O      toggle output overlay (also logs to console)
-// ESC    return to hub
+// S      open save dialog (writes config to Firestore)
+// ESC    close dialog / return to hub
 
 import Phaser from 'phaser'
 import { W, H } from '../config/constants.js'
+import { AnimConfig } from '../firestore/AnimConfig.js'
+import { AuthManager } from '../auth/AuthManager.js'
 
 const ASSET_PATH = 'media/generated/'
 
@@ -101,7 +102,7 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     const y = H - BOT / 2
     this.add.rectangle(W / 2, H - BOT / 2, W, BOT, 0x000000, 0.75).setDepth(10)
 
-    this.add.text(10, y, 'Z undo  ·  X clear  ·  O output  ·  ← → sheets  ·  ESC hub', {
+    this.add.text(10, y, 'Z undo  ·  X clear  ·  S save  ·  ← → sheets  ·  ESC hub', {
       fontSize: '8px', color: '#443322', fontFamily: 'Courier New',
     }).setOrigin(0, 0.5).setDepth(11)
 
@@ -187,7 +188,7 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     this._kR   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
     this._kZ   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z)
     this._kX   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X)
-    this._kO   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O)
+    this._kS   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
     this._kEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
   }
 
@@ -237,53 +238,96 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     this._redrawFrames()
   }
 
-  // ── Output overlay ─────────────────────────────────────────────────────────
+  // ── Save dialog ────────────────────────────────────────────────────────────
 
-  _toggleOutput() {
+  _showSaveDialog() {
     if (this._outputEl) { this._outputEl.remove(); this._outputEl = null; return }
 
     const s      = SHEETS[this._sheetIdx]
     const frames = this._frames[s.key]
-
-    const lines = [
-      `// Sheet: ${s.key}  (${s.w} × ${s.h})`,
-      `// ${frames.length} frame${frames.length !== 1 ? 's' : ''} defined`,
-      `const frames = [`,
-      ...frames.map(f => `  { x: ${f.x}, y: ${f.y}, w: ${f.w}, h: ${f.h} },`),
-      `]`,
-    ]
-    const text = lines.join('\n')
-    console.log('[Ch2FramePicker]\n' + text)
 
     const wrap = document.createElement('div')
     wrap.style.cssText = [
       'position:absolute', 'top:50%', 'left:50%', 'transform:translate(-50%,-50%)',
       'background:#0d0b18', 'border:1px solid #554455', 'padding:16px',
       'font-family:Courier New,monospace', 'font-size:11px', 'color:#ccbbaa',
-      'z-index:999', 'min-width:440px', 'max-width:620px',
+      'z-index:999', 'min-width:380px', 'max-width:500px',
     ].join(';')
 
     const header = document.createElement('div')
-    header.textContent = `${s.key}  ·  ${frames.length} frames`
-    header.style.cssText = 'margin-bottom:10px; color:#887766'
+    header.textContent = `save animation config  ·  ${s.key}`
+    header.style.cssText = 'margin-bottom:12px; color:#887766'
 
-    const ta = document.createElement('textarea')
-    ta.value = text
-    ta.readOnly = true
-    ta.style.cssText = [
-      'width:100%', 'height:180px', 'background:#14121e', 'color:#aaffcc',
-      'border:none', 'font-family:inherit', 'font-size:inherit',
-      'resize:vertical', 'outline:none', 'padding:8px', 'box-sizing:border-box',
-    ].join(';')
+    const fieldStyle = 'display:block; width:100%; margin-bottom:8px; background:#14121e; color:#ccbbaa; border:1px solid #332244; font-family:inherit; font-size:inherit; padding:6px; box-sizing:border-box; outline:none'
 
-    const close = document.createElement('div')
-    close.textContent = '[ close  ·  O ]'
-    close.style.cssText = 'margin-top:8px; color:#554433; cursor:pointer; text-align:right; font-size:10px'
-    close.onclick = () => { wrap.remove(); this._outputEl = null }
+    const labelInput = document.createElement('input')
+    labelInput.type = 'text'
+    labelInput.placeholder = 'animation label (e.g. slop · walk cycle)'
+    labelInput.style.cssText = fieldStyle
 
-    wrap.append(header, ta, close)
+    const fpsInput = document.createElement('input')
+    fpsInput.type = 'number'
+    fpsInput.value = '8'
+    fpsInput.min = '1'
+    fpsInput.max = '60'
+    fpsInput.placeholder = 'frame rate (fps)'
+    fpsInput.style.cssText = fieldStyle
+
+    const info = document.createElement('div')
+    info.textContent = `${frames.length} frame${frames.length !== 1 ? 's' : ''} · ${s.w}×${s.h}`
+    info.style.cssText = 'color:#554433; margin-bottom:10px; font-size:10px'
+
+    const status = document.createElement('div')
+    status.style.cssText = 'margin-top:8px; font-size:10px; min-height:16px'
+
+    const btnRow = document.createElement('div')
+    btnRow.style.cssText = 'display:flex; justify-content:space-between; margin-top:10px'
+
+    const saveBtn = document.createElement('div')
+    saveBtn.textContent = '[ save to firestore ]'
+    saveBtn.style.cssText = 'color:#00ff88; cursor:pointer; font-size:10px'
+
+    const closeBtn = document.createElement('div')
+    closeBtn.textContent = '[ close  ·  S ]'
+    closeBtn.style.cssText = 'color:#554433; cursor:pointer; font-size:10px'
+    closeBtn.onclick = () => { wrap.remove(); this._outputEl = null }
+
+    saveBtn.onclick = async () => {
+      const user = AuthManager.getCurrentUser()
+      if (!user) {
+        status.textContent = 'sign in required'
+        status.style.color = '#ff4444'
+        return
+      }
+      if (frames.length === 0) {
+        status.textContent = 'no frames defined'
+        status.style.color = '#ff4444'
+        return
+      }
+      const label     = labelInput.value.trim() || s.label
+      const frameRate = parseInt(fpsInput.value, 10) || 8
+      saveBtn.textContent = 'saving…'
+      saveBtn.style.color = '#887766'
+      try {
+        const id = await AnimConfig.save({
+          sheetKey: s.key, sheetW: s.w, sheetH: s.h,
+          label, frameRate, frames: [...frames],
+        })
+        status.textContent = `saved  ·  id: ${id}`
+        status.style.color = '#00ff88'
+        saveBtn.textContent = '[ saved ]'
+      } catch (e) {
+        status.textContent = `error: ${e.message}`
+        status.style.color = '#ff4444'
+        saveBtn.textContent = '[ save to firestore ]'
+        saveBtn.style.color = '#00ff88'
+      }
+    }
+
+    btnRow.append(saveBtn, closeBtn)
+    wrap.append(header, labelInput, fpsInput, info, btnRow, status)
     document.getElementById('game-container').appendChild(wrap)
-    ta.select()
+    labelInput.focus()
     this._outputEl = wrap
   }
 
@@ -295,7 +339,7 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     if (J(this._kR))   this._switchSheet(1)
     if (J(this._kZ))   this._undo()
     if (J(this._kX))   this._clearAll()
-    if (J(this._kO))   this._toggleOutput()
+    if (J(this._kS))   this._showSaveDialog()
     if (J(this._kEsc)) {
       if (this._outputEl) { this._outputEl.remove(); this._outputEl = null; return }
       this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {

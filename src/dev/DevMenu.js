@@ -15,6 +15,7 @@ const SCENES = [
   { key: 'ConvergenceScene',   label: 'FINAL',      spawn: 'shrine' },
   { key: 'Chapter2DemoScene',    label: 'CH2 DEMO',     spawn: null },
   { key: 'Ch2HubScene',          label: 'CH2 TOOLS',    spawn: null },
+  { key: 'AdminScene',           label: 'ADMIN',        spawn: null },
 ]
 
 // ── State presets ─────────────────────────────────────────────────────────────
