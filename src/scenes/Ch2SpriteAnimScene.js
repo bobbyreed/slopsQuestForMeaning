@@ -233,7 +233,7 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
     if (J(this._kD))   this._toggleDebug()
     if (J(this._kEsc)) {
       this.cameras.main.fade(350, 10, 10, 10, false, (_, t) => {
-        if (t === 1) this.scene.start('MenuScene')
+        if (t === 1) this.scene.start('Ch2HubScene')
       })
     }
   }

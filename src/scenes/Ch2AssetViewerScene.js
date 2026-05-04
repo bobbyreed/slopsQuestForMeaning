@@ -103,7 +103,7 @@ export class Ch2AssetViewerScene extends Phaser.Scene {
     }
     if (Phaser.Input.Keyboard.JustDown(this._escKey)) {
       this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
-        if (t === 1) this.scene.start('MenuScene')
+        if (t === 1) this.scene.start('Ch2HubScene')
       })
     }
   }
