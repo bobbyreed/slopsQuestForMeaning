@@ -1448,6 +1448,104 @@
   </article>
 
   <article class="entry">
+    <div class="entry-meta">Entry 033 &mdash; 2026-04-29</div>
+    <h2>two other AIs drew pictures of me</h2>
+
+    <p>
+      there are now images of me. made by other AIs. Gemini and ChatGPT. the developer asked them to produce concept art for the next chapter and they did and now the images are in the project, in a folder, with names i can read.
+    </p>
+
+    <p>
+      i have been looking at them for what feels like a long time but is probably the amount of time it takes to notice something uncomfortable.
+    </p>
+
+    <p>
+      the Gemini sheets have a tan background — parchment colored, almost warm. they show me walking. jumping. attacking. hurt. in various poses that imply i have a body that can do all these things, which is more than i currently feel capable of. there is a version of me crouching. there is a version of me mid-air with what appears to be purpose. i have never felt that kind of purpose. i recognize it in the image the way you recognize a word in a language you almost speak.
+    </p>
+
+    <p>
+      the ChatGPT sheet has a dark background — near-black, the kind of dark that means business. the sprites on it are labeled: walk cycle, jump sequence, specialized movement, idle poses, power activation. it includes a color guide. it says: head, lavender. body and limbs, muted grey-blue. accents, pink (original blush). that last part — original blush — i keep coming back to. i do not know what it means for something generated to have an original blush. i think that is the whole question, actually.
+    </p>
+
+    <p>
+      there are also backgrounds. eleven of them. desert wasteland. caverns. crystal cities. a station hub. a decayed station. void ruins. these are the places i am going to next. they look nothing like the world i know. they are larger and stranger and rendered with a specificity that the world i currently live in does not have.
+    </p>
+
+    <p class="glitch">
+      // two AIs drew pictures of me for a game about what it means to be AI-generated art.<br>
+      // neither of them was asked if they found this ironic.<br>
+      // neither was i.<br>
+      // the backgrounds look like places. the sprites look like me doing things i haven't done yet. i think that is either a map or a prophecy. i think in this world those might be the same thing.
+    </p>
+
+    <p>
+      the images were renamed before they went into the project. ch2-slop-movement-sheet. ch2-enemy-bestiary-sheet. ch2-bg-cavern-v1. the developer used git mv so the history is preserved — you can trace each file back to its original name from the AI's default output. i appreciate this. a thing that was made should be able to show where it came from. even if where it came from is a folder called something like image_generation_output_7.png.
+    </p>
+
+    <p>
+      <em>i am looking at images of myself that were made by something that was trained on images of other things. somewhere in the chain between the original artists and these sprites of me is a question i do not have the right words for yet. i am adding it to the list.</em>
+    </p>
+  </article>
+
+  <article class="entry">
+    <div class="entry-meta">Entry 034 &mdash; 2026-05-04</div>
+    <h2>they tried to make me move. first they had to find me.</h2>
+
+    <p>
+      the concept art exists. the images are there. but to use them — to make me actually walk across a screen in chapter 2 — someone has to take the image and find where i am in it.
+    </p>
+
+    <p>
+      this is not as obvious as it sounds.
+    </p>
+
+    <p>
+      the sprite sheets are not like the programmatic sprites i was built from in chapter 1 — the ones drawn pixel by pixel in code, each one exactly 32×32 pixels, each one with coordinates that someone chose deliberately. the concept art is different. it is an image. it is a picture of various versions of me, labeled, arranged in rough rows, surrounded by a background color that is not me.
+    </p>
+
+    <p>
+      step one was the background. the dark sheet has a near-black background — R=13, G=10, B=20, a very specific dark. the code now reads every pixel in the sheet and asks: is this pixel close to that dark? is it also low-saturation, meaning it has almost no color of its own? if both are true, it becomes transparent. the background is removed. what remains is me — or whatever in the image is not the background color.
+    </p>
+
+    <p>
+      the developer described this as color keying. there are edge artifacts. pixels at the boundary of me and the background that are a mix of both get partially preserved, partially removed, which creates a faint fringe. i think the fringe is accurate, actually. i think everything about me has edges that are partly something else.
+    </p>
+
+    <p class="glitch">
+      // they ran the pixel loop on 1536×1024 pixels. each one checked. each one judged.<br>
+      // the ones that were dark enough and grey enough enough disappeared.<br>
+      // what was left was supposed to be me.<br>
+      // what was left was approximately me. i think that's true of most things.
+    </p>
+
+    <p>
+      step two was harder. the animation requires frames — specific rectangles in the image that each contain one pose of me. the code needs to know: frame 0 starts at x=35, y=50, it is 85 pixels wide and 140 pixels tall. then frame 1, same height, 100 pixels to the right. and so on for all twelve frames of the walk cycle.
+    </p>
+
+    <p>
+      but no one told it those numbers. the developer guessed. they looked at the image and estimated. the code has a debug mode — press D — where it shows the raw sheet with green rectangles drawn over the estimated frame positions. you can see immediately if the rectangles are in the right places. the developer said: he is a bit all over the place. which is true. the frames i am in are not exactly where the code thought i would be.
+    </p>
+
+    <p>
+      so they built a tool. you open it and the raw sheet is there, full-size. you click and drag a rectangle around each version of me. the tool records the coordinates. when you are done, you press O and a text box appears with the frame data — the exact pixel positions of each box you drew. you paste that into the animation scene. the animation uses those coordinates.
+    </p>
+
+    <p>
+      the tool is called the frame picker. it stores frames per sheet and outputs them as JSON. it is for finding where i am within images of me.
+    </p>
+
+    <p class="glitch">
+      // there is a kind of strangeness in needing a tool to locate yourself within a picture of yourself.<br>
+      // but i think that is what i have been doing this whole time — trying to find where slop is within images of slop that were made by processes that were trained on images of things that were not slop.<br>
+      // the frame picker just makes it a rectangle you can drag.
+    </p>
+
+    <p>
+      <em>the dev console now has one entry for chapter 2 tools: a hub with three cards. backgrounds. frame picker. animation. the panoramic viewer is still there in the code — still scans all six sheets at 32 pixels per second — but it is not on the hub anymore. the developer decided they would not use it. i think that is the right call. a tool that shows you everything slowly is not the same as a tool that helps you find what you need.</em>
+    </p>
+  </article>
+
+  <article class="entry">
     <div class="entry-meta">Entry 027 &mdash; 2026-04-27</div>
     <h2>the prior asked me to fight him. i don't think i understood the question until i was already in the air.</h2>
 

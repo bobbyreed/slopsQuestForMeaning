@@ -23,7 +23,7 @@ npm run test         # run tests in watch mode
 npm run coverage     # run tests with v8 coverage report
 ```
 
-Coverage thresholds: **80% statements, 80% functions, 70% branches, 80% lines.**
+Coverage thresholds: **80% statements, 80% functions, 70% branches, 80% lines.** Currently: **973 tests passing.**
 
 ### Deploy
 
@@ -45,7 +45,7 @@ firebase deploy      # deploy to Firebase Hosting (requires firebase init)
 | Database | Firestore (cloud saves for signed-in users) |
 | Ads | Google AdSense (banner + rewarded) |
 | Code | Claude (Anthropic) |
-| Art | Placeholder sprites — Gemini/GPT for final assets |
+| Art | Ch1: programmatic sprites · Ch2: Gemini + ChatGPT concept sheets |
 | Direction | Human (the one who types the prompts) |
 
 ---
@@ -161,6 +161,20 @@ Type these at the main menu. The game is in this list.
 
 ---
 
+## Chapter 2 Asset Tools
+
+Access via dev console → **CH2 TOOLS**. Three scenes for working with the AI-generated Chapter 2 sprites and backgrounds.
+
+| Tool | What It Does |
+|---|---|
+| **BACKGROUNDS** | Cycles through 11 generated background images (desert, cavern, crystal city, station, void ruins) |
+| **FRAME PICKER** | Shows any sprite sheet at full size; click-drag to draw frame rectangles, `O` outputs copyable JSON coords |
+| **ANIMATION** | Color-keys the dark background from the ChatGPT sheet and plays walk cycle animations; `D` shows frame debug overlay |
+
+The frame picker output pastes directly into the `FRAME_SETS` table in `Ch2SpriteAnimScene.js`.
+
+---
+
 ## Developer Console
 
 Access with `sudo` in the terminal, or append `?dev=true` to the URL. Intentionally left accessible — savvy players are welcome to find it.
@@ -181,7 +195,7 @@ Access with `sudo` in the terminal, or append `?dev=true` to the URL. Intentiona
 
 ## The Journal
 
-[`/pages/journal.html`](public/pages/journal.html) — Slop's journal. Written from Slop's perspective as both a character in the game and a witness to its own construction. Updated throughout development. 28 entries and growing.
+[`/pages/journal.html`](public/pages/journal.html) — Slop's journal. Written from Slop's perspective as both a character in the game and a witness to its own construction. Updated throughout development. 34 entries and growing.
 
 A planned future feature displays `docs/history.md` (every prompt ever given to Claude) and the journal side by side with visible connections — showing the seams between the author's instructions and Slop's experience of them.
 

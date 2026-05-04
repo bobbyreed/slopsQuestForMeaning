@@ -265,3 +265,40 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 75**
 > Please take some time to update history.md and journal.html
+
+**Prompt 76**
+> I added images created for Chapter 2 to the project. I want you to first read the md file in public/media/generated. Next check out each image in the folder and rename it appropriately. Some are sheets with many different sprites and some are backgrounds. Please ask for clarification if you aren't sure.
+
+**Prompt 77**
+> That works well. We probably won't use ch2-bg-desert-town-concept, but your approach is great. Proceed with the renames.
+
+**Prompt 78**
+> This is great! These are the images we will use to make the second chapter of the game. For now, let's make a demo scene with all of the sprite sheets turned into animated sprites and a button that allows me to swap the background to test our imports. This scene will probably eventually spin off into a sprite editor and a background editor to ease our import and export tasks.
+
+**Prompt 79**
+> This is a good start. We really only need the backgrounds in this scene so let's lose the sprites. Now let's make the second scene that uses the sprite sheets to make animations. It should only present the animation.
+
+---
+
+## 2026-05-04
+
+**Prompt 80**
+> Great job bringing in the assets. Now we need to put them to use. Are you able to start creating animated sprites out of the sprite sheets? You'd need to mask out the backgrounds and turn the individual sheets into multiple frames.
+
+**Prompt 81**
+> I like that strategy. A first then b it is.
+
+**Prompt 82**
+> Continue please
+
+**Prompt 83**
+> Let's add buttons from the chpt 2 test scenes to get to them. Then let's make a new scene with all the chapt 2 tool links. That should be the only one linked from the sudo menu. That way it doesn't get too hard to navigate.
+
+**Prompt 84**
+> I'm not really sure what the sprite scene is supposed to be used for. Not really anything I would use. The animation scene is getting there for Slop. He is a bit all over the place. Maybe we should have a tool where I draw boxes around each frame and give you the output to use in the animations?
+
+**Prompt 85**
+> please commit these changes then I'll push and deploy them and check them live.
+
+**Prompt 86**
+> Please update history.md, journal.html, and our readme
