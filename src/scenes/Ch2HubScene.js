@@ -13,7 +13,7 @@ const TOOLS = [
   {
     key:   'Ch2FramePickerScene',
     label: 'FRAME PICKER',
-    desc:  'drag to define frames\noutput copyable JSON',
+    desc:  'drag to define frames\nsave configs to Firestore',
   },
   {
     key:   'Ch2SpriteAnimScene',
@@ -22,11 +22,11 @@ const TOOLS = [
   },
 ]
 
+const TOP    = 36
 const CARD_W  = 190
-const CARD_H  = 110
-const CARD_GAP = 20
+const CARD_H  = 120
+const CARD_GAP = 24
 const TOTAL_W  = TOOLS.length * CARD_W + (TOOLS.length - 1) * CARD_GAP
-const CARD_Y   = H / 2 + 10
 
 export class Ch2HubScene extends Phaser.Scene {
   constructor() { super('Ch2HubScene') }
@@ -34,27 +34,39 @@ export class Ch2HubScene extends Phaser.Scene {
   create() {
     this.add.rectangle(W / 2, H / 2, W, H, 0x0a0a14)
 
-    this.add.text(W / 2, 80, 'CHAPTER 2  ·  TOOLS', {
+    this._buildTopBar()
+
+    this.add.text(W / 2, TOP + 50, 'CHAPTER 2  ·  TOOLS', {
       fontSize: '18px', color: '#ccbbaa', fontFamily: 'Courier New',
     }).setOrigin(0.5)
 
-    this.add.text(W / 2, 108, 'asset viewers and animation test scenes', {
-      fontSize: '9px', color: '#554433', fontFamily: 'Courier New',
+    this.add.text(W / 2, TOP + 76, 'asset viewers and animation test scenes', {
+      fontSize: '11px', color: '#776655', fontFamily: 'Courier New',
     }).setOrigin(0.5)
 
-    // Tool cards
-    const startX = W / 2 - TOTAL_W / 2 + CARD_W / 2
+    const cardY   = TOP + 50 + 80 + CARD_H / 2 + 10
+    const startX  = W / 2 - TOTAL_W / 2 + CARD_W / 2
     TOOLS.forEach(({ key, label, desc }, i) => {
-      const cx = startX + i * (CARD_W + CARD_GAP)
-      this._makeCard(cx, CARD_Y, key, label, desc)
+      this._makeCard(startX + i * (CARD_W + CARD_GAP), cardY, key, label, desc)
     })
 
-    this.add.text(W / 2, H - 20, 'ESC = dev menu', {
-      fontSize: '8px', color: '#2a1a0a', fontFamily: 'Courier New',
+    this.add.text(W / 2, H - 14, 'ESC = sudo menu', {
+      fontSize: '10px', color: '#554433', fontFamily: 'Courier New',
     }).setOrigin(0.5, 1)
 
     this._escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
     this.cameras.main.fadeIn(350, 10, 10, 20)
+  }
+
+  _buildTopBar() {
+    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.75).setDepth(10)
+    this._makeBtn(44, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(11)
+  }
+
+  _goSudo() {
+    this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {
+      if (t === 1) this.scene.start('MenuScene', { openDev: true })
+    })
   }
 
   _makeCard(cx, cy, sceneKey, label, desc) {
@@ -62,22 +74,24 @@ export class Ch2HubScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setStrokeStyle(1, 0x443344)
 
-    const lbl = this.add.text(cx, cy - 24, label, {
-      fontSize: '11px', color: '#ccbbaa', fontFamily: 'Courier New',
+    const lbl = this.add.text(cx, cy - 28, label, {
+      fontSize: '13px', color: '#ccbbaa', fontFamily: 'Courier New',
     }).setOrigin(0.5)
 
     const dsc = this.add.text(cx, cy + 6, desc, {
-      fontSize: '8px', color: '#665544', fontFamily: 'Courier New',
+      fontSize: '10px', color: '#776655', fontFamily: 'Courier New',
       align: 'center', lineSpacing: 4,
     }).setOrigin(0.5)
 
     bg.on('pointerover', () => {
       bg.setFillColor(0x2a2040).setStrokeStyle(1, 0x9988cc)
       lbl.setStyle({ color: '#ffffff' })
+      dsc.setStyle({ color: '#998877' })
     })
     bg.on('pointerout', () => {
       bg.setFillColor(0x1a1828).setStrokeStyle(1, 0x443344)
       lbl.setStyle({ color: '#ccbbaa' })
+      dsc.setStyle({ color: '#776655' })
     })
     bg.on('pointerdown', () => {
       this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {
@@ -89,10 +103,17 @@ export class Ch2HubScene extends Phaser.Scene {
   }
 
   update() {
-    if (Phaser.Input.Keyboard.JustDown(this._escKey)) {
-      this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {
-        if (t === 1) this.scene.start('MenuScene')
-      })
-    }
+    if (Phaser.Input.Keyboard.JustDown(this._escKey)) this._goSudo()
+  }
+
+  _makeBtn(x, y, txt, cb) {
+    const btn = this.add.text(x, y, txt, {
+      fontSize: '11px', color: '#ccbbaa', fontFamily: 'Courier New',
+      backgroundColor: '#1a1828', padding: { x: 8, y: 4 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+    btn.on('pointerover', () => btn.setStyle({ color: '#ffffff', backgroundColor: '#2a2040' }))
+    btn.on('pointerout',  () => btn.setStyle({ color: '#ccbbaa', backgroundColor: '#1a1828' }))
+    btn.on('pointerdown', cb)
+    return btn
   }
 }

@@ -94,17 +94,23 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
     this._dbgGfx = this.add.graphics().setDepth(6).setAlpha(0)
     this._dbgSc  = dbgSc
 
-    // UI
-    this._animLabel = this.add.text(W / 2, 14, '', {
-      fontSize: '11px', color: '#ccbbaa', fontFamily: 'Courier New',
-    }).setOrigin(0.5).setDepth(20)
+    // Top bar
+    const TOP = 40
+    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.75).setDepth(20)
+    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(21)
+    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(21)
 
-    this._fpsLabel = this.add.text(W - 10, 14, '', {
-      fontSize: '9px', color: '#665544', fontFamily: 'Courier New',
-    }).setOrigin(1, 0).setDepth(20)
+    // Labels
+    this._animLabel = this.add.text(W / 2, TOP / 2, '', {
+      fontSize: '13px', color: '#ccbbaa', fontFamily: 'Courier New',
+    }).setOrigin(0.5).setDepth(21)
 
-    this.add.text(W / 2, H - 12, '← → cycle  ·  ↑ ↓ fps  ·  D debug overlay  ·  ESC menu', {
-      fontSize: '8px', color: '#2a1a0a', fontFamily: 'Courier New',
+    this._fpsLabel = this.add.text(W / 2 + 180, TOP / 2, '', {
+      fontSize: '11px', color: '#887766', fontFamily: 'Courier New',
+    }).setOrigin(0, 0.5).setDepth(21)
+
+    this.add.text(W / 2, H - 14, '← → cycle  ·  ↑ ↓ fps  ·  D debug overlay  ·  ESC hub', {
+      fontSize: '10px', color: '#665544', fontFamily: 'Courier New',
     }).setOrigin(0.5, 1).setDepth(20)
 
     this._setupKeys()
@@ -231,10 +237,33 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
     if (J(this._kU))   this._adjustFps(+1)
     if (J(this._kDn))  this._adjustFps(-1)
     if (J(this._kD))   this._toggleDebug()
-    if (J(this._kEsc)) {
-      this.cameras.main.fade(350, 10, 10, 10, false, (_, t) => {
-        if (t === 1) this.scene.start('Ch2HubScene')
-      })
-    }
+    if (J(this._kEsc)) this._goHub()
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
+
+  _goSudo() {
+    this.cameras.main.fade(300, 10, 10, 10, false, (_, t) => {
+      if (t === 1) this.scene.start('MenuScene', { openDev: true })
+    })
+  }
+
+  _goHub() {
+    this.cameras.main.fade(300, 10, 10, 10, false, (_, t) => {
+      if (t === 1) this.scene.start('Ch2HubScene')
+    })
+  }
+
+  // ── Helper ─────────────────────────────────────────────────────────────────
+
+  _makeBtn(x, y, txt, cb) {
+    const btn = this.add.text(x, y, txt, {
+      fontSize: '11px', color: '#ccbbaa', fontFamily: 'Courier New',
+      backgroundColor: '#1a1828', padding: { x: 8, y: 4 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+    btn.on('pointerover', () => btn.setStyle({ color: '#ffffff', backgroundColor: '#2a2040' }))
+    btn.on('pointerout',  () => btn.setStyle({ color: '#ccbbaa', backgroundColor: '#1a1828' }))
+    btn.on('pointerdown', cb)
+    return btn
   }
 }

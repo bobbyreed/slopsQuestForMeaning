@@ -87,11 +87,16 @@ export class Ch2FramePickerScene extends Phaser.Scene {
   _buildTopBar() {
     this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.75).setDepth(10)
 
-    this._makeBtn(28, TOP / 2, '◀', () => this._switchSheet(-1)).setDepth(11)
-    this._makeBtn(W - 28, TOP / 2, '▶', () => this._switchSheet(1)).setDepth(11)
+    // Nav: sudo far-left, hub far-right
+    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(11)
+    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(11)
+
+    // Sheet cycle: inset from nav buttons
+    this._makeBtn(110, TOP / 2, '◀', () => this._switchSheet(-1)).setDepth(11)
+    this._makeBtn(W - 110, TOP / 2, '▶', () => this._switchSheet(1)).setDepth(11)
 
     this._sheetLabel = this.add.text(W / 2, TOP / 2, '', {
-      fontSize: '11px', color: '#ccbbaa', fontFamily: 'Courier New',
+      fontSize: '13px', color: '#ccbbaa', fontFamily: 'Courier New',
     }).setOrigin(0.5).setDepth(11)
   }
 
@@ -102,12 +107,28 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     this.add.rectangle(W / 2, H - BOT / 2, W, BOT, 0x000000, 0.75).setDepth(10)
 
     this.add.text(10, y, 'Z undo  ·  X clear  ·  S save  ·  ← → sheets  ·  ESC hub', {
-      fontSize: '8px', color: '#443322', fontFamily: 'Courier New',
+      fontSize: '10px', color: '#665544', fontFamily: 'Courier New',
     }).setOrigin(0, 0.5).setDepth(11)
 
     this._frameCount = this.add.text(W - 10, y, '0 frames', {
-      fontSize: '8px', color: '#665544', fontFamily: 'Courier New',
+      fontSize: '10px', color: '#998877', fontFamily: 'Courier New',
     }).setOrigin(1, 0.5).setDepth(11)
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
+
+  _goSudo() {
+    if (this._outputEl) this._closeDialog()
+    this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {
+      if (t === 1) this.scene.start('MenuScene', { openDev: true })
+    })
+  }
+
+  _goHub() {
+    if (this._outputEl) this._closeDialog()
+    this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {
+      if (t === 1) this.scene.start('Ch2HubScene')
+    })
   }
 
   // ── Sheet management ───────────────────────────────────────────────────────

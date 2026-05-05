@@ -20,7 +20,7 @@ const BG_KEYS = [
   'ch2-bg-void-ruins-v2-chatgpt',
 ]
 
-const TOP_BAR_H = 44
+const TOP = 44
 
 export class Ch2AssetViewerScene extends Phaser.Scene {
   constructor() { super('Ch2AssetViewerScene') }
@@ -70,18 +70,37 @@ export class Ch2AssetViewerScene extends Phaser.Scene {
   // ── Top bar ────────────────────────────────────────────────────────────────
 
   _buildTopBar() {
-    this.add.rectangle(W / 2, TOP_BAR_H / 2, W, TOP_BAR_H, 0x000000, 0.62).setDepth(10)
+    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.72).setDepth(10)
 
-    this._bgLabel = this.add.text(W / 2, TOP_BAR_H / 2, `1 / ${BG_KEYS.length}  ·  ${BG_KEYS[0]}`, {
-      fontSize: '11px', color: '#ddd0c0', fontFamily: 'Courier New',
+    // Nav: sudo far-left, hub far-right
+    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(11)
+    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(11)
+
+    // Content cycle: inset from nav buttons
+    this._makeBtn(120, TOP / 2, '◀  prev', () => this._cycleBg(-1)).setDepth(11)
+    this._makeBtn(W - 120, TOP / 2, 'next  ▶', () => this._cycleBg(1)).setDepth(11)
+
+    this._bgLabel = this.add.text(W / 2, TOP / 2, `1 / ${BG_KEYS.length}  ·  ${BG_KEYS[0]}`, {
+      fontSize: '13px', color: '#ddd0c0', fontFamily: 'Courier New',
     }).setOrigin(0.5).setDepth(11)
 
-    this._makeBtn(58, TOP_BAR_H / 2, '◀  prev', () => this._cycleBg(-1)).setDepth(11)
-    this._makeBtn(W - 58, TOP_BAR_H / 2, 'next  ▶', () => this._cycleBg(1)).setDepth(11)
-
-    this.add.text(W / 2, H - 12, 'ESC = menu  ·  ← → = cycle', {
-      fontSize: '8px', color: '#443322', fontFamily: 'Courier New',
+    this.add.text(W / 2, H - 14, '← → = cycle  ·  ESC = hub', {
+      fontSize: '10px', color: '#665544', fontFamily: 'Courier New',
     }).setOrigin(0.5, 1).setDepth(10)
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
+
+  _goSudo() {
+    this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
+      if (t === 1) this.scene.start('MenuScene', { openDev: true })
+    })
+  }
+
+  _goHub() {
+    this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
+      if (t === 1) this.scene.start('Ch2HubScene')
+    })
   }
 
   // ── Keys ───────────────────────────────────────────────────────────────────
@@ -101,11 +120,7 @@ export class Ch2AssetViewerScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this._rightKey) || Phaser.Input.Keyboard.JustDown(this._dKey)) {
       this._cycleBg(1)
     }
-    if (Phaser.Input.Keyboard.JustDown(this._escKey)) {
-      this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
-        if (t === 1) this.scene.start('Ch2HubScene')
-      })
-    }
+    if (Phaser.Input.Keyboard.JustDown(this._escKey)) this._goHub()
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -113,7 +128,7 @@ export class Ch2AssetViewerScene extends Phaser.Scene {
   _makeBtn(x, y, txt, cb) {
     const btn = this.add.text(x, y, txt, {
       fontSize: '11px', color: '#ccbbaa', fontFamily: 'Courier New',
-      backgroundColor: '#2a2218', padding: { x: 10, y: 5 },
+      backgroundColor: '#2a2218', padding: { x: 8, y: 4 },
     }).setOrigin(0.5).setInteractive({ useHandCursor: true })
     btn.on('pointerover', () => btn.setStyle({ color: '#ffffff', backgroundColor: '#443322' }))
     btn.on('pointerout',  () => btn.setStyle({ color: '#ccbbaa', backgroundColor: '#2a2218' }))
