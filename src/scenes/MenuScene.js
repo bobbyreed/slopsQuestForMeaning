@@ -94,6 +94,10 @@ const PROMPT_WORDS = ['describe', 'generate', 'render', 'imagine', 'exists?', 'w
 export class MenuScene extends Phaser.Scene {
   constructor() { super('MenuScene') }
 
+  init(data) {
+    this._openDev = data?.openDev ?? false
+  }
+
   create() {
     this._currentUser = AuthManager.getCurrentUser()
     this._noAdsConfirming = false
@@ -107,8 +111,9 @@ export class MenuScene extends Phaser.Scene {
     this._buildTerminal()
     this.cameras.main.fadeIn(300, 8, 6, 16)
 
-    if (typeof location !== 'undefined' &&
-        new URLSearchParams(location.search).get('dev') === 'true') {
+    if (this._openDev ||
+        (typeof location !== 'undefined' &&
+         new URLSearchParams(location.search).get('dev') === 'true')) {
       this._devMenu.show()
     }
   }

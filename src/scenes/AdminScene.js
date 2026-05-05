@@ -2,12 +2,21 @@
 // Loads all saved AnimConfig entries from Firestore; supports edit and delete.
 // Access gated via admins/{uid} Firestore collection.
 //
-// ESC    return to hub
+// ESC    return to sudo (MenuScene + DevMenu)
 
 import Phaser from 'phaser'
 import { W, H } from '../config/constants.js'
 import { AnimConfig } from '../firestore/AnimConfig.js'
 import { AuthManager } from '../auth/AuthManager.js'
+
+const TOOLS = [
+  { label: 'CH2 HUB',      key: 'Ch2HubScene'        },
+  { label: 'BACKGROUNDS',  key: 'Ch2AssetViewerScene' },
+  { label: 'FRAME PICKER', key: 'Ch2FramePickerScene' },
+  { label: 'ANIMATION',    key: 'Ch2SpriteAnimScene'  },
+]
+
+const TOP = 36
 
 export class AdminScene extends Phaser.Scene {
   constructor() { super('AdminScene') }
@@ -59,11 +68,20 @@ export class AdminScene extends Phaser.Scene {
   // ── Top bar ────────────────────────────────────────────────────────────────
 
   _buildTopBar() {
-    const TOP = 36
     this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.75).setDepth(10)
+
     this.add.text(W / 2, TOP / 2, 'admin  ·  animation configs', {
       fontSize: '11px', color: '#887766', fontFamily: 'Courier New',
     }).setOrigin(0.5).setDepth(11)
+
+    this._makeBtn(52, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(11)
+  }
+
+  _goSudo() {
+    this._panelEl?.remove()
+    this.cameras.main.fade(300, 8, 8, 16, false, (_, t) => {
+      if (t === 1) this.scene.start('MenuScene', { openDev: true })
+    })
   }
 
   // ── Config panel (DOM) ─────────────────────────────────────────────────────
@@ -73,12 +91,15 @@ export class AdminScene extends Phaser.Scene {
 
     const wrap = document.createElement('div')
     wrap.style.cssText = [
-      'position:absolute', 'top:44px', 'left:50%', 'transform:translateX(-50%)',
-      'width:680px', 'max-height:calc(100% - 60px)', 'overflow-y:auto',
+      'position:absolute', `top:${TOP + 8}px`, 'left:50%', 'transform:translateX(-50%)',
+      'width:680px', `max-height:calc(100% - ${TOP + 16}px)`, 'overflow-y:auto',
       'background:#0a0814', 'font-family:Courier New,monospace',
       'font-size:11px', 'color:#ccbbaa', 'z-index:50', 'padding:12px',
       'box-sizing:border-box',
     ].join(';')
+
+    wrap.appendChild(this._makeToolsNav())
+    wrap.appendChild(this._makeDivider())
 
     if (configs.length === 0) {
       const empty = document.createElement('div')
@@ -86,14 +107,60 @@ export class AdminScene extends Phaser.Scene {
       empty.style.cssText = 'color:#443322; padding:20px 0; text-align:center'
       wrap.appendChild(empty)
     } else {
-      configs.forEach(cfg => wrap.appendChild(this._makeCard(cfg, configs)))
+      configs.forEach(cfg => wrap.appendChild(this._makeCard(cfg)))
     }
 
     document.getElementById('game-container').appendChild(wrap)
     this._panelEl = wrap
   }
 
-  _makeCard(cfg, allConfigs) {
+  // ── Tools nav (expandable) ─────────────────────────────────────────────────
+
+  _makeToolsNav() {
+    const section = document.createElement('div')
+    section.style.cssText = 'margin-bottom:10px'
+
+    const toggle = document.createElement('div')
+    toggle.textContent = '▶ tools'
+    toggle.style.cssText = 'color:#554433; cursor:pointer; font-size:10px; user-select:none; padding:4px 0'
+
+    const grid = document.createElement('div')
+    grid.style.cssText = 'display:none; gap:8px; flex-wrap:wrap; padding:8px 0 4px'
+
+    TOOLS.forEach(t => {
+      const btn = document.createElement('div')
+      btn.textContent = `[ ${t.label} ]`
+      btn.style.cssText = 'color:#aaffcc; cursor:pointer; font-size:10px; padding:4px 8px; border:1px solid #332244; background:#0d0b18'
+      btn.onmouseenter = () => { btn.style.color = '#ffffff'; btn.style.borderColor = '#554455' }
+      btn.onmouseleave = () => { btn.style.color = '#aaffcc'; btn.style.borderColor = '#332244' }
+      btn.onclick = () => {
+        this._panelEl?.remove()
+        this.cameras.main.fade(300, 8, 8, 16, false, (_, tt) => {
+          if (tt === 1) this.scene.start(t.key)
+        })
+      }
+      grid.appendChild(btn)
+    })
+
+    toggle.onclick = () => {
+      const open = grid.style.display === 'flex'
+      grid.style.display = open ? 'none' : 'flex'
+      toggle.textContent = (open ? '▶' : '▼') + ' tools'
+    }
+
+    section.append(toggle, grid)
+    return section
+  }
+
+  _makeDivider() {
+    const d = document.createElement('div')
+    d.style.cssText = 'border-top:1px solid #221133; margin:6px 0 12px'
+    return d
+  }
+
+  // ── Config card ────────────────────────────────────────────────────────────
+
+  _makeCard(cfg) {
     const card = document.createElement('div')
     card.style.cssText = [
       'border:1px solid #332244', 'margin-bottom:10px', 'padding:10px',
@@ -113,7 +180,6 @@ export class AdminScene extends Phaser.Scene {
 
     hdr.append(title, meta)
 
-    // Expand toggle
     const toggle = document.createElement('div')
     toggle.textContent = '▶ frame data'
     toggle.style.cssText = 'color:#554433; cursor:pointer; font-size:10px; margin-bottom:6px; user-select:none'
@@ -131,7 +197,6 @@ export class AdminScene extends Phaser.Scene {
       toggle.textContent = (open ? '▶' : '▼') + ' frame data'
     }
 
-    // Edit row
     const editRow = document.createElement('div')
     editRow.style.cssText = 'display:flex; gap:8px; align-items:center; margin-bottom:8px'
 
@@ -194,17 +259,25 @@ export class AdminScene extends Phaser.Scene {
   // ── Update ─────────────────────────────────────────────────────────────────
 
   update() {
-    if (Phaser.Input.Keyboard.JustDown(this._kEsc)) {
-      this._panelEl?.remove()
-      this.cameras.main.fade(300, 8, 8, 16, false, (_, t) => {
-        if (t === 1) this.scene.start('Ch2HubScene')
-      })
-    }
+    if (Phaser.Input.Keyboard.JustDown(this._kEsc)) this._goSudo()
   }
 
   // ── Cleanup ────────────────────────────────────────────────────────────────
 
   shutdown() {
     this._panelEl?.remove()
+  }
+
+  // ── Helper ─────────────────────────────────────────────────────────────────
+
+  _makeBtn(x, y, txt, cb) {
+    const btn = this.add.text(x, y, txt, {
+      fontSize: '11px', color: '#ccbbaa', fontFamily: 'Courier New',
+      backgroundColor: '#1a1828', padding: { x: 8, y: 4 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+    btn.on('pointerover', () => btn.setStyle({ color: '#ffffff', backgroundColor: '#2a2040' }))
+    btn.on('pointerout',  () => btn.setStyle({ color: '#ccbbaa', backgroundColor: '#1a1828' }))
+    btn.on('pointerdown', cb)
+    return btn
   }
 }
