@@ -77,8 +77,7 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     this._setupInput()
     this._setupKeys()
 
-    // Clean up DOM overlay on scene shutdown
-    this.events.on('shutdown', () => this._outputEl?.remove())
+    this.events.on('shutdown', () => this._closeDialog())
 
     this.cameras.main.fadeIn(350, 10, 10, 20)
   }
@@ -240,8 +239,13 @@ export class Ch2FramePickerScene extends Phaser.Scene {
 
   // ── Save dialog ────────────────────────────────────────────────────────────
 
+  _closeDialog() {
+    if (this._outputEl) { this._outputEl.remove(); this._outputEl = null }
+    if (this._dialogEscFn) { document.removeEventListener('keydown', this._dialogEscFn); this._dialogEscFn = null }
+  }
+
   _showSaveDialog() {
-    if (this._outputEl) { this._outputEl.remove(); this._outputEl = null; return }
+    if (this._outputEl) { this._closeDialog(); return }
 
     const s      = SHEETS[this._sheetIdx]
     const frames = this._frames[s.key]
@@ -288,9 +292,9 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     saveBtn.style.cssText = 'color:#00ff88; cursor:pointer; font-size:10px'
 
     const closeBtn = document.createElement('div')
-    closeBtn.textContent = '[ close  ·  S ]'
+    closeBtn.textContent = '[ close  ·  ESC ]'
     closeBtn.style.cssText = 'color:#554433; cursor:pointer; font-size:10px'
-    closeBtn.onclick = () => { wrap.remove(); this._outputEl = null }
+    closeBtn.onclick = () => this._closeDialog()
 
     saveBtn.onclick = async () => {
       const user = AuthManager.getCurrentUser()
@@ -327,6 +331,10 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     btnRow.append(saveBtn, closeBtn)
     wrap.append(header, labelInput, fpsInput, info, btnRow, status)
     document.getElementById('game-container').appendChild(wrap)
+
+    this._dialogEscFn = (e) => { if (e.key === 'Escape') this._closeDialog() }
+    document.addEventListener('keydown', this._dialogEscFn)
+
     labelInput.focus()
     this._outputEl = wrap
   }
@@ -334,6 +342,7 @@ export class Ch2FramePickerScene extends Phaser.Scene {
   // ── Update ─────────────────────────────────────────────────────────────────
 
   update() {
+    if (this._outputEl) return   // dialog open — keyboard handled by native DOM listener
     const J = Phaser.Input.Keyboard.JustDown
     if (J(this._kL))   this._switchSheet(-1)
     if (J(this._kR))   this._switchSheet(1)
@@ -341,7 +350,6 @@ export class Ch2FramePickerScene extends Phaser.Scene {
     if (J(this._kX))   this._clearAll()
     if (J(this._kS))   this._showSaveDialog()
     if (J(this._kEsc)) {
-      if (this._outputEl) { this._outputEl.remove(); this._outputEl = null; return }
       this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {
         if (t === 1) this.scene.start('Ch2HubScene')
       })
