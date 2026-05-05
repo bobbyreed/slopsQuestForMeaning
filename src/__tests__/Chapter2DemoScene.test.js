@@ -382,14 +382,15 @@ describe('Chapter2DemoScene — _onPlayerEnemyContact', () => {
     expect(s._player.body.setVelocityX).not.toHaveBeenCalled()
   })
 
-  it('color-restore callback fires and resets player color', () => {
+  it('hit flash tween fires and restores alpha on complete', () => {
     const s = makeDemo()
-    s._player = { x: 300, y: 300, body: { setVelocityX: vi.fn(), setVelocityY: vi.fn() }, active: true, setFillStyle: vi.fn() }
+    s._player = { x: 300, y: 300, body: { setVelocityX: vi.fn(), setVelocityY: vi.fn() }, active: true, setAlpha: vi.fn(), alpha: 1 }
     const enemy = { x: 280, y: 300, active: true }
     s._onPlayerEnemyContact(enemy)
-    const restoreCb = s.time.delayedCall.mock.calls.at(-1)?.[1]
-    restoreCb?.()
-    expect(s._player.setFillStyle).toHaveBeenCalledWith(0xc8b898)
+    const tweenCall = s.tweens.add.mock.calls.at(-1)?.[0]
+    expect(tweenCall?.targets).toBe(s._player)
+    tweenCall?.onComplete?.()
+    expect(s._player.setAlpha).toHaveBeenCalledWith(1)
   })
 })
 
