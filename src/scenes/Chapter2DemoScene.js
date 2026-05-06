@@ -1,11 +1,13 @@
 // Chapter 2 Demo Scene — standalone combat/movement sandbox.
 // Tests the Chapter 2 mechanics before full integration:
-//   ← →   move
-//   SHIFT  jump
-//   Z      melee attack
-//   Q      AoE corrupt
+//   ← →     move
+//   SHIFT   jump
+//   Z       melee attack
+//   Q       AoE corrupt
+//   TAB     cycle through loaded animations on the player sprite
+//   L       toggle animation picker panel
 //
-// Sprite animations loaded from Firestore (walk / dash configs).
+// All Firestore animation configs are loaded automatically.
 // Not wired into main progression. Launch via dev console.
 
 import Phaser from 'phaser'
@@ -97,11 +99,12 @@ export class Chapter2DemoScene extends Phaser.Scene {
     this._lastSafeX     = 80
     this._lastSafeY     = H - 90
     this._enemies       = []
-    this._sprite        = null
-    this._animState     = null
-    this._walkAnimKey   = null
-    this._dashAnimKey   = null
-    this._spriteYOffset = 0
+    this._sprite          = null
+    this._animState       = null
+    this._animPool        = []
+    this._activeAnimIdx   = 0
+    this._pickerEl        = null
+    this._spriteYOffset   = 0
   }
 
   create() {
@@ -121,6 +124,8 @@ export class Chapter2DemoScene extends Phaser.Scene {
     this._shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
     this._zKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z)
     this._qKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q)
+    this._tabKey   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TAB)
+    this._kL       = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L)
 
     if (this.cameras?.main?.startFollow) this.cameras.main.startFollow(this._player, true, 0.09, 0.09)
     if (this.cameras?.main?.setBounds)   this.cameras.main.setBounds(0, 0, WORLD_W, H)
@@ -141,23 +146,28 @@ export class Chapter2DemoScene extends Phaser.Scene {
     try {
       const configs = await AnimConfig.loadAll()
 
-      const walkCfg = configs.find(c => c.label?.toLowerCase().includes('walk'))
-      const dashCfg = configs.find(c => c.label?.toLowerCase().includes('dash'))
-
-      if (walkCfg || dashCfg) {
-        // Color-key every unique sheet referenced by found configs
-        const sheetKeys = [...new Set([walkCfg?.sheetKey, dashCfg?.sheetKey].filter(Boolean))]
+      if (configs.length) {
+        // Color-key every unique sheet that's loaded
+        const sheetKeys = [...new Set(configs.map(c => c.sheetKey).filter(Boolean))]
         sheetKeys.forEach(sk => {
           if (this.textures.exists(sk)) this._buildProcessedTexture(sk)
         })
 
-        if (walkCfg) this._registerAnim('slop-walk', walkCfg)
-        if (dashCfg) this._registerAnim('slop-dash', dashCfg)
+        // Register every valid config and build the pool
+        configs.forEach((cfg, i) => {
+          if (!cfg.frames?.length || !SHEET_META[cfg.sheetKey]) return
+          const animKey = `demo-${cfg.id || i}`
+          this._registerAnim(animKey, cfg)
+          this._animPool.push({ key: animKey, label: cfg.label || cfg.sheetKey, cfg })
+        })
 
-        this._walkAnimKey = walkCfg ? 'slop-walk' : null
-        this._dashAnimKey = dashCfg ? 'slop-dash' : null
-
-        this._attachSprite(walkCfg || dashCfg)
+        if (this._animPool.length > 0) {
+          this._activeAnimIdx = 0
+          this._attachSprite(this._animPool[0].cfg)
+          this._animHudLabel?.setText(this._animPool[0].label)
+          // Rebuild picker if it was opened before configs arrived
+          if (this._pickerEl) { this._closePicker(); this._showPicker() }
+        }
       }
     } catch (e) {
       console.warn('[Ch2Demo] anim config load failed:', e.message)
@@ -195,46 +205,121 @@ export class Chapter2DemoScene extends Phaser.Scene {
     const procKey = 'proc-' + cfg.sheetKey
     if (!this.textures.exists(procKey)) return
 
-    // Compute Y offset so sprite feet align with physics rectangle bottom
-    const frame0 = cfg.frames[0]
-    this._spriteYOffset = (PLAYER_H - frame0.h * SPRITE_SCALE) / 2
+    const f0 = cfg.frames[0]
+    this._spriteYOffset = (PLAYER_H - f0.h * SPRITE_SCALE) / 2
 
+    const firstKey = this._animPool[this._activeAnimIdx]?.key || ''
     this._sprite = this.add.sprite(
       this._player.x,
       this._player.y + this._spriteYOffset,
       procKey,
-      (this._walkAnimKey || this._dashAnimKey) + '-0'
+      firstKey + '-0'
     ).setScale(SPRITE_SCALE).setDepth(10)
 
-    // Hide the placeholder rectangle and head; sprite owns the visuals now
     this._player.setAlpha(0)
     this._head?.destroy()
     this._head = null
 
-    // Start in walk state so the animation plays immediately
     this._animState = null
-    if (this._walkAnimKey) this._sprite.play(this._walkAnimKey)
+    if (firstKey) this._sprite.play(firstKey)
   }
 
   // ── Animation state ────────────────────────────────────────────────────────
 
   _setAnimState(state) {
-    if (!this._sprite || this._animState === state) return
+    if (!this._sprite) return
+    const animKey = this._animPool[this._activeAnimIdx]?.key
+    if (!animKey) return
+    if (this._animState === state) return
     this._animState = state
 
     switch (state) {
       case 'walk':
-        if (this._walkAnimKey) this._sprite.play(this._walkAnimKey)
+      case 'air':
+        this._sprite.play(animKey)
         break
       case 'idle':
-        // Pause on current walk frame rather than snapping to frame 0
         this._sprite.anims.pause()
         break
-      case 'air':
-        if (this._dashAnimKey) this._sprite.play(this._dashAnimKey)
-        else if (this._walkAnimKey) this._sprite.play(this._walkAnimKey)
-        break
     }
+  }
+
+  _switchAnim(idx) {
+    if (!this._animPool.length) return
+    this._activeAnimIdx = ((idx % this._animPool.length) + this._animPool.length) % this._animPool.length
+    const entry = this._animPool[this._activeAnimIdx]
+
+    // Recompute Y offset for the new frame size
+    const f0 = entry.cfg.frames[0]
+    if (f0) this._spriteYOffset = (PLAYER_H - f0.h * SPRITE_SCALE) / 2
+
+    // Swap sprite texture to the correct processed sheet
+    const procKey = 'proc-' + entry.cfg.sheetKey
+    if (this._sprite && this.textures.exists(procKey)) {
+      this._sprite.setTexture(procKey, entry.key + '-0')
+    }
+
+    // Clear cached state so _setAnimState re-enters on the next update tick
+    this._animState = null
+    this._animHudLabel?.setText(entry.label)
+    this._refreshPickerHighlight()
+  }
+
+  // ── Animation picker (DOM) ──────────────────────────────────────────────────
+
+  _showPicker() {
+    const wrap = document.createElement('div')
+    wrap.style.cssText = [
+      'position:absolute', 'top:0', 'right:0', 'width:230px', 'height:100%',
+      'overflow-y:auto', 'background:#0b0914ee', 'font-family:Courier New,monospace',
+      'font-size:11px', 'z-index:50', 'padding:10px', 'box-sizing:border-box',
+      'border-left:1px solid #221133',
+    ].join(';')
+
+    const hdr = document.createElement('div')
+    hdr.textContent = 'animations  ·  L to close'
+    hdr.style.cssText = 'color:#aaaaaa; font-size:10px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid #221133'
+    wrap.appendChild(hdr)
+
+    if (!this._animPool.length) {
+      const empty = document.createElement('div')
+      empty.textContent = 'loading…'
+      empty.style.color = '#554433'
+      wrap.appendChild(empty)
+    } else {
+      this._animPool.forEach((entry, i) => {
+        const item = document.createElement('div')
+        item.dataset.animIdx = i
+        item.textContent = entry.label
+        item.style.cssText = 'padding:6px 8px; cursor:pointer; color:#aaaaaa; line-height:1.4; border-radius:2px'
+        item.onmouseenter = () => { if (i !== this._activeAnimIdx) item.style.background = '#1a1428' }
+        item.onmouseleave = () => { if (i !== this._activeAnimIdx) item.style.background = '' }
+        item.onclick = () => this._switchAnim(i)
+        wrap.appendChild(item)
+      })
+    }
+
+    document.getElementById('game-container').appendChild(wrap)
+    this._pickerEl = wrap
+    this._refreshPickerHighlight()
+  }
+
+  _refreshPickerHighlight() {
+    if (!this._pickerEl) return
+    this._pickerEl.querySelectorAll('[data-anim-idx]').forEach(el => {
+      const active = parseInt(el.dataset.animIdx) === this._activeAnimIdx
+      el.style.color      = active ? '#00ff88' : '#aaaaaa'
+      el.style.background = active ? '#0f1a14' : ''
+    })
+  }
+
+  _closePicker() {
+    if (this._pickerEl) { this._pickerEl.remove(); this._pickerEl = null }
+  }
+
+  _togglePicker() {
+    if (this._pickerEl) this._closePicker()
+    else this._showPicker()
   }
 
   // ── Background ─────────────────────────────────────────────────────────────
@@ -473,6 +558,8 @@ export class Chapter2DemoScene extends Phaser.Scene {
     this.add.text(112, H - 44, 'SHIFT  jump',  dim).setScrollFactor(0).setDepth(30)
     this.add.text(222, H - 44, 'Z  attack',    dim).setScrollFactor(0).setDepth(30)
     this.add.text(308, H - 44, 'Q  aoe',       dim).setScrollFactor(0).setDepth(30)
+    this.add.text(370, H - 44, 'TAB  anim',    dim).setScrollFactor(0).setDepth(30)
+    this.add.text(450, H - 44, 'L  list',      dim).setScrollFactor(0).setDepth(30)
 
     this._meleeLabel = this.add.text(222, H - 28, 'ready', {
       fontSize: '8px', color: '#cc9966', fontFamily: 'Courier New',
@@ -484,6 +571,11 @@ export class Chapter2DemoScene extends Phaser.Scene {
 
     this.add.text(W / 2, 18, 'chapter 2  //  demo', {
       fontSize: '10px', color: '#998880', fontFamily: 'Courier New', letterSpacing: 3,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(30)
+
+    // Shows the active animation name; updated by _switchAnim and _loadAnimConfigs
+    this._animHudLabel = this.add.text(W / 2, 36, '…', {
+      fontSize: '9px', color: '#776655', fontFamily: 'Courier New',
     }).setOrigin(0.5).setScrollFactor(0).setDepth(30)
   }
 
@@ -572,8 +664,10 @@ export class Chapter2DemoScene extends Phaser.Scene {
       if (this._meleeFlash <= 0 && this._arm) this._arm.setAlpha(0)
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this._zKey)) this._doMeleeAttack()
-    if (Phaser.Input.Keyboard.JustDown(this._qKey)) this._doCorruptAoE()
+    if (Phaser.Input.Keyboard.JustDown(this._zKey))   this._doMeleeAttack()
+    if (Phaser.Input.Keyboard.JustDown(this._qKey))   this._doCorruptAoE()
+    if (Phaser.Input.Keyboard.JustDown(this._tabKey)) this._switchAnim(this._activeAnimIdx + 1)
+    if (Phaser.Input.Keyboard.JustDown(this._kL))     this._togglePicker()
 
     for (const enemy of this._enemies) {
       if (!enemy?.body) continue
@@ -585,4 +679,6 @@ export class Chapter2DemoScene extends Phaser.Scene {
     this._syncPlayerVisuals()
     this._updateHUD()
   }
+
+  shutdown() { this._closePicker() }
 }
