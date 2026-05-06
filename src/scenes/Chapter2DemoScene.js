@@ -11,6 +11,7 @@
 import Phaser from 'phaser'
 import { W, H } from '../config/constants.js'
 import { AnimConfig } from '../firestore/AnimConfig.js'
+import { buildProcessedTexture } from '../util/colorKey.js'
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -24,10 +25,6 @@ const SHEET_META = {
   'ch2-enemy-bestiary-sheet':        { w: 1376, h: 768  },
   'ch2-env-tileset-sheet':           { w: 1376, h: 768  },
 }
-
-// Color-key: strip pixels where max(r,g,b) < BRIGHT and saturation < SAT
-const CK_BRIGHT = 50
-const CK_SAT    = 0.20
 
 // Sprite visual scale — tune this if the character looks too large/small
 const SPRITE_SCALE = 1.0
@@ -171,33 +168,7 @@ export class Chapter2DemoScene extends Phaser.Scene {
   }
 
   _buildProcessedTexture(sheetKey) {
-    const procKey = 'proc-' + sheetKey
-    if (this.textures.exists(procKey)) return
-
-    try {
-      const meta   = SHEET_META[sheetKey]
-      const img    = this.textures.get(sheetKey).source[0].image
-      const canvas = document.createElement('canvas')
-      canvas.width  = img.naturalWidth  || meta.w
-      canvas.height = img.naturalHeight || meta.h
-
-      const ctx  = canvas.getContext('2d', { willReadFrequently: true })
-      ctx.drawImage(img, 0, 0)
-      const id   = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const data = id.data
-
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i + 1], b = data[i + 2]
-        const max = Math.max(r, g, b)
-        const sat = max === 0 ? 0 : (max - Math.min(r, g, b)) / max
-        if (max < CK_BRIGHT && sat < CK_SAT) data[i + 3] = 0
-      }
-
-      ctx.putImageData(id, 0, 0)
-      this.textures.addCanvas(procKey, canvas)
-    } catch (e) {
-      console.warn(`[Ch2Demo] color-key failed for ${sheetKey}:`, e.message)
-    }
+    buildProcessedTexture(this.textures, sheetKey, SHEET_META)
   }
 
   _registerAnim(animKey, cfg) {

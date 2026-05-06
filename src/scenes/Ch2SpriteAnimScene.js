@@ -3,6 +3,7 @@
 //
 // ← →   cycle animations
 // ↑ ↓   adjust fps
+// C      toggle checkerboard background (inspect color-key quality)
 // D      toggle debug overlay (raw sheet + frame bounds)
 // L      toggle animation list picker
 // ESC    return to hub
@@ -10,6 +11,7 @@
 import Phaser from 'phaser'
 import { W, H } from '../config/constants.js'
 import { AnimConfig } from '../firestore/AnimConfig.js'
+import { buildProcessedTexture } from '../util/colorKey.js'
 
 const ASSET_PATH = 'media/generated/'
 
@@ -21,11 +23,6 @@ const SHEET_META = {
   'ch2-enemy-bestiary-sheet':        { w: 1376, h: 768  },
   'ch2-env-tileset-sheet':           { w: 1376, h: 768  },
 }
-
-// Color-key: remove pixels where max(r,g,b) < BRIGHT and saturation < SAT.
-// Preserves grey-blue limbs while stripping the near-black background.
-const CK_BRIGHT = 50
-const CK_SAT    = 0.20
 
 function row(n, x0, y, w, h, stride) {
   return Array.from({ length: n }, (_, i) => ({ x: x0 + i * stride, y, w, h }))
@@ -79,12 +76,15 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
 
   create() {
     // Deep-copy built-ins so per-session fps changes don't mutate the constant
-    this._pool      = BUILTIN.map(b => ({ ...b, frames: [...b.frames] }))
-    this._animIdx   = 0
-    this._showDebug = false
-    this._pickerEl  = null
+    this._pool        = BUILTIN.map(b => ({ ...b, frames: [...b.frames] }))
+    this._animIdx     = 0
+    this._showDebug   = false
+    this._showChecker = false
+    this._pickerEl    = null
 
-    this.add.rectangle(W / 2, H / 2, W, H, 0x0a0a0a).setDepth(0)
+    this._bgRect = this.add.rectangle(W / 2, H / 2, W, H, 0x0a0a0a).setDepth(0)
+    this._makeCheckerTexture()
+    this._checkerImg = this.add.image(0, 0, '__checker__').setOrigin(0, 0).setAlpha(0).setDepth(1)
 
     // Process all loaded sheets up-front
     Object.keys(SHEET_META).forEach(sk => {
@@ -107,7 +107,7 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
 
     this._buildTopBar()
 
-    this.add.text(W / 2, H - 14, '← → cycle  ·  ↑ ↓ fps  ·  D debug  ·  L list  ·  ESC hub', {
+    this.add.text(W / 2, H - 14, '← → cycle  ·  ↑ ↓ fps  ·  C checker  ·  D debug  ·  L list  ·  ESC hub', {
       fontSize: '10px', color: '#665544', fontFamily: 'Courier New',
     }).setOrigin(0.5, 1).setDepth(20)
 
@@ -138,33 +138,7 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
   // ── Texture processing ─────────────────────────────────────────────────────
 
   _buildProcessedTexture(sheetKey) {
-    const procKey = 'proc-' + sheetKey
-    if (this.textures.exists(procKey)) return
-
-    try {
-      const meta   = SHEET_META[sheetKey]
-      const img    = this.textures.get(sheetKey).source[0].image
-      const canvas = document.createElement('canvas')
-      canvas.width  = img.naturalWidth  || meta.w
-      canvas.height = img.naturalHeight || meta.h
-
-      const ctx  = canvas.getContext('2d', { willReadFrequently: true })
-      ctx.drawImage(img, 0, 0)
-      const id   = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const data = id.data
-
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i + 1], b = data[i + 2]
-        const max = Math.max(r, g, b)
-        const sat = max === 0 ? 0 : (max - Math.min(r, g, b)) / max
-        if (max < CK_BRIGHT && sat < CK_SAT) data[i + 3] = 0
-      }
-
-      ctx.putImageData(id, 0, 0)
-      this.textures.addCanvas(procKey, canvas)
-    } catch (e) {
-      console.warn(`[AnimScene] color-key failed for ${sheetKey}:`, e.message)
-    }
+    buildProcessedTexture(this.textures, sheetKey, SHEET_META)
   }
 
   // ── Animation registration ─────────────────────────────────────────────────
@@ -374,6 +348,7 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
     this._kR   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
     this._kU   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
     this._kDn  = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN)
+    this._kC   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C)
     this._kD   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
     this._kLst = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L)
     this._kEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
@@ -385,6 +360,7 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
     if (J(this._kR))   this._playAnim(this._animIdx + 1)
     if (J(this._kU))   this._adjustFps(+1)
     if (J(this._kDn))  this._adjustFps(-1)
+    if (J(this._kC))   this._toggleChecker()
     if (J(this._kD))   this._toggleDebug()
     if (J(this._kLst)) this._togglePicker()
     if (J(this._kEsc)) this._goHub()
@@ -407,6 +383,30 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
   }
 
   shutdown() { this._closePicker() }
+
+  // ── Checkerboard ───────────────────────────────────────────────────────────
+
+  _makeCheckerTexture() {
+    if (this.textures.exists('__checker__')) return
+    const size   = 16
+    const canvas = document.createElement('canvas')
+    canvas.width  = W
+    canvas.height = H
+    const ctx = canvas.getContext('2d')
+    for (let row = 0; row < Math.ceil(H / size); row++) {
+      for (let col = 0; col < Math.ceil(W / size); col++) {
+        ctx.fillStyle = (row + col) % 2 === 0 ? '#777777' : '#aaaaaa'
+        ctx.fillRect(col * size, row * size, size, size)
+      }
+    }
+    this.textures.addCanvas('__checker__', canvas)
+  }
+
+  _toggleChecker() {
+    this._showChecker = !this._showChecker
+    this._checkerImg.setAlpha(this._showChecker ? 1 : 0)
+    this._bgRect.setAlpha(this._showChecker ? 0 : 1)
+  }
 
   // ── Helper ─────────────────────────────────────────────────────────────────
 
