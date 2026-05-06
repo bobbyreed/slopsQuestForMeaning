@@ -37,21 +37,25 @@ export class Ch2HubScene extends Phaser.Scene {
     this._buildTopBar()
 
     this.add.text(W / 2, TOP + 50, 'CHAPTER 2  ·  TOOLS', {
-      fontSize: '18px', color: '#ccbbaa', fontFamily: 'Courier New',
+      fontSize: '18px', color: '#ffffff', fontFamily: 'Courier New',
+      backgroundColor: '#0d0b18', padding: { x: 12, y: 6 },
     }).setOrigin(0.5)
 
-    this.add.text(W / 2, TOP + 76, 'asset viewers and animation test scenes', {
-      fontSize: '11px', color: '#776655', fontFamily: 'Courier New',
+    this.add.text(W / 2, TOP + 90, 'asset viewers and animation test scenes', {
+      fontSize: '12px', color: '#aaaaaa', fontFamily: 'Courier New',
+      backgroundColor: '#0d0b18', padding: { x: 8, y: 4 },
     }).setOrigin(0.5)
 
-    const cardY   = TOP + 50 + 80 + CARD_H / 2 + 10
+    const cardY   = TOP + 90 + 26 + CARD_H / 2 + 10
     const startX  = W / 2 - TOTAL_W / 2 + CARD_W / 2
     TOOLS.forEach(({ key, label, desc }, i) => {
       this._makeCard(startX + i * (CARD_W + CARD_GAP), cardY, key, label, desc)
     })
 
-    this.add.text(W / 2, H - 14, 'ESC = sudo menu', {
-      fontSize: '10px', color: '#554433', fontFamily: 'Courier New',
+    this.add.rectangle(W / 2, H - 20, W, 1, 0x443355)
+    this.add.text(W / 2, H - 8, 'ESC = sudo menu', {
+      fontSize: '11px', color: '#aaaaaa', fontFamily: 'Courier New',
+      backgroundColor: '#0d0b18', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1)
 
     this._escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
@@ -59,8 +63,9 @@ export class Ch2HubScene extends Phaser.Scene {
   }
 
   _buildTopBar() {
-    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.75).setDepth(10)
-    this._makeBtn(44, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(11)
+    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000).setDepth(10)
+    this.add.rectangle(W / 2, TOP, W, 1, 0x443355).setDepth(11)
+    this._makeBtn(44, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(12)
   }
 
   _goSudo() {
@@ -72,26 +77,26 @@ export class Ch2HubScene extends Phaser.Scene {
   _makeCard(cx, cy, sceneKey, label, desc) {
     const bg = this.add.rectangle(cx, cy, CARD_W, CARD_H, 0x1a1828)
       .setInteractive({ useHandCursor: true })
-      .setStrokeStyle(1, 0x443344)
+      .setStrokeStyle(2, 0x554466)
 
     const lbl = this.add.text(cx, cy - 28, label, {
-      fontSize: '13px', color: '#ccbbaa', fontFamily: 'Courier New',
+      fontSize: '13px', color: '#ffffff', fontFamily: 'Courier New',
     }).setOrigin(0.5)
 
     const dsc = this.add.text(cx, cy + 6, desc, {
-      fontSize: '10px', color: '#776655', fontFamily: 'Courier New',
+      fontSize: '11px', color: '#aaaaaa', fontFamily: 'Courier New',
       align: 'center', lineSpacing: 4,
     }).setOrigin(0.5)
 
     bg.on('pointerover', () => {
-      bg.setFillColor(0x2a2040).setStrokeStyle(1, 0x9988cc)
+      bg.setFillColor(0x2a2040).setStrokeStyle(2, 0xaa88ff)
       lbl.setStyle({ color: '#ffffff' })
-      dsc.setStyle({ color: '#998877' })
+      dsc.setStyle({ color: '#cccccc' })
     })
     bg.on('pointerout', () => {
-      bg.setFillColor(0x1a1828).setStrokeStyle(1, 0x443344)
-      lbl.setStyle({ color: '#ccbbaa' })
-      dsc.setStyle({ color: '#776655' })
+      bg.setFillColor(0x1a1828).setStrokeStyle(2, 0x554466)
+      lbl.setStyle({ color: '#ffffff' })
+      dsc.setStyle({ color: '#aaaaaa' })
     })
     bg.on('pointerdown', () => {
       this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {

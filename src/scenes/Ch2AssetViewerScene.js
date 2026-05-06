@@ -70,23 +70,29 @@ export class Ch2AssetViewerScene extends Phaser.Scene {
   // ── Top bar ────────────────────────────────────────────────────────────────
 
   _buildTopBar() {
-    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.72).setDepth(10)
+    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000).setDepth(10)
+    this.add.rectangle(W / 2, TOP, W, 1, 0x443355).setDepth(11)
 
     // Nav: sudo far-left, hub far-right
-    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(11)
-    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(11)
+    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(12)
+    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(12)
 
     // Content cycle: inset from nav buttons
-    this._makeBtn(120, TOP / 2, '◀  prev', () => this._cycleBg(-1)).setDepth(11)
-    this._makeBtn(W - 120, TOP / 2, 'next  ▶', () => this._cycleBg(1)).setDepth(11)
+    this._makeBtn(120, TOP / 2, '◀  prev', () => this._cycleBg(-1)).setDepth(12)
+    this._makeBtn(W - 120, TOP / 2, 'next  ▶', () => this._cycleBg(1)).setDepth(12)
 
     this._bgLabel = this.add.text(W / 2, TOP / 2, `1 / ${BG_KEYS.length}  ·  ${BG_KEYS[0]}`, {
-      fontSize: '13px', color: '#ddd0c0', fontFamily: 'Courier New',
-    }).setOrigin(0.5).setDepth(11)
+      fontSize: '13px', color: '#ffffff', fontFamily: 'Courier New',
+      backgroundColor: '#0d0b18', padding: { x: 8, y: 4 },
+    }).setOrigin(0.5).setDepth(12)
 
-    this.add.text(W / 2, H - 14, '← → = cycle  ·  ESC = hub', {
-      fontSize: '10px', color: '#665544', fontFamily: 'Courier New',
-    }).setOrigin(0.5, 1).setDepth(10)
+    // Bottom bar — no background behind this text in the original; add one
+    const botH = 30
+    this.add.rectangle(W / 2, H - botH / 2, W, botH, 0x000000).setDepth(10)
+    this.add.rectangle(W / 2, H - botH, W, 1, 0x443355).setDepth(11)
+    this.add.text(W / 2, H - botH / 2, '← → = cycle  ·  ESC = hub', {
+      fontSize: '11px', color: '#aaaaaa', fontFamily: 'Courier New',
+    }).setOrigin(0.5).setDepth(11)
   }
 
   // ── Navigation ─────────────────────────────────────────────────────────────

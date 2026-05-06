@@ -107,9 +107,12 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
 
     this._buildTopBar()
 
-    this.add.text(W / 2, H - 14, '← → cycle  ·  ↑ ↓ fps  ·  C checker  ·  D debug  ·  L list  ·  ESC hub', {
-      fontSize: '10px', color: '#665544', fontFamily: 'Courier New',
-    }).setOrigin(0.5, 1).setDepth(20)
+    const botH = 30
+    this.add.rectangle(W / 2, H - botH, W, 1, 0x443355).setDepth(19)
+    this.add.rectangle(W / 2, H - botH / 2, W, botH, 0x000000).setDepth(19)
+    this.add.text(W / 2, H - botH / 2, '← → cycle  ·  ↑ ↓ fps  ·  C checker  ·  D debug  ·  L list  ·  ESC hub', {
+      fontSize: '11px', color: '#aaaaaa', fontFamily: 'Courier New',
+    }).setOrigin(0.5).setDepth(20)
 
     this._setupKeys()
     this._playAnim(0)
@@ -122,17 +125,20 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
   // ── Top bar ────────────────────────────────────────────────────────────────
 
   _buildTopBar() {
-    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.75).setDepth(20)
-    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(21)
-    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(21)
+    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000).setDepth(20)
+    this.add.rectangle(W / 2, TOP, W, 1, 0x443355).setDepth(21)
+    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(22)
+    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(22)
 
     this._animLabel = this.add.text(W / 2, TOP / 2, '', {
-      fontSize: '13px', color: '#ccbbaa', fontFamily: 'Courier New',
-    }).setOrigin(0.5).setDepth(21)
+      fontSize: '13px', color: '#ffffff', fontFamily: 'Courier New',
+      backgroundColor: '#0d0b18', padding: { x: 8, y: 4 },
+    }).setOrigin(0.5).setDepth(22)
 
-    this._fpsLabel = this.add.text(W / 2 + 170, TOP / 2, '', {
-      fontSize: '11px', color: '#887766', fontFamily: 'Courier New',
-    }).setOrigin(0, 0.5).setDepth(21)
+    this._fpsLabel = this.add.text(W / 2 + 180, TOP / 2, '', {
+      fontSize: '11px', color: '#aaaaaa', fontFamily: 'Courier New',
+      backgroundColor: '#0d0b18', padding: { x: 6, y: 3 },
+    }).setOrigin(0, 0.5).setDepth(22)
   }
 
   // ── Texture processing ─────────────────────────────────────────────────────

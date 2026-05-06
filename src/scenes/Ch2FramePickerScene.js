@@ -85,33 +85,36 @@ export class Ch2FramePickerScene extends Phaser.Scene {
   // ── Top bar ────────────────────────────────────────────────────────────────
 
   _buildTopBar() {
-    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000, 0.75).setDepth(10)
+    this.add.rectangle(W / 2, TOP / 2, W, TOP, 0x000000).setDepth(10)
+    this.add.rectangle(W / 2, TOP, W, 1, 0x443355).setDepth(11)
 
     // Nav: sudo far-left, hub far-right
-    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(11)
-    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(11)
+    this._makeBtn(40, TOP / 2, '◀ sudo', () => this._goSudo()).setDepth(12)
+    this._makeBtn(W - 40, TOP / 2, 'hub ▶', () => this._goHub()).setDepth(12)
 
     // Sheet cycle: inset from nav buttons
-    this._makeBtn(110, TOP / 2, '◀', () => this._switchSheet(-1)).setDepth(11)
-    this._makeBtn(W - 110, TOP / 2, '▶', () => this._switchSheet(1)).setDepth(11)
+    this._makeBtn(110, TOP / 2, '◀', () => this._switchSheet(-1)).setDepth(12)
+    this._makeBtn(W - 110, TOP / 2, '▶', () => this._switchSheet(1)).setDepth(12)
 
     this._sheetLabel = this.add.text(W / 2, TOP / 2, '', {
-      fontSize: '13px', color: '#ccbbaa', fontFamily: 'Courier New',
-    }).setOrigin(0.5).setDepth(11)
+      fontSize: '13px', color: '#ffffff', fontFamily: 'Courier New',
+      backgroundColor: '#0d0b18', padding: { x: 8, y: 4 },
+    }).setOrigin(0.5).setDepth(12)
   }
 
   // ── Bottom bar ─────────────────────────────────────────────────────────────
 
   _buildBottomBar() {
     const y = H - BOT / 2
-    this.add.rectangle(W / 2, H - BOT / 2, W, BOT, 0x000000, 0.75).setDepth(10)
+    this.add.rectangle(W / 2, H - BOT, W, 1, 0x443355).setDepth(10)
+    this.add.rectangle(W / 2, H - BOT / 2, W, BOT, 0x000000).setDepth(10)
 
     this.add.text(10, y, 'Z undo  ·  X clear  ·  S save  ·  ← → sheets  ·  ESC hub', {
-      fontSize: '10px', color: '#665544', fontFamily: 'Courier New',
+      fontSize: '11px', color: '#aaaaaa', fontFamily: 'Courier New',
     }).setOrigin(0, 0.5).setDepth(11)
 
     this._frameCount = this.add.text(W - 10, y, '0 frames', {
-      fontSize: '10px', color: '#998877', fontFamily: 'Courier New',
+      fontSize: '11px', color: '#ffffff', fontFamily: 'Courier New',
     }).setOrigin(1, 0.5).setDepth(11)
   }
 
