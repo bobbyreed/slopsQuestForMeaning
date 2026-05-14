@@ -31,6 +31,7 @@ export class Dialogue {
     }).setScrollFactor(0).setDepth(101).setVisible(false)
 
     this._spaceKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+    this._enterKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
   }
 
   // options: { uppercase: true, bold: true }
@@ -96,7 +97,7 @@ export class Dialogue {
 
   update() {
     if (!this.active) return
-    if (Phaser.Input.Keyboard.JustDown(this._spaceKey)) this._advance()
+    if (Phaser.Input.Keyboard.JustDown(this._spaceKey) || Phaser.Input.Keyboard.JustDown(this._enterKey)) this._advance()
   }
 
   _advance() {
