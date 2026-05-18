@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slop's Quest — Playtest Feedback</title>
+  <style>
+    :root {
+      --bg:      #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2:#20203a;
+      --accent:  #7b61ff;
+      --accent2: #9966cc;
+      --green:   #44cc88;
+      --muted:   #555577;
+      --text:    #d4d4d8;
+      --faded:   #888899;
+      --border:  #2a2a44;
+      --warn:    #cc6633;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header {
+      max-width: 720px;
+      margin: 0 auto 3rem;
+      border-bottom: 1px solid var(--muted);
+      padding-bottom: 1.5rem;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+
+    header p {
+      color: var(--faded);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    header .nav {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    header .nav a { margin-right: 1.2rem; }
+
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* ── intro block ── */
+    .intro {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: var(--faded);
+    }
+
+    .intro p + p { margin-top: 0.75rem; }
+
+    .intro strong { color: var(--text); }
+
+    /* ── play instructions callout ── */
+    .play-call {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    .play-call h3 {
+      font-size: 0.75rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.6rem;
+    }
+
+    .play-call p { color: var(--faded); }
+    .play-call p + p { margin-top: 0.5rem; }
+    .play-call strong { color: var(--text); }
+    .play-call code {
+      background: #1a1a2e;
+      padding: 0 0.3em;
+      border-radius: 2px;
+      color: var(--accent);
+    }
+
+    .play-call ul {
+      margin: 0.5rem 0 0 1.2rem;
+      color: var(--faded);
+    }
+
+    .play-call li { margin-bottom: 0.25rem; }
+
+    /* ── section headings ── */
+    .form-section {
+      margin-bottom: 3.5rem;
+    }
+
+    .section-heading {
+      font-size: 1rem;
+      color: var(--accent2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .question-group {
+      margin-bottom: 2rem;
+    }
+
+    .group-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    /* ── form elements ── */
+    .field {
+      margin-bottom: 1.5rem;
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 0.88rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+
+    label.field-label .req {
+      color: var(--warn);
+      margin-left: 0.2em;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.88rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.6;
+    }
+
+    /* radio / checkbox groups */
+    .radio-group,
+    .check-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .radio-group label,
+    .check-group label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.87rem;
+      color: var(--faded);
+      cursor: pointer;
+      line-height: 1.4;
+    }
+
+    .radio-group label:hover,
+    .check-group label:hover { color: var(--text); }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      margin-top: 0.15em;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* star / 5-point rating */
+    .rating-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rating-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.87rem;
+      color: var(--faded);
+      cursor: pointer;
+    }
+
+    .rating-group label:hover { color: var(--accent); }
+
+    input[type="radio"]:checked + span {
+      color: var(--accent);
+    }
+
+    /* ── submit ── */
+    .submit-area {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .submit-area p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    button[type="submit"] {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      padding: 0.7rem 2rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    button[type="submit"]:hover  { opacity: 0.85; }
+    button[type="submit"]:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── states ── */
+    #error-msg {
+      margin-top: 0.75rem;
+      font-size: 0.83rem;
+      color: var(--warn);
+      display: none;
+    }
+
+    #success-state {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--green);
+      border-left: 3px solid var(--green);
+      padding: 2rem;
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    #success-state h2 {
+      color: var(--green);
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+
+    #success-state p {
+      color: var(--faded);
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+
+    #success-state p + p { margin-top: 0.6rem; }
+
+    .glitch {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-top: 0.75rem;
+    }
+
+    footer {
+      max-width: 720px;
+      margin: 4rem auto 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>// PLAYTEST FEEDBACK</h1>
+  <p>Slop's Quest for Meaning &mdash; selected playtest session</p>
+  <div class="nav">
+    <a href="../../index.html">← game</a>
+    <a href="journal.html">slop's journal</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="intro">
+    <p>
+      you've been selected to play through an early build of <strong>Slop's Quest for Meaning</strong> and tell us what you actually experienced — not what you think we want to hear.
+    </p>
+    <p>
+      the game has two chapters. chapter 1 is a top-down RPG. chapter 2 is a side-scrolling platformer. the world changes rules partway through on purpose. we want to know if that lands.
+    </p>
+    <p>
+      this form has play instructions before each section's questions. read them first, play that section, then answer. there are no wrong answers. <strong>vague answers are less useful than honest ones.</strong>
+    </p>
+    <p class="glitch">
+      // your responses will be stored and read by the developer. they will not be published without permission. the feedback goes directly into development decisions.
+    </p>
+  </div>
+
+  <form id="playtest-form" novalidate>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 0 — ABOUT YOU
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="form-section">
+      <h2 class="section-heading">// 00 — about you</h2>
+
+      <div class="field">
+        <label class="field-label" for="handle">
+          handle or name <em style="color:var(--muted)">(optional — or leave blank)</em>
+        </label>
+        <input type="text" id="handle" name="handle" placeholder="leave blank to stay anonymous" maxlength="60" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">how often do you play games? <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="frequency" value="rarely" required /> rarely or almost never</label>
+          <label><input type="radio" name="frequency" value="monthly" /> a few times a month</label>
+          <label><input type="radio" name="frequency" value="weekly" /> a few times a week</label>
+          <label><input type="radio" name="frequency" value="daily" /> every day or close to it</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">what genres do you usually play? <em style="color:var(--muted)">(check all that apply)</em></label>
+        <div class="check-group">
+          <label><input type="checkbox" name="genres" value="rpg" /> RPG / adventure</label>
+          <label><input type="checkbox" name="genres" value="platformer" /> platformers</label>
+          <label><input type="checkbox" name="genres" value="action" /> action / shooters</label>
+          <label><input type="checkbox" name="genres" value="puzzle" /> puzzle / strategy</label>
+          <label><input type="checkbox" name="genres" value="indie" /> indie / experimental</label>
+          <label><input type="checkbox" name="genres" value="other" /> other</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">have you played a game made with AI-generated code or art before? <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="priorAI" value="yes" required /> yes</label>
+          <label><input type="radio" name="priorAI" value="no" /> no</label>
+          <label><input type="radio" name="priorAI" value="notsure" /> not sure</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 1 — CHAPTER 1
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="form-section">
+      <h2 class="section-heading">// 01 — chapter 1</h2>
+
+      <div class="play-call">
+        <h3>▶ play instructions — chapter 1</h3>
+        <p><strong>Estimated time: 30–45 minutes.</strong> Start a new game. Play through the following sequence, then come back and answer the questions below.</p>
+        <ul>
+          <li>At the main menu terminal, type <code>play</code> to start.</li>
+          <li>Explore north to find <strong>The Prior</strong> at the shrine. Get your first ability.</li>
+          <li>Return to the overworld. Explore the <strong>dungeon</strong> to the south.</li>
+          <li>Visit The Prior's shop. Buy <strong>New Eyes</strong> to unlock the east and west worlds.</li>
+          <li>Clear the <strong>east region</strong> (find and beat The Render and The Pixel).</li>
+          <li>Clear the <strong>west region</strong> (find and beat The Duplicate).</li>
+          <li>Enter <strong>The Convergence</strong> to the north and complete it.</li>
+          <li>Beat <strong>The Prior in Joust</strong>. The world will change.</li>
+        </ul>
+        <p style="margin-top:0.6rem"><em>You can use the terminal command <code>sudo</code> to access developer shortcuts if you get stuck — but try to play it straight first.</em></p>
+      </div>
+
+      <!-- terminal -->
+      <div class="question-group">
+        <div class="group-label">// the terminal</div>
+
+        <div class="field">
+          <label class="field-label" for="c1_terminal_first">
+            When you saw the blinking cursor at the main menu, what was your first instinct? <span class="req">*</span>
+          </label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_terminal_first" value="typed_help" required /> typed <code style="font-size:0.85em;color:var(--accent)">help</code> immediately</label>
+            <label><input type="radio" name="c1_terminal_first" value="typed_random" /> typed something random to see what happened</label>
+            <label><input type="radio" name="c1_terminal_first" value="read_first" /> read the screen carefully before typing anything</label>
+            <label><input type="radio" name="c1_terminal_first" value="felt_lost" /> felt lost and wasn't sure what to do</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="c1_terminal_typed">What's one thing you typed at the terminal that you remember?</label>
+          <input type="text" id="c1_terminal_typed" name="c1_terminal_typed" placeholder="e.g. 'help', 'slop', 'who are you'" maxlength="120" />
+        </div>
+
+        <div class="field">
+          <label class="field-label">Did the terminal feel like part of the game or a wrapper around it? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_terminal_feel" value="part_of_game" required /> part of the game — it felt like a mechanic</label>
+            <label><input type="radio" name="c1_terminal_feel" value="wrapper" /> a wrapper — like a menu dressed up as something</label>
+            <label><input type="radio" name="c1_terminal_feel" value="both" /> both — it started as one and became the other</label>
+            <label><input type="radio" name="c1_terminal_feel" value="notsure" /> I'm not sure how to describe it</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- movement + coins -->
+      <div class="question-group">
+        <div class="group-label">// movement &amp; coins</div>
+
+        <div class="field">
+          <label class="field-label">How quickly did you find the north shrine and The Prior? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_found_prior" value="immediately" required /> immediately — it was obvious</label>
+            <label><input type="radio" name="c1_found_prior" value="few_minutes" /> took a few minutes of exploring</label>
+            <label><input type="radio" name="c1_found_prior" value="got_lost" /> got genuinely lost for a while</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            The coin cap: you can only hold 3 coins, and drop the 4th after one second. How did that land when you first encountered it? <span class="req">*</span>
+          </label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_coin_cap" value="confusing_annoying" required /> confusing and annoying — felt like a bug</label>
+            <label><input type="radio" name="c1_coin_cap" value="annoying_figured" /> annoying at first but I figured it out</label>
+            <label><input type="radio" name="c1_coin_cap" value="understood" /> I understood it quickly and adjusted</label>
+            <label><input type="radio" name="c1_coin_cap" value="interesting" /> I immediately found it an interesting design choice</label>
+            <label><input type="radio" name="c1_coin_cap" value="didnt_notice" /> I didn't notice it was happening</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- the prior -->
+      <div class="question-group">
+        <div class="group-label">// the prior</div>
+
+        <div class="field">
+          <label class="field-label" for="c1_prior_impression">What was your first impression of The Prior and their dialogue?</label>
+          <textarea id="c1_prior_impression" name="c1_prior_impression" placeholder="how did the character feel? did the text land?"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="c1_first_prompt">
+            When you got the Prompt ability and pressed SPACE to fire it for the first time — what happened? Describe what you experienced.
+            <span class="req">*</span>
+          </label>
+          <textarea id="c1_first_prompt" name="c1_first_prompt" required placeholder="what did you see, what did you do, did it work?"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Did the shop / purse upgrade system make sense when you first used it? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_shop" value="yes" required /> yes — clear immediately</label>
+            <label><input type="radio" name="c1_shop" value="mostly" /> mostly — small confusion but figured it out</label>
+            <label><input type="radio" name="c1_shop" value="no" /> not really — confusing design</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- combat + dungeon -->
+      <div class="question-group">
+        <div class="group-label">// the dungeon</div>
+
+        <div class="field">
+          <label class="field-label">How did the Prompt attack feel to use in combat? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_combat_feel" value="satisfying" required /> satisfying — responsive and clear</label>
+            <label><input type="radio" name="c1_combat_feel" value="awkward" /> awkward — took getting used to</label>
+            <label><input type="radio" name="c1_combat_feel" value="unclear" /> unclear — I wasn't sure what it was doing</label>
+            <label><input type="radio" name="c1_combat_feel" value="overpowered" /> overpowered — enemies were too easy</label>
+            <label><input type="radio" name="c1_combat_feel" value="underpowered" /> underpowered — I struggled more than expected</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Did you die in the dungeon? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_deaths" value="never" required /> never — cleared it first try</label>
+            <label><input type="radio" name="c1_deaths" value="once_twice" /> once or twice</label>
+            <label><input type="radio" name="c1_deaths" value="several" /> several times</label>
+            <label><input type="radio" name="c1_deaths" value="a_lot" /> a lot — it was punishing</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- east + west -->
+      <div class="question-group">
+        <div class="group-label">// east &amp; west worlds</div>
+
+        <div class="field">
+          <label class="field-label">Did the east and west regions feel distinct from each other? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_worlds_distinct" value="yes" required /> yes — clearly different in tone and challenge</label>
+            <label><input type="radio" name="c1_worlds_distinct" value="somewhat" /> somewhat — differences were there but subtle</label>
+            <label><input type="radio" name="c1_worlds_distinct" value="no" /> not really — felt like the same region</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="c1_east_memory">One thing you remember about the east world:</label>
+          <input type="text" id="c1_east_memory" name="c1_east_memory" maxlength="200" placeholder="a scene, a moment, a feeling" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="c1_west_memory">One thing you remember about the west world:</label>
+          <input type="text" id="c1_west_memory" name="c1_west_memory" maxlength="200" placeholder="a scene, a moment, a feeling" />
+        </div>
+      </div>
+
+      <!-- joust -->
+      <div class="question-group">
+        <div class="group-label">// the joust boss</div>
+
+        <div class="field">
+          <label class="field-label">When you first entered the Joust arena and realized what the mechanic was — what was your reaction? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_joust_first" value="disorienting_exciting" required /> disorienting at first, then exciting</label>
+            <label><input type="radio" name="c1_joust_first" value="immediately_fun" /> immediately understood and enjoyed it</label>
+            <label><input type="radio" name="c1_joust_first" value="frustrating" /> frustrating — the controls didn't click</label>
+            <label><input type="radio" name="c1_joust_first" value="confusing_all" /> confusing the whole time — never clicked</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">How was the difficulty of the Prior's Joust fight? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c1_joust_diff" value="too_easy" required /> too easy</label>
+            <label><input type="radio" name="c1_joust_diff" value="about_right" /> about right</label>
+            <label><input type="radio" name="c1_joust_diff" value="too_hard" /> too hard</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ch1 overall -->
+      <div class="question-group">
+        <div class="group-label">// chapter 1 — overall</div>
+
+        <div class="field">
+          <label class="field-label" for="c1_best_moment">What moment in Chapter 1 stuck with you most? <span class="req">*</span></label>
+          <textarea id="c1_best_moment" name="c1_best_moment" required placeholder="a specific scene, line of dialogue, mechanic, or feeling"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="c1_confused">Was there a point where you got stuck or genuinely confused about what to do next?</label>
+          <textarea id="c1_confused" name="c1_confused" placeholder="describe what happened — or leave blank if not"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Overall Chapter 1 rating: <span class="req">*</span></label>
+          <div class="rating-group">
+            <label><input type="radio" name="c1_rating" value="1" required /> <span>1 — rough</span></label>
+            <label><input type="radio" name="c1_rating" value="2" /> <span>2 — okay</span></label>
+            <label><input type="radio" name="c1_rating" value="3" /> <span>3 — good</span></label>
+            <label><input type="radio" name="c1_rating" value="4" /> <span>4 — great</span></label>
+            <label><input type="radio" name="c1_rating" value="5" /> <span>5 — excellent</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 2 — CHAPTER 2
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="form-section">
+      <h2 class="section-heading">// 02 — chapter 2</h2>
+
+      <div class="play-call">
+        <h3>▶ play instructions — chapter 2</h3>
+        <p><strong>Estimated time: 10–15 minutes.</strong> Continue directly from the end of the Joust. The world will change. Play through:</p>
+        <ul>
+          <li>The <strong>opening gauntlet</strong> — side-scrolling, 8 enemies. Reach the far right edge.</li>
+          <li>The <strong>Clone encounter</strong> — boss fight. Reduce its HP to zero.</li>
+          <li>The <strong>Town</strong> — talk to the NPCs. Find the one who gives you a new ability.</li>
+        </ul>
+        <p style="margin-top:0.6rem">
+          <strong>Controls in Ch2:</strong> <code>← →</code> or <code>A D</code> to move &nbsp;·&nbsp;
+          <code>Z</code> to attack &nbsp;·&nbsp; <code>Q</code> for CORRUPT &nbsp;·&nbsp;
+          <code>SPACE</code> or <code>ENTER</code> to advance dialogue.
+        </p>
+        <p style="margin-top:0.5rem"><em>You cannot jump at the start of Ch2. That is intentional.</em></p>
+      </div>
+
+      <!-- transition -->
+      <div class="question-group">
+        <div class="group-label">// the transition</div>
+
+        <div class="field">
+          <label class="field-label" for="c2_transition">When the world changed from top-down to side-scrolling, describe your reaction. <span class="req">*</span></label>
+          <textarea id="c2_transition" name="c2_transition" required placeholder="surprise, confusion, clarity, something else?"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            Three lines appeared at the start of Ch2: "the gravity is different here / your body arrived with you / the question is still the same."
+            Could you advance them? Did they feel right? <span class="req">*</span>
+          </label>
+          <div class="radio-group">
+            <label><input type="radio" name="c2_arrival_text" value="worked_landed" required /> yes — pressed SPACE or ENTER, they advanced, the lines felt right</label>
+            <label><input type="radio" name="c2_arrival_text" value="worked_rushed" /> they advanced but I went through too fast to read them</label>
+            <label><input type="radio" name="c2_arrival_text" value="couldnt_advance" /> I couldn't figure out how to advance them</label>
+            <label><input type="radio" name="c2_arrival_text" value="played_auto" /> they played automatically without me pressing anything</label>
+            <label><input type="radio" name="c2_arrival_text" value="didnt_notice" /> I didn't notice them</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ch2 combat -->
+      <div class="question-group">
+        <div class="group-label">// ch2 combat</div>
+
+        <div class="field">
+          <label class="field-label" for="c2_combat_feel">How did Z (melee) and Q (corrupt) feel compared to Chapter 1 combat? <span class="req">*</span></label>
+          <textarea id="c2_combat_feel" name="c2_combat_feel" required placeholder="more satisfying, more awkward, different rhythm, something else?"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">In the opening gauntlet, did the enemies feel like obstacles to overcome or atmosphere to pass through? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c2_enemies" value="obstacles" required /> obstacles — I had to engage and fight them</label>
+            <label><input type="radio" name="c2_enemies" value="atmosphere" /> atmosphere — I mostly moved past them</label>
+            <label><input type="radio" name="c2_enemies" value="both" /> both — some of each</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- the clone -->
+      <div class="question-group">
+        <div class="group-label">// the clone</div>
+
+        <div class="field">
+          <label class="field-label" for="c2_clone_reaction">When you realized you were fighting a copy of Slop — what went through your head? <span class="req">*</span></label>
+          <textarea id="c2_clone_reaction" name="c2_clone_reaction" required placeholder="thematic reaction, gameplay reaction, or both"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">How was the difficulty of the Clone fight? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c2_clone_diff" value="too_easy" required /> too easy</label>
+            <label><input type="radio" name="c2_clone_diff" value="about_right" /> about right</label>
+            <label><input type="radio" name="c2_clone_diff" value="too_hard" /> too hard</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- the town -->
+      <div class="question-group">
+        <div class="group-label">// the town</div>
+
+        <div class="field">
+          <label class="field-label" for="c2_npc_dialogue">Did any of the NPC dialogue in the town land for you? What did they say (or what do you remember)?</label>
+          <textarea id="c2_npc_dialogue" name="c2_npc_dialogue" placeholder="paraphrase is fine — what stuck if anything?"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="c2_jump_feel">When you got the jump ability — describe what changed. How did it feel to suddenly be able to go up? <span class="req">*</span></label>
+          <textarea id="c2_jump_feel" name="c2_jump_feel" required placeholder="mechanical reaction, emotional reaction, anything"></textarea>
+        </div>
+      </div>
+
+      <!-- ch2 overall -->
+      <div class="question-group">
+        <div class="group-label">// chapter 2 — overall</div>
+
+        <div class="field">
+          <label class="field-label">Did the shift from top-down RPG to side-scrolling platformer feel earned or abrupt? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="c2_genre_shift" value="earned" required /> earned — the story prepared me for it</label>
+            <label><input type="radio" name="c2_genre_shift" value="abrupt" /> abrupt — came out of nowhere</label>
+            <label><input type="radio" name="c2_genre_shift" value="good_surprise" /> surprising in a good way — I didn't expect it but it worked</label>
+            <label><input type="radio" name="c2_genre_shift" value="didnt_think" /> I didn't think about it either way</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Overall Chapter 2 rating: <span class="req">*</span></label>
+          <div class="rating-group">
+            <label><input type="radio" name="c2_rating" value="1" required /> <span>1 — rough</span></label>
+            <label><input type="radio" name="c2_rating" value="2" /> <span>2 — okay</span></label>
+            <label><input type="radio" name="c2_rating" value="3" /> <span>3 — good</span></label>
+            <label><input type="radio" name="c2_rating" value="4" /> <span>4 — great</span></label>
+            <label><input type="radio" name="c2_rating" value="5" /> <span>5 — excellent</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 3 — BIG PICTURE
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="form-section">
+      <h2 class="section-heading">// 03 — the big picture</h2>
+
+      <div class="field">
+        <label class="field-label" for="overall_about">
+          What do you think this game is about? One or two sentences, in your own words. <span class="req">*</span>
+        </label>
+        <textarea id="overall_about" name="overall_about" required placeholder="don't describe the mechanics — describe what you think it's exploring"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Did the theme — AI-generated art searching for meaning — come through during play? <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="overall_theme" value="yes_strongly" required /> yes — clearly and consistently</label>
+          <label><input type="radio" name="overall_theme" value="somewhat" /> somewhat — it was there but I had to look for it</label>
+          <label><input type="radio" name="overall_theme" value="not_really" /> not really — gameplay felt disconnected from theme</label>
+          <label><input type="radio" name="overall_theme" value="didnt_notice" /> I didn't think about it while playing</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">
+          The game has a companion journal written by Slop at
+          <a href="journal.html" target="_blank">journal.html</a>.
+          Did you read any of it?
+        </label>
+        <div class="radio-group">
+          <label><input type="radio" name="overall_journal" value="yes_before" /> yes — before playing</label>
+          <label><input type="radio" name="overall_journal" value="yes_after" /> yes — after playing</label>
+          <label><input type="radio" name="overall_journal" value="no" /> no</label>
+          <label><input type="radio" name="overall_journal" value="will_now" /> I will now</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="overall_change">
+          What's the one thing you'd change? <span class="req">*</span>
+        </label>
+        <textarea id="overall_change" name="overall_change" required placeholder="mechanic, pacing, dialogue, UI, controls — be specific if you can"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Would you play a fully completed version of this game? <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="overall_play_more" value="definitely" required /> definitely</label>
+          <label><input type="radio" name="overall_play_more" value="probably" /> probably</label>
+          <label><input type="radio" name="overall_play_more" value="maybe" /> maybe</label>
+          <label><input type="radio" name="overall_play_more" value="probably_not" /> probably not</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="overall_extra">Anything else you want to say?</label>
+        <textarea id="overall_extra" name="overall_extra" placeholder="open floor. anything goes."></textarea>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SUBMIT
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="submit-area">
+      <p>Your responses will be stored privately and read by the developer. They will not be shared or published without permission.</p>
+      <button type="submit" id="submit-btn">submit feedback</button>
+      <div id="error-msg"></div>
+    </div>
+
+  </form>
+
+  <div id="success-state">
+    <h2>// received</h2>
+    <p>your feedback is now part of the record.</p>
+    <p>slop appreciates you playing. the developer appreciates you saying what you actually thought.</p>
+    <p class="glitch">// this will be read. decisions will be made from it. that is the whole point.</p>
+  </div>
+
+</main>
+
+<footer>
+  slop's quest for meaning &mdash; playtest build &mdash; feedback stored privately
+</footer>
+
+<script type="module">
+  import { initializeApp }                   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'
+  import { getFirestore, collection, addDoc, serverTimestamp }
+                                             from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js'
+
+  const firebaseConfig = {
+    apiKey:            'AIzaSyBIXL99wK46S2r9DJ01zY5FMi_MN5I87ok',
+    authDomain:        'slopsquest.firebaseapp.com',
+    projectId:         'slopsquest',
+    storageBucket:     'slopsquest.firebasestorage.app',
+    messagingSenderId: '1013907264552',
+    appId:             '1:1013907264552:web:4b6e7c806e2be47462911d',
+  }
+
+  const app = initializeApp(firebaseConfig)
+  const db  = getFirestore(app)
+
+  // ── helpers ────────────────────────────────────────────────────────────────
+
+  function radioVal(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`)
+    return el ? el.value : ''
+  }
+
+  function checkVals(name) {
+    return [...document.querySelectorAll(`input[name="${name}"]:checked`)]
+      .map(el => el.value)
+  }
+
+  function textVal(id) {
+    const el = document.getElementById(id)
+    return el ? el.value.trim() : ''
+  }
+
+  function inputVal(name) {
+    const el = document.querySelector(`input[name="${name}"]`)
+    return el ? el.value.trim() : ''
+  }
+
+  // ── required field check ──────────────────────────────────────────────────
+
+  const REQUIRED_RADIO = [
+    'frequency', 'priorAI',
+    'c1_terminal_first', 'c1_terminal_feel', 'c1_found_prior', 'c1_coin_cap',
+    'c1_shop', 'c1_combat_feel', 'c1_deaths', 'c1_worlds_distinct',
+    'c1_joust_first', 'c1_joust_diff', 'c1_rating',
+    'c2_arrival_text', 'c2_enemies', 'c2_clone_diff', 'c2_genre_shift', 'c2_rating',
+    'overall_theme', 'overall_play_more',
+  ]
+
+  const REQUIRED_TEXT = [
+    'c1_first_prompt', 'c1_best_moment',
+    'c2_transition', 'c2_combat_feel', 'c2_clone_reaction', 'c2_jump_feel',
+    'overall_about', 'overall_change',
+  ]
+
+  function validate() {
+    for (const name of REQUIRED_RADIO) {
+      if (!radioVal(name)) return `please answer all required questions (missing: ${name.replace(/_/g, ' ')})`
+    }
+    for (const id of REQUIRED_TEXT) {
+      if (!textVal(id)) return `please fill in all required text fields (missing: ${id.replace(/_/g, ' ')})`
+    }
+    return null
+  }
+
+  // ── submit ─────────────────────────────────────────────────────────────────
+
+  document.getElementById('playtest-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const errorEl = document.getElementById('error-msg')
+    const submitBtn = document.getElementById('submit-btn')
+
+    const err = validate()
+    if (err) {
+      errorEl.textContent = err
+      errorEl.style.display = 'block'
+      return
+    }
+
+    errorEl.style.display = 'none'
+    submitBtn.disabled = true
+    submitBtn.textContent = 'submitting…'
+
+    const payload = {
+      submittedAt: serverTimestamp(),
+      background: {
+        handle:    textVal('handle'),
+        frequency: radioVal('frequency'),
+        genres:    checkVals('genres'),
+        priorAI:   radioVal('priorAI'),
+      },
+      ch1: {
+        terminalFirst:    radioVal('c1_terminal_first'),
+        terminalTyped:    inputVal('c1_terminal_typed') || textVal('c1_terminal_typed'),
+        terminalFeel:     radioVal('c1_terminal_feel'),
+        foundPrior:       radioVal('c1_found_prior'),
+        coinCap:          radioVal('c1_coin_cap'),
+        priorImpression:  textVal('c1_prior_impression'),
+        firstPrompt:      textVal('c1_first_prompt'),
+        shop:             radioVal('c1_shop'),
+        combatFeel:       radioVal('c1_combat_feel'),
+        deaths:           radioVal('c1_deaths'),
+        worldsDistinct:   radioVal('c1_worlds_distinct'),
+        eastMemory:       document.getElementById('c1_east_memory')?.value.trim() || '',
+        westMemory:       document.getElementById('c1_west_memory')?.value.trim() || '',
+        joustFirst:       radioVal('c1_joust_first'),
+        joustDiff:        radioVal('c1_joust_diff'),
+        bestMoment:       textVal('c1_best_moment'),
+        confused:         textVal('c1_confused'),
+        rating:           radioVal('c1_rating'),
+      },
+      ch2: {
+        transition:    textVal('c2_transition'),
+        arrivalText:   radioVal('c2_arrival_text'),
+        combatFeel:    textVal('c2_combat_feel'),
+        enemies:       radioVal('c2_enemies'),
+        cloneReaction: textVal('c2_clone_reaction'),
+        cloneDiff:     radioVal('c2_clone_diff'),
+        npcDialogue:   textVal('c2_npc_dialogue'),
+        jumpFeel:      textVal('c2_jump_feel'),
+        genreShift:    radioVal('c2_genre_shift'),
+        rating:        radioVal('c2_rating'),
+      },
+      overall: {
+        gameAbout:   textVal('overall_about'),
+        theme:       radioVal('overall_theme'),
+        journal:     radioVal('overall_journal'),
+        wouldChange: textVal('overall_change'),
+        playMore:    radioVal('overall_play_more'),
+        extra:       textVal('overall_extra'),
+      },
+    }
+
+    try {
+      await addDoc(collection(db, 'playtestResponses'), payload)
+      document.getElementById('playtest-form').style.display = 'none'
+      document.getElementById('success-state').style.display = 'block'
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (err) {
+      console.error('Firestore write failed:', err)
+      submitBtn.disabled = false
+      submitBtn.textContent = 'submit feedback'
+      errorEl.textContent = 'submission failed — please try again or contact the developer.'
+      errorEl.style.display = 'block'
+    }
+  })
+</script>
+
+</body>
+</html>
