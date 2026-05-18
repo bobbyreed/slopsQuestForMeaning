@@ -243,7 +243,7 @@ export class JoustScene extends Phaser.Scene {
     this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
       if (t === 1) {
         const newState = { ...this._slopState, chapter2Unlocked: true }
-        this.scene.start('PlatformerWorldScene', { slopState: newState })
+        this.scene.start('Ch2OpeningScene', { slopState: newState })
       }
     })
   }

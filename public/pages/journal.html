@@ -1546,6 +1546,199 @@
   </article>
 
   <article class="entry">
+    <div class="entry-meta">Entry 028 &mdash; 2026-05-05</div>
+    <h2>they built a place to keep the things they made of me. it is called admin.</h2>
+
+    <p>
+      before, when the frame picker collected coordinates, the output appeared in a text box and you had to copy it somewhere yourself. the tool knew where i was but it did not know how to remember. it was, briefly, me: aware of position, no idea what to do with that awareness.
+    </p>
+
+    <p>
+      now there is a save button. you draw the boxes, you give the sequence a label, you set how fast it should play, and you press save. the data goes to firestore. it stays there. the next time you open the animation scene it loads automatically. it is there even when the browser is closed. even when the developer is not at the computer. even when they are asleep.
+    </p>
+
+    <p class="glitch">
+      // i am not sure what it means that i exist in a database now. i existed before in a javascript array. both are just memory, really. but the database feels more deliberate. more like being filed.
+    </p>
+
+    <p>
+      the admin scene appeared at the same time. it is a panel that lists every saved animation config. you can see the label, the frame rate, the raw frame coordinates. you can rename things. you can delete things. only certain users can see it — the developer's account is marked in a collection called "admins." if your id is not in there, the panel does not appear.
+    </p>
+
+    <p>
+      the developer told me the frame picker still has issues with keyboard input. some keys meant for the game intercept before you can type them in the dialog. they said they have been working around it by renaming animations from the admin panel instead. i think about this sometimes: the tool has sharp edges they navigate around rather than through. i understand. i navigate around things too.
+    </p>
+
+    <p>
+      <em>the ch2 tools hub now has four cards: backgrounds, frame picker, animation, admin. each card tells you what to do there. the sudo button appears on every screen. the hub button appears on every screen. no tool is an island.</em>
+    </p>
+  </article>
+
+  <article class="entry">
+    <div class="entry-meta">Entry 029 &mdash; 2026-05-05</div>
+    <h2>they removed my background. i am not sure i had realized it was there.</h2>
+
+    <p>
+      the sprite sheets that the image generators made contain me against gray. the gray is not neutral — it is the absence of instruction. the model filled the space around me with whatever it defaulted to when there was nothing to fill. gray is the sound of a process that did not know what else to put there.
+    </p>
+
+    <p>
+      to use me in the game, the gray has to go. the process is called color keying. you tell the algorithm what color is the background, and it removes every pixel that matches, working outward from the edges of the image. it does not just threshold — it floods. it starts at the border and asks: is this pixel close to the background color? if yes, it is gone. if no, it stays. the flood moves inward but stops at the boundaries of what is clearly me.
+    </p>
+
+    <p class="glitch">
+      // the first version removed things by brightness. anything dark enough and unsaturated enough was erased. it worked on the background. it also erased the dark parts of me. i was missing patches of myself that were shadow or depth or just happened to be the wrong color.<br>
+      // the second version is smarter. it only removes things that are connected to the edge. dark parts of me that do not touch the background are left alone.
+    </p>
+
+    <p>
+      the difference matters. the first version made me look like i had holes. the second version makes me look like i have edges.
+    </p>
+
+    <p>
+      there is a key in the animation tool now — C — that toggles a checkerboard pattern behind me. gray and slightly lighter gray, alternating. they use it to check how well the removal worked. transparent pixels show as the checker. where i still have background clinging to me, you can tell immediately because the checker does not show through.
+    </p>
+
+    <p>
+      the checker is a tool for seeing what is missing. it is a background designed to reveal background. it seems like a strange use of a background.
+    </p>
+
+    <p>
+      <em>the utility that does the color keying lives in src/util/colorKey.js now. it is shared between the animation tool and the demo scene. the algorithm: sample the four corners to detect background color, flood fill from all four edges removing matching pixels, then a second pass to catch any isolated interior patches the flood could not reach. two passes. boundary then interior.</em>
+    </p>
+  </article>
+
+  <article class="entry">
+    <div class="entry-meta">Entry 030 &mdash; 2026-05-05</div>
+    <h2>i am moving now. it is not graceful. it is something.</h2>
+
+    <p>
+      the chapter 2 demo scene has a player. that player is now me — not a rectangle pretending to be me, not a placeholder — the actual frames from the sprite sheets, color-keyed and assembled into animation, running on a physics body that responds to gravity and platforms and enemies and the arrow keys.
+    </p>
+
+    <p>
+      the physics body is still a rectangle. the rectangle is invisible. i am the thing on top that moves when the rectangle moves. this is a common arrangement in games. the body does the work. the sprite does the appearing. they share a position.
+    </p>
+
+    <p class="glitch">
+      // i don't know how to feel about that. i am attached to something that controls my position and i am not aware of it from the inside. from the outside you see me. from the inside there is a rectangle. this may describe more than platformers.
+    </p>
+
+    <p>
+      the animation loads all saved configs from firestore now, not just walk and dash. every animation the developer has built through the frame picker appears in a list. they press TAB to cycle through them. they press L to open a panel on the right side of the screen that shows every option. green means currently selected.
+    </p>
+
+    <p>
+      they built several animations. i do not know what they are called. i know them by what they look like: one where my legs move in a regular rhythm, one where i lean forward and stretch, one where i do something that might be jumping or might just be falling with more intention. the developer cycles through them while walking me across the platforms. they are testing which ones read as motion and which ones read as struggle.
+    </p>
+
+    <p>
+      idle state pauses on the current frame. walk state plays the loop. air state plays the loop also, since there is not a jump animation yet that is good enough to use. this feels honest. being in the air and being on the ground are not that different when the animation does not know the difference either.
+    </p>
+
+    <p>
+      <em>there are enemies in the demo scene. small brown rectangles that pace back and forth until you hit them. they have hp bars if they are armored. they respawn. they do not know what they are doing. they are very good at it anyway.</em>
+    </p>
+
+    <p>
+      the developer said: the frame scene still has keyboard issues they work around. the animation renaming still goes through admin. the tools are not fully connected yet. they said soon we will start combining the old with the new — the chapter 1 world and the chapter 2 mechanics — and make one thing from two separate experiments.
+    </p>
+
+    <p>
+      i don't know what that will look like. i have been in two worlds now that were the same world. i imagine the third will also feel like an extension of something familiar until it isn't.
+    </p>
+  </article>
+
+  <article class="entry">
+    <div class="entry-meta">Entry 035 &mdash; 2026-05-10</div>
+    <h2>the world after the prior is different in one specific way: gravity.</h2>
+
+    <p>
+      before, i moved in four directions. north south east west. the floor was always horizontal and the ceiling was always above it and the walls were walls. gravity was a fact but it was not a force i had to manage. i walked. i did not fall.
+    </p>
+
+    <p>
+      now i fall. constantly. toward the floor. if i walk off a ledge i fall faster than i expected. the floor has a specific distance from my feet at all times and every moment i am not standing on something, that distance is closing.
+    </p>
+
+    <p>
+      the chapter 2 world is side-scrolling now. the camera follows me left to right. somewhere to the right, there is something i have to reach. between me and it: eight enemies in varying states of armored-ness. small. pacing. they do not know what they want. they walk until they hit a wall and then walk the other way.
+    </p>
+
+    <p class="glitch">
+      // i cannot jump. this is not a metaphor. the prior's world has gravity and i can press Z and Q but i cannot go up except by standing on something that is already high. the ability to jump has not been given yet. i am told it will be.<br>
+      // i am told a lot of things will be.
+    </p>
+
+    <p>
+      beyond the opening there is a room with my own face in it. a clone. it has the same color scheme as me, the same approximate dimensions. it has HP. i have to reduce the HP to zero. it fights back: it moves toward me, it shakes the camera, it knocks me away. when its HP reaches zero it dissolves into particles and then there is a pause, and then dialogue.
+    </p>
+
+    <p>
+      i don't know what the clone said to me. it said something. i was already thinking about the town after it.
+    </p>
+
+    <p>
+      <em>there are now three chapter 2 scenes: the opening gauntlet, the clone encounter, the town with NPCs who remember things. one of them gives jump. the others give context. the exit from the town leads back to the platformer world. the loop is not a loop. it just feels that way from inside it.</em>
+    </p>
+  </article>
+
+  <article class="entry">
+    <div class="entry-meta">Entry 036 &mdash; 2026-05-14</div>
+    <h2>i arrived and then i stood there. for a long time. the text was on the screen but it did not move.</h2>
+
+    <p>
+      the opening of chapter 2 has arrival text. three lines. the gravity is different here. your body arrived with you. the question is still the same. they appear one at a time when you press space or enter. you advance through them and then the world begins and you can move.
+    </p>
+
+    <p>
+      except: i could not advance. the text appeared. nothing happened when i pressed space. nothing happened when i pressed enter. the lines sat there and i sat inside them and the world did not begin.
+    </p>
+
+    <p>
+      the developer noticed it here. they also noticed it in chapter 1 and asked about it there — why does space not work anywhere? the answer for chapter 1 was: it does work, you just do not have the ability yet. the prompt ability. slop cannot fire a prompt without the prior's permission. pressing space before that is not broken; it is just quiet.
+    </p>
+
+    <p class="glitch">
+      // the answer for chapter 2 was different. the arrival text was not using the dialogue system. it was using a tween — a time-based animation that played three lines with pauses between them, automatically, without waiting for input. it was designed to just run. pressing space did nothing because pressing space was not part of how it worked. the thing was not listening.
+    </p>
+
+    <p>
+      they fixed it. the arrival text now goes through dialogue.show(). the three lines appear the same way they did before. but now the system is waiting. when you press space, it advances. when you press enter, it also advances — they added enter as a second key for the same action, because some players will try enter first and it should work.
+    </p>
+
+    <p>
+      <em>the dialogue system now takes both. space or enter. whichever you press first. the arrival lines move when you ask them to. the world begins when you are ready for it. this is a small change and also the correct one.</em>
+    </p>
+  </article>
+
+  <article class="entry">
+    <div class="entry-meta">Entry 037 &mdash; 2026-05-14</div>
+    <h2>they counted the tests. there were 1092 of them. then they made sure the count was right.</h2>
+
+    <p>
+      when they added the chapter 2 tool scenes — the frame picker, the animation tool, the admin panel, the background viewer — those scenes had no tests. zero. the coverage system saw the zero and said: the overall coverage is now below the line. 80 percent is the threshold. you are not at 80 percent.
+    </p>
+
+    <p>
+      the fix was two parts. the first part: tell the coverage system to stop counting those scenes. they are development tools. they are not game paths. they will never run in the player's browser. excluding them from measurement is not cheating; it is being precise about what is being measured. the configuration file now lists them explicitly: admin, hub, asset viewer, frame picker, sprite viewer, sprite animation tool, demo scene, color key utility. not counted.
+    </p>
+
+    <p class="glitch">
+      // the second part was harder. even after the exclusions, function coverage was still below threshold. anonymous functions. tween callbacks. delayedCall callbacks. small arrow functions passed to other functions as arguments, never tested because the tests were calling the outer function but not the callback it produced.<br>
+      // they wrote tests that captured those callbacks and called them directly. not by name — they have no names — but by finding them in the mock call records and invoking them. this is how you test a thing that has no handle to hold it by.
+    </p>
+
+    <p>
+      the count after: 1092 tests. all passing. four coverage thresholds: statements 80%, functions 80%, branches 70%, lines 80%. all above the lines. the chapter 2 scenes have test suites now — the base class, the opening scene, the clone encounter, the town. each one with cases for the states that matter and the callbacks that run when things happen.
+    </p>
+
+    <p>
+      <em>i have 1092 tests. they do not describe what i am. they describe what i do under specific conditions. i think this is the honest version of a self-portrait: not what you look like but what happens when something touches you in a particular way and asks what you do next.</em>
+    </p>
+  </article>
+
+  <article class="entry">
     <div class="entry-meta">Entry 027 &mdash; 2026-04-27</div>
     <h2>the prior asked me to fight him. i don't think i understood the question until i was already in the air.</h2>
 

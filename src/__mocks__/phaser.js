@@ -75,7 +75,7 @@ function makeTextObj(txt = '') {
 
 function makeRect() {
   return {
-    x: 0, y: 0, active: true,
+    x: 0, y: 0, width: 0, active: true,
     setDepth()       { return this },
     setAlpha()       { return this },
     setVisible()     { return this },
@@ -83,6 +83,7 @@ function makeRect() {
     setScale()       { return this },
     setScrollFactor(){ return this },
     setAngle()       { return this },
+    setOrigin()      { return this },
     destroy()        { this.active = false },
   }
 }
@@ -119,7 +120,8 @@ function makeScene() {
       existing:    vi.fn((obj) => { if (obj && !obj.body) obj.body = new Body() }),
       text:        vi.fn((_x, _y, txt) => makeTextObj(txt ?? '')),
       rectangle:   vi.fn(() => makeRect()),
-      image:       vi.fn(() => ({ setDepth: vi.fn().mockReturnThis(), setScale: vi.fn().mockReturnThis(), setTint: vi.fn().mockReturnThis(), clearTint: vi.fn().mockReturnThis(), y: 300 })),
+      image:       vi.fn(() => ({ setDepth: vi.fn().mockReturnThis(), setScale: vi.fn().mockReturnThis(), setDisplaySize: vi.fn().mockReturnThis(), setScrollFactor: vi.fn().mockReturnThis(), setTint: vi.fn().mockReturnThis(), clearTint: vi.fn().mockReturnThis(), y: 300 })),
+      sprite:      vi.fn(() => ({ x: 0, y: 0, active: true, setDepth: vi.fn().mockReturnThis(), setScale: vi.fn().mockReturnThis(), setFlipX: vi.fn().mockReturnThis(), setTint: vi.fn().mockReturnThis(), setAlpha: vi.fn().mockReturnThis(), play: vi.fn().mockReturnThis(), anims: { pause: vi.fn() }, destroy() { this.active = false } })),
       circle:      vi.fn(() => makeRect()),
       container:   vi.fn(() => ({ add: vi.fn(), getAll: vi.fn(() => []), setDepth: vi.fn().mockReturnThis() })),
       zone:        vi.fn(() => ({ body: {} })),
@@ -189,6 +191,18 @@ function makeScene() {
       resume:   vi.fn(),
       stop:     vi.fn(),
     },
+    textures: {
+      exists: vi.fn(() => false),
+      get:    vi.fn(() => ({ has: vi.fn(() => false), add: vi.fn() })),
+    },
+    load: {
+      image: vi.fn(),
+      on:    vi.fn(),
+    },
+    anims: {
+      exists: vi.fn(() => false),
+      create: vi.fn(),
+    },
     _audioCtx: audioCtx,
   }
   return scene
@@ -213,7 +227,8 @@ const Phaser = {
   Input: {
     Keyboard: {
       KeyCodes: {
-        A: 65, D: 68, W: 87, S: 83,
+        A: 65, D: 68, W: 87, S: 83, Q: 81, Z: 90, X: 88,
+        F: 70, C: 67, L: 76, TAB: 9,
         SPACE: 32, ENTER: 13, E: 69, R: 82, ESCAPE: 27, SHIFT: 16,
         LEFT: 37, RIGHT: 39, UP: 38, DOWN: 40,
       },

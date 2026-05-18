@@ -23,7 +23,7 @@ npm run test         # run tests in watch mode
 npm run coverage     # run tests with v8 coverage report
 ```
 
-Coverage thresholds: **80% statements, 80% functions, 70% branches, 80% lines.** Currently: **973 tests passing.**
+Coverage thresholds: **80% statements, 80% functions, 70% branches, 80% lines.** Currently: **1092 tests passing.**
 
 ### Deploy
 
@@ -57,11 +57,13 @@ src/
   scenes/           # all Phaser scenes
     east/           # east world grid + boss scenes
     west/           # west world grid + boss scenes
+    ch2/            # Ch2 platformer scenes (Opening, Clone, Town)
   entities/         # Slop entity
-  phaser/           # base scene classes (BaseGameScene, EastGridScene)
+  phaser/           # base scene classes (BaseGameScene, EastGridScene, Ch2BaseScene)
   ui/               # Dialogue, HUD, SaveState, Sfx, AuthModal
   auth/             # Firebase Auth wrapper
-  firestore/        # CloudSave module
+  firestore/        # CloudSave + AnimConfig (Firestore animation storage)
+  util/             # colorKey.js — canvas color-keying for Ch2 sprites
   dev/              # DevMenu (developer console)
   config/           # constants (W, H, T)
   styles/           # CSS (base, terminal, auth, dev, site)
@@ -111,7 +113,7 @@ index.html          # entry point
     → Beat Prior in Joust →
 
     [CHAPTER 2 — PLATFORMER]
-    Five Fragments → The Source
+    Ch2OpeningScene → Ch2CloneScene → Ch2TownScene → PlatformerWorldScene
 ```
 
 **Chapter 1** is a top-down RPG. **Chapter 2** shifts to a side-scrolling platformer — same character, gravity now pulls down, camera follows left to right. The rules change. The Prior warned you.
@@ -163,15 +165,16 @@ Type these at the main menu. The game is in this list.
 
 ## Chapter 2 Asset Tools
 
-Access via dev console → **CH2 TOOLS**. Three scenes for working with the AI-generated Chapter 2 sprites and backgrounds.
+Access via dev console → **CH2 TOOLS**. Four scenes for working with the AI-generated Chapter 2 sprites and backgrounds.
 
 | Tool | What It Does |
 |---|---|
 | **BACKGROUNDS** | Cycles through 11 generated background images (desert, cavern, crystal city, station, void ruins) |
-| **FRAME PICKER** | Shows any sprite sheet at full size; click-drag to draw frame rectangles, `O` outputs copyable JSON coords |
-| **ANIMATION** | Color-keys the dark background from the ChatGPT sheet and plays walk cycle animations; `D` shows frame debug overlay |
+| **FRAME PICKER** | Shows any sprite sheet at full size; click-drag to draw frame rectangles, `O` saves the frame set to Firestore |
+| **ANIMATION** | Color-keys sprites (flood-fill + threshold), cycles all saved animations; `Tab` / `←→` cycle · `L` opens picker panel · `C` toggles checkerboard · `D` frame debug |
+| **ADMIN** | Rename or delete saved animation configs stored in Firestore |
 
-The frame picker output pastes directly into the `FRAME_SETS` table in `Ch2SpriteAnimScene.js`.
+Frame sets saved in the Frame Picker are loaded automatically by the Animation and Demo scenes.
 
 ---
 
@@ -195,7 +198,7 @@ Access with `sudo` in the terminal, or append `?dev=true` to the URL. Intentiona
 
 ## The Journal
 
-[`/pages/journal.html`](public/pages/journal.html) — Slop's journal. Written from Slop's perspective as both a character in the game and a witness to its own construction. Updated throughout development. 34 entries and growing.
+[`/pages/journal.html`](public/pages/journal.html) — Slop's journal. Written from Slop's perspective as both a character in the game and a witness to its own construction. Updated throughout development. 37 entries and growing.
 
 A planned future feature displays `docs/history.md` (every prompt ever given to Claude) and the journal side by side with visible connections — showing the seams between the author's instructions and Slop's experience of them.
 

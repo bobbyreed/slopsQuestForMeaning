@@ -32,6 +32,9 @@ import { DuplicateBossScene }    from './scenes/west/DuplicateBossScene.js'
 import { JoustScene }            from './scenes/JoustScene.js'
 import { PlatformerWorldScene }  from './scenes/PlatformerWorldScene.js'
 import { Chapter2DemoScene }     from './scenes/Chapter2DemoScene.js'
+import { Ch2OpeningScene }       from './scenes/ch2/Ch2OpeningScene.js'
+import { Ch2CloneScene }         from './scenes/ch2/Ch2CloneScene.js'
+import { Ch2TownScene }          from './scenes/ch2/Ch2TownScene.js'
 import { Ch2AssetViewerScene }   from './scenes/Ch2AssetViewerScene.js'
 import { Ch2SpriteViewerScene }  from './scenes/Ch2SpriteViewerScene.js'
 import { Ch2SpriteAnimScene }    from './scenes/Ch2SpriteAnimScene.js'
@@ -63,6 +66,7 @@ new Phaser.Game({
     WestB0Scene, WestB1Scene, WestB3Scene,
     WestC0Scene, WestC1Scene, WestC2Scene, WestC3Scene,
     JoustScene, PlatformerWorldScene, Chapter2DemoScene,
+    Ch2OpeningScene, Ch2CloneScene, Ch2TownScene,
     Ch2HubScene, Ch2AssetViewerScene, Ch2SpriteViewerScene, Ch2SpriteAnimScene, Ch2FramePickerScene, AdminScene,
     PauseScene,
   ],

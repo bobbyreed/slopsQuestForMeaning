@@ -302,3 +302,63 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 86**
 > Please update history.md, journal.html, and our readme
+
+---
+
+## 2026-05-05
+
+**Prompt 87**
+> I'm not able to type 'slop' for example in the frame scene when saving because 's' is still being detected for a save. Can you make sure that during the text input all other keyboard commands are off? I'll go add to the admin collection now.
+
+**Prompt 88**
+> I added the admins collection and my uid as a document to firestore.
+
+**Prompt 89**
+> Please add a back to sudo button to the admin menu as well as an expanding window to navigate to the other tools.
+
+**Prompt 90**
+> I can't read the text on the chpt 2 tool scenes. Go through all those scenes and make the text larger and give it better contrast. Please also add a way to navigate back to the sudo scene and the tools scene from each tool scene.
+
+**Prompt 91**
+> AdSense says the ads.txt is missing. It was verified before.
+
+**Prompt 92**
+> Does the same origin update put us at any security risk?
+
+**Prompt 93**
+> I can't seem to switch animations or select the ones I've created from the animation scene. Let's go ahead and add those features now. I love that you can hit a button and see the mapping of the frames. Eventually I'd like to use this to unify the frame scene and animation into one scene, but would first like to get them dialed in, decoupled, and refactored.
+
+**Prompt 94**
+> Alright. Let's head back to the game now that we have a walk and a dash animation to use. Use those two I created to start working on the chpt 2 demo scene.
+
+**Prompt 95**
+> That is working well. You talked about how we move from these rough sketches to fully keyed out frames (so the background isn't visible). Let's do that now.
+
+**Prompt 96**
+> continue please
+
+**Prompt 97**
+> I'm still having difficulty seeing the text in the test scenes. Let's put a box around it with a border that ensures high contrast and readability.
+
+**Prompt 98**
+> I've created several more animations. Please add those to the demo scene so we can test them.
+
+**Prompt 99**
+> That seems to be working well. I'm still not able to use many of the control keys on the frame scene, but I have just been renaming them in admin and that works well. Let's start combining the old with the new. But first, let's document and reflect. Please update history.md, journal.html, and our readme.
+
+---
+
+## 2026-05-10
+
+**Prompt 100**
+> Okay, docs are updated. Now let's actually start combining old and new. Build the Ch2 platformer scenes — the opening gauntlet, the clone boss encounter, and the town with NPCs. Wire them together so beating the prior in joust drops you into the opening scene, and the town exits to PlatformerWorldScene.
+
+---
+
+## 2026-05-14
+
+**Prompt 101**
+> Are you sure that is it? I was not able to use it on chpt 1 either. I started a game and the arrows and Q worked fine but space would not.
+
+**Prompt 102**
+> This is great. Please take some time and make sure that journal.html, history.md, and readme.md are up to date.
