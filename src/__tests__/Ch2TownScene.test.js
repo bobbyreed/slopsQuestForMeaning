@@ -183,7 +183,7 @@ describe('Ch2TownScene — _updateJumpHint', () => {
 // ── exit trigger ──────────────────────────────────────────────────────────────
 
 describe('Ch2TownScene — exit trigger', () => {
-  it('transitions to PlatformerWorldScene at right edge', () => {
+  it('transitions to Ch3Scene at right edge', () => {
     const s = makeTown()
     s._player.x = 1300
     s._player.body = { velocity: { x: 0, y: 0 }, blocked: { down: true }, setVelocityX: vi.fn(), setVelocity: vi.fn() }
@@ -192,7 +192,7 @@ describe('Ch2TownScene — exit trigger', () => {
     expect(s.cameras.main.fade).toHaveBeenCalled()
   })
 
-  it('passes updated slopState including ch2JumpUnlocked', () => {
+  it('hands Chapter 3 the updated slopState including ch2JumpUnlocked', () => {
     const s = makeTown()
     s._slopState = { ...s._slopState, ch2JumpUnlocked: true }
     s._player.x = 1300
@@ -200,7 +200,7 @@ describe('Ch2TownScene — exit trigger', () => {
     s._dialogue = { update: vi.fn(), active: false }
     s.cameras.main.fade.mockImplementation((_, r, g, b, _fromBlack, cb) => cb(null, 1))
     s.update(0, 16)
-    expect(s.scene.start).toHaveBeenCalledWith('PlatformerWorldScene', expect.objectContaining({
+    expect(s.scene.start).toHaveBeenCalledWith('Ch3Scene', expect.objectContaining({
       slopState: expect.objectContaining({ ch2JumpUnlocked: true }),
     }))
   })

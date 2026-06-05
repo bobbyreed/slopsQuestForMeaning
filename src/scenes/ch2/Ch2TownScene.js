@@ -1,7 +1,7 @@
 // Chapter 2 — Town Scene (Zelda 2 style)
 // Slop's first settlement in the new world. Three NPCs. Third gives jump.
 // Jump is disabled on entry; enabled after the ability is granted.
-// Exit: walk off the right edge → PlatformerWorldScene.
+// Exit: walk off the right edge → Ch3Scene (the seam into the final chapter).
 
 import Phaser from 'phaser'
 import { Dialogue } from '../../ui/Dialogue.js'
@@ -272,9 +272,9 @@ export class Ch2TownScene extends Ch2BaseScene {
     else             this._setAnimState('idle')
     this._syncPlayerVisuals()
 
-    // Exit — right edge → PlatformerWorldScene (with jump unlocked)
+    // Exit — right edge → Chapter 3 (separate project, wired in at Ch3Scene)
     if (this._player.x > WORLD_W - 60) {
-      this._sceneTransition('PlatformerWorldScene', { slopState: this._slopState })
+      this._sceneTransition('Ch3Scene', { slopState: this._slopState })
     }
   }
 }
