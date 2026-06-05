@@ -149,6 +149,12 @@
       document.getElementById('game-container').scrollIntoView({ behavior: 'instant', block: 'start' })
     })
     window.addEventListener('keydown', (e) => {
+      // Only stop the browser's default scroll for gameplay keys. NEVER swallow
+      // them while the user is typing in a field — doing so ate the space bar in
+      // the terminal ("new game" -> "newgame") and any other text input.
+      const t = e.target
+      const isTyping = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)
+      if (isTyping) return
       if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
         e.preventDefault()
       }

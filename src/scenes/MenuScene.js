@@ -170,14 +170,24 @@ export class MenuScene extends Phaser.Scene {
     // Input listener
     const input = term.querySelector('#slop-input')
     this._input = input
+
+    // Phaser captures SPACE (and other gameplay keys) globally via preventDefault,
+    // which swallows the space bar inside this focused DOM input — so commands like
+    // "new game" came out as "newgame". Suspend Phaser's global key capture while the
+    // terminal input has focus, and restore it on blur so gameplay keys still work.
+    input.addEventListener('focus', () => this.input?.keyboard?.disableGlobalCapture())
+    input.addEventListener('blur',  () => this.input?.keyboard?.enableGlobalCapture())
+
     input.addEventListener('keydown', e => {
+      // Keep typing keys (incl. space) inside the input; never let them reach Phaser.
+      e.stopPropagation()
       if (e.key === 'Enter') {
         const val = input.value.trim().toLowerCase()
         if (val) { this._process(val); input.value = '' }
       }
     })
 
-    // Focus input
+    // Focus input (also triggers the focus handler above to release key capture)
     setTimeout(() => input.focus(), 100)
   }
 
@@ -322,6 +332,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   _devJump(sceneName, slopState, spawnOrigin) {
+    this._releaseInput()
     if (this._term) { this._term.style.display = 'none' }
     this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
       if (t === 1) this.scene.start(sceneName, { slopState, spawnOrigin })
@@ -352,13 +363,23 @@ export class MenuScene extends Phaser.Scene {
   }
 
   _startGame() {
+    this._releaseInput()
     if (this._term) { this._term.style.display = 'none' }
     this.cameras.main.fade(400, 8, 6, 16, false, (_, t) => {
       if (t === 1) this.scene.start('WorldScene')
     })
   }
 
+  // Hand the keyboard back to Phaser when leaving the terminal: blur the DOM
+  // input (which re-enables global capture via its blur handler) and re-enable
+  // capture directly so gameplay scenes always receive SPACE for prompt/dialogue.
+  _releaseInput() {
+    this._input?.blur()
+    this.input?.keyboard?.enableGlobalCapture()
+  }
+
   shutdown() {
+    this._releaseInput()
     this._term?.remove()
     this._term = null
     this._authModal?.hide()
