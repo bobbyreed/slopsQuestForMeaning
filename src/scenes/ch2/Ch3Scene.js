@@ -1,16 +1,9 @@
-// Chapter 3 — entry seam.
+// Chapter 3 — intro card ("the climb").
 //
-// Chapter 3 is being built as a SEPARATE Phaser project and will be connected
-// here once its repo is available. This scene is the clean handoff point: it
-// persists the player's state at the chapter boundary (so the external chapter
-// can resume from it on the same domain/save) and shows a "to be continued"
-// beat instead of dead-ending into the old platformer.
-//
-// TO WIRE IN THE REAL CHAPTER 3 (later):
-//   - If bundled into this project: register its first scene in main.js and
-//     replace the body of create() with a transition to it.
-//   - If deployed separately: redirect from here (window.location) to its URL,
-//     handing off `this._slopState` via the shared save / a query param.
+// The Chapter 2 town exits here. This is the entry beat for the final chapter:
+// it persists the chapter boundary to the save, sets the tone, and on SPACE
+// fades into Ch3StageScene (the beat-'em-up). From there: stage → THE AUTHOR
+// boss → credits.
 
 import Phaser       from 'phaser'
 import { W, H }     from '../../config/constants.js'
@@ -36,11 +29,11 @@ export class Ch3Scene extends Phaser.Scene {
       fontSize: '24px', color: '#c8b8e8', fontFamily: 'Courier New', letterSpacing: 5,
     }).setOrigin(0.5).setDepth(2)
 
-    this.add.text(W / 2, H / 2 - 8, 'the final chapter', {
+    this.add.text(W / 2, H / 2 - 8, 'the climb', {
       fontSize: '11px', color: '#7766aa', fontFamily: 'Courier New', letterSpacing: 3,
     }).setOrigin(0.5).setDepth(2)
 
-    const cont = this.add.text(W / 2, H / 2 + 44, 'to be continued…', {
+    const cont = this.add.text(W / 2, H / 2 + 44, 'you keep looking up. so climb.', {
       fontSize: '10px', color: '#55486f', fontFamily: 'Courier New',
     }).setOrigin(0.5).setDepth(2)
     this.tweens.add({
@@ -48,7 +41,7 @@ export class Ch3Scene extends Phaser.Scene {
       yoyo: true, repeat: -1, duration: 1200, ease: 'Sine.easeInOut',
     })
 
-    this.add.text(W / 2, H - 40, 'press SPACE to return to the terminal', {
+    this.add.text(W / 2, H - 40, 'press SPACE to begin', {
       fontSize: '9px', color: '#44405a', fontFamily: 'Courier New',
     }).setOrigin(0.5).setDepth(2)
 
@@ -76,7 +69,7 @@ export class Ch3Scene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this._spaceKey) || Phaser.Input.Keyboard.JustDown(this._enterKey)) {
       this._returning = true
       this.cameras.main.fade(500, 0, 0, 0, false, (_, t) => {
-        if (t === 1) this.scene.start('MenuScene')
+        if (t === 1) this.scene.start('Ch3StageScene', { slopState: this._slopState })
       })
     }
   }

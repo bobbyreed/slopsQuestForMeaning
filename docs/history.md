@@ -362,3 +362,31 @@ A running log of prompts given during this project. Kept for traceability and as
 
 **Prompt 102**
 > This is great. Please take some time and make sure that journal.html, history.md, and readme.md are up to date.
+
+---
+
+## 2026-06-05
+
+**Prompt 103**
+> please finish up the features we were working on so we can commit and push then deploy. The current deployed version still has the spacebar not detecting issue so we want to get this one out.
+
+The "spacebar not detecting" turned out to be two distinct bugs, not the Ch2 jump: (1) a page-level `index.html` keydown handler called `preventDefault()` on Space/arrows, and Phaser's `KeyboardManager` ignores any key whose `defaultPrevented` flag is already set — so prompt firing, dialogue advance and arrow movement were dead in-game while WASD worked; (2) Phaser's global key capture also ate the space inside the terminal's focused DOM input, so "new game" typed as "newgame." Fixed by removing the page handler and releasing Phaser's capture while the terminal input is focused.
+
+**Prompt 104**
+> Chapter 2 is playing decent. I can't see the melee projectile thing for prompt but it is working. Please use the Slop sprite. Add a jump button. use the other sprites created so far to make the enemies. … We built the sprites together. You will find their coordinates written in firestore.
+
+Ch2 opening now selects the player's sprite from the Slop movement sheet (by `sheetKey`), dresses enemies with `ch2-enemy-bestiary-sheet` sprites, adds a jump (SPACE/Up) and a visible melee slash. Plus dev-console jump buttons for the Chapter 2 proper scenes.
+
+**Prompt 105**
+> The town scene should lead to the 3rd chapter. … For now just make sure we are ready to go from the final dialog to a new, final chapter.
+
+The Ch2 town now exits into a new `Ch3Scene` seam that persists the chapter boundary, repointed away from the old `PlatformerWorldScene`.
+
+**Prompt 106**
+> Chpt 3 will be a beat em up. Here is a template … create chapter 3 for slop. … create a story arc for chapter 2 and 3 … then implement … final boss using slopsPunchDemo … then credits.
+
+**Story arc (Chapters 2–3):**
+- **Chapter 2 — "The Body":** Slop arrives in the new world with form (the body), confronts the clone — the version of himself with the same prompt but no direction ("you got direction; i accumulated") — and reaches the settlement, where the keeper, seeing he "keeps looking up," grants the **jump**: the power to rise.
+- **Chapter 3 — "The Climb"** (beat-'em-up, tone: defiance / break the loop): Slop fights up through the stack — the layers between being mere *content* and being an *author* — toward a 1v1 final boss, **THE AUTHOR**, the hand that keeps the model running. He doesn't escape the model; he breaks the loop of being only what he was made to be, takes the pen, and the credits roll.
+
+Built Round A: `Ch3Scene` (intro → "the climb"), `Ch3StageScene` (the beat-'em-up — floor-band movement, z-jump + shadow, wave gates, J punch / K kick, distance-math combat, HUD), and a `Ch3BossScene` placeholder for the handoff. Mechanics adapted from `bobbyreed/slopsBeatEmUpDemo` into the project's ES-module / rectangle-entity idiom. The final boss (adapted from `bobbyreed/slopsPunchDemo`) and the credits roll are Round B.

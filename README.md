@@ -23,7 +23,7 @@ npm run test         # run tests in watch mode
 npm run coverage     # run tests with v8 coverage report
 ```
 
-Coverage thresholds: **80% statements, 80% functions, 70% branches, 80% lines.** Currently: **1092 tests passing.**
+Coverage thresholds: **80% statements, 80% functions, 70% branches, 80% lines.** Currently: **1133 tests passing.**
 
 ### Deploy
 
@@ -112,11 +112,16 @@ index.html          # entry point
 
     → Beat Prior in Joust →
 
-    [CHAPTER 2 — PLATFORMER]
-    Ch2OpeningScene → Ch2CloneScene → Ch2TownScene → PlatformerWorldScene
+    [CHAPTER 2 — PLATFORMER]        "The Body"
+    Ch2OpeningScene → Ch2CloneScene → Ch2TownScene
+                    |
+    [CHAPTER 3 — BEAT 'EM UP]       "The Climb"
+    Ch3Scene(intro) → Ch3StageScene → Ch3BossScene (THE AUTHOR) → Credits
 ```
 
-**Chapter 1** is a top-down RPG. **Chapter 2** shifts to a side-scrolling platformer — same character, gravity now pulls down, camera follows left to right. The rules change. The Prior warned you.
+**Chapter 1** is a top-down RPG. **Chapter 2** ("The Body") shifts to a side-scrolling platformer — same character, gravity now pulls down, camera follows left to right. The rules change. The Prior warned you. **Chapter 3** ("The Climb") shifts again, to a side-scrolling **beat-'em-up**: Slop fights up through the stack toward **THE AUTHOR** — a 1v1 final boss — to break the loop and take the pen, then the credits roll.
+
+**Chapter 3 controls:** arrows / WASD move · **J** punch · **K** kick · **SPACE** jump.
 
 ---
 

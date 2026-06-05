@@ -49,12 +49,12 @@ describe('Ch3Scene — create', () => {
 })
 
 describe('Ch3Scene — update', () => {
-  it('returns to the terminal when SPACE/ENTER is pressed', () => {
+  it('advances into Ch3StageScene when SPACE/ENTER is pressed', () => {
     const s = makeCh3()
     const spy = vi.spyOn(Phaser.Input.Keyboard, 'JustDown').mockReturnValue(true)
     s.cameras.main.fade.mockImplementation((_, r, g, b, _fromBlack, cb) => cb(null, 1))
     s.update()
-    expect(s.scene.start).toHaveBeenCalledWith('MenuScene')
+    expect(s.scene.start).toHaveBeenCalledWith('Ch3StageScene', expect.any(Object))
     spy.mockRestore()
   })
 

@@ -145,6 +145,7 @@ function makeScene() {
       world: { enable: vi.fn(), setBounds: vi.fn() },
     },
     time: {
+      now:         0,
       addEvent:    vi.fn(() => ({ remove: vi.fn() })),
       delayedCall: vi.fn(),
     },
@@ -172,6 +173,7 @@ function makeScene() {
         addKey:  vi.fn(() => ({ isDown: false })),
         on:      vi.fn(),
         off:     vi.fn(),
+        once:    vi.fn(),
         disableGlobalCapture: vi.fn(),
         enableGlobalCapture:  vi.fn(),
         removeCapture:        vi.fn(),
@@ -225,6 +227,8 @@ const Phaser = {
   Math: {
     Between:    (min, _max) => min,
     DegToRad:   (deg) => (deg * Math.PI) / 180,
+    Clamp:      (v, min, max) => Math.min(Math.max(v, min), max),
+    Linear:     (a, b, t) => a + (b - a) * t,
     RND:        { pick: arr => arr[0] },
     Distance:   { Between: (x1, y1, x2, y2) => Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) },
   },
@@ -232,7 +236,7 @@ const Phaser = {
     Keyboard: {
       KeyCodes: {
         A: 65, D: 68, W: 87, S: 83, Q: 81, Z: 90, X: 88,
-        F: 70, C: 67, L: 76, TAB: 9,
+        F: 70, C: 67, L: 76, J: 74, K: 75, TAB: 9,
         SPACE: 32, ENTER: 13, E: 69, R: 82, ESCAPE: 27, SHIFT: 16,
         LEFT: 37, RIGHT: 39, UP: 38, DOWN: 40,
       },
