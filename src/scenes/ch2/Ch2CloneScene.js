@@ -8,7 +8,7 @@ import { Dialogue } from '../../ui/Dialogue.js'
 import { W, H }     from '../../config/constants.js'
 import {
   Ch2BaseScene,
-  PLAYER_W, PLAYER_H, MOVE_V, WALKER_V, SPRITE_SCALE, GRAVITY,
+  PLAYER_W, PLAYER_H, MOVE_V, WALKER_V, SPRITE_SCALE, GRAVITY, SLOP_SHEETS,
 } from '../../phaser/Ch2BaseScene.js'
 
 const BG_KEY  = 'ch2-bg-cavern-v1'
@@ -111,7 +111,8 @@ export class Ch2CloneScene extends Ch2BaseScene {
 
   _onAnimsLoaded() {
     if (!this._animPool.length || !this._clone?.active) return
-    const entry   = this._animPool[0]
+    // The clone is a version of Slop — use the Slop sheet, not whatever loaded first.
+    const entry   = this._poolEntryBySheet(SLOP_SHEETS) || this._animPool[0]
     const procKey = 'proc-' + entry.cfg.sheetKey
     if (!this.textures?.exists(procKey)) return
 

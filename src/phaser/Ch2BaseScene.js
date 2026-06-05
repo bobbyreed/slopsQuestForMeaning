@@ -17,6 +17,11 @@ export const JUMP_V       = -460
 export const WALKER_V     = 55
 export const GRAVITY      = 520
 
+// Which Firestore sprite sheets supply which actors. Configs are keyed by these
+// in the animConfigs collection; we pick the player vs enemy sprites by sheet.
+export const SLOP_SHEETS = ['ch2-slop-movement-sheet-chatgpt', 'ch2-slop-movement-sheet']
+export const ENEMY_SHEET = 'ch2-enemy-bestiary-sheet'
+
 export const SHEET_META = {
   'ch2-slop-movement-sheet-chatgpt': { w: 1536, h: 1024 },
   'ch2-slop-movement-sheet':         { w: 1376, h: 768  },
@@ -77,8 +82,11 @@ export class Ch2BaseScene extends Phaser.Scene {
           this._animPool.push({ key: animKey, label: cfg.label || cfg.sheetKey, cfg })
         })
         if (this._animPool.length > 0) {
-          this._activeAnimIdx = 0
-          this._attachSprite(this._animPool[0].cfg)
+          // The player is Slop — prefer a Slop movement sheet, not just whatever
+          // config happened to load first (enemy/overview sheets share the pool).
+          const slopIdx = this._animPool.findIndex(e => SLOP_SHEETS.includes(e.cfg.sheetKey))
+          this._activeAnimIdx = slopIdx >= 0 ? slopIdx : 0
+          this._attachSprite(this._animPool[this._activeAnimIdx].cfg)
         }
       }
     } catch (e) {
@@ -144,6 +152,38 @@ export class Ch2BaseScene extends Phaser.Scene {
 
   _canJump() {
     return !!this._slopState?.ch2JumpUnlocked
+  }
+
+  // ── Sprite pool lookup ─────────────────────────────────────────────────────
+
+  // First loaded anim entry for the given sheet key(s), or null.
+  _poolEntryBySheet(sheetKeyOrList) {
+    const keys = Array.isArray(sheetKeyOrList) ? sheetKeyOrList : [sheetKeyOrList]
+    return this._animPool.find(e => keys.includes(e.cfg.sheetKey)) || null
+  }
+
+  // All loaded anim entries for a single sheet key (e.g. the enemy bestiary).
+  _poolEntriesBySheet(sheetKey) {
+    return this._animPool.filter(e => e.cfg.sheetKey === sheetKey)
+  }
+
+  // Spawn a standalone sprite playing a pool entry's animation, for actors that
+  // track a physics body (enemies, the clone). Returns the sprite, or null if
+  // the processed texture isn't ready. The sprite carries its own _yOffset so
+  // callers can keep it aligned to the body each frame.
+  _spawnPoolSprite(entry, x, y, { tint = null, flipX = false, depth = 10, bodyH = PLAYER_H } = {}) {
+    if (!entry) return null
+    const procKey = 'proc-' + entry.cfg.sheetKey
+    if (!this.textures?.exists(procKey)) return null
+    const f0 = entry.cfg.frames[0]
+    const yOffset = (bodyH - f0.h * SPRITE_SCALE) / 2
+    const spr = this.add.sprite(x, y + yOffset, procKey, `${entry.key}-0`)
+      .setScale(SPRITE_SCALE).setDepth(depth)
+    if (tint != null) spr.setTint(tint)
+    spr.setFlipX(flipX)
+    spr.play(entry.key)
+    spr._yOffset = yOffset
+    return spr
   }
 
   // ── Shared helpers ───────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 // Chapter 2 — Opening Scene
-// Slop's first moments in the new world. No jumping yet.
-// Enemies block the path. Fight through or push past.
+// Slop's first moments in the new world. Move, jump, attack, corrupt.
+// Enemies (bestiary sprites) block the path. Fight through or push past.
 // Exit: reach the far right edge → Ch2CloneScene.
 
 import Phaser from 'phaser'
@@ -8,7 +8,7 @@ import { Dialogue } from '../../ui/Dialogue.js'
 import { W, H }     from '../../config/constants.js'
 import {
   Ch2BaseScene,
-  PLAYER_W, PLAYER_H, MOVE_V, WALKER_V, GRAVITY,
+  PLAYER_W, PLAYER_H, MOVE_V, JUMP_V, WALKER_V, GRAVITY, ENEMY_SHEET,
 } from '../../phaser/Ch2BaseScene.js'
 
 const BG_KEY  = 'ch2-bg-void-ruins-v1-chatgpt'
@@ -80,6 +80,7 @@ export class Ch2OpeningScene extends Ch2BaseScene {
     this._dKey    = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
     this._zKey    = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z)
     this._qKey    = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q)
+    this._spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
 
     if (this.cameras?.main?.startFollow) this.cameras.main.startFollow(this._player, true, 0.09, 0.09)
     if (this.cameras?.main?.setBounds)   this.cameras.main.setBounds(0, 0, WORLD_W, H)
@@ -142,6 +143,25 @@ export class Ch2OpeningScene extends Ch2BaseScene {
     })
   }
 
+  // Once the Firestore anims have loaded, dress each enemy with a bestiary
+  // sprite. Walkers and armored enemies use distinct configs when more than one
+  // bestiary anim exists; otherwise they share the first, tinted apart. Enemies
+  // keep their physics rectangle (hidden) for collision/knockback.
+  _onAnimsLoaded() {
+    const entries = this._poolEntriesBySheet(ENEMY_SHEET)
+    if (!entries.length) return
+    for (const e of this._enemies) {
+      if (!e?.active) continue
+      const armored = e._type === 'armored'
+      const entry   = armored && entries[1] ? entries[1] : entries[0]
+      const spr = this._spawnPoolSprite(entry, e.x, e.y, {
+        tint: armored && !entries[1] ? 0xbb99dd : null,
+        depth: 8, bodyH: 24,
+      })
+      if (spr) { e._sprite = spr; e.setAlpha(0) }
+    }
+  }
+
   // ── Combat ─────────────────────────────────────────────────────────────────
 
   _doMelee() {
@@ -149,6 +169,7 @@ export class Ch2OpeningScene extends Ch2BaseScene {
     this._meleeCooldown = MELEE_CD
     this._meleeFlash    = 140
     this.cameras.main.flash(50, 200, 160, 80)
+    this._spawnSlash()
     const px = this._player.x, py = this._player.y
     for (const e of this._enemies) {
       if (!e?.active) continue
@@ -156,6 +177,20 @@ export class Ch2OpeningScene extends Ch2BaseScene {
       if (Math.sign(dx) !== this._facing && Math.abs(dx) > 6) continue
       if (Math.abs(dx) < MELEE_RANGE + 8 && Math.abs(e.y - py) < 26) this._hitEnemy(e, 1)
     }
+  }
+
+  // A visible swipe arc in front of Slop so the melee reads on screen.
+  _spawnSlash() {
+    const sx = this._player.x + this._facing * (MELEE_RANGE / 2)
+    const slash = this.add.rectangle(sx, this._player.y, MELEE_RANGE, 26, 0xffe0a0, 0.85)
+      .setDepth(14)
+    slash.scaleX = 0.3
+    this.tweens.add({
+      targets: slash,
+      scaleX: 1.4, alpha: 0,
+      duration: 170, ease: 'Quad.easeOut',
+      onComplete: () => slash.destroy(),
+    })
   }
 
   _doCorrupt() {
@@ -178,9 +213,12 @@ export class Ch2OpeningScene extends Ch2BaseScene {
   _hitEnemy(e, dmg) {
     if (!e?.active) return
     e._hp -= dmg
+    // Flash the visible actor — the bestiary sprite if present, else the rect.
+    const visual = e._sprite || e
+    const baseAlpha = e._sprite ? 1 : 1
     this.tweens.add({
-      targets: e, alpha: 0.2, duration: 70, yoyo: true, repeat: 1,
-      onComplete: () => { if (e?.active) e.setAlpha(1) },
+      targets: visual, alpha: 0.2, duration: 70, yoyo: true, repeat: 1,
+      onComplete: () => { if (visual?.active) visual.setAlpha(baseAlpha) },
     })
     if (e._hpBar) {
       const ratio = Math.max(0, e._hp / e._maxHp)
@@ -205,6 +243,7 @@ export class Ch2OpeningScene extends Ch2BaseScene {
       })
     }
     if (e._hpBar) e._hpBar.destroy()
+    if (e._sprite) e._sprite.destroy()
     e.destroy()
     this._enemies = this._enemies.filter(x => x !== e)
   }
@@ -230,10 +269,11 @@ export class Ch2OpeningScene extends Ch2BaseScene {
 
   _buildHUD() {
     const dim = { fontSize: '9px', color: '#776688', fontFamily: 'Courier New' }
-    this.add.text(16,  H - 44, '← →  move',  dim).setScrollFactor(0).setDepth(30)
-    this.add.text(112, H - 44, 'Z  attack',  dim).setScrollFactor(0).setDepth(30)
-    this.add.text(200, H - 44, 'Q  corrupt', dim).setScrollFactor(0).setDepth(30)
-    this._corruptLabel = this.add.text(200, H - 28, 'ready', {
+    this.add.text(16,  H - 44, '← →  move',   dim).setScrollFactor(0).setDepth(30)
+    this.add.text(92,  H - 44, 'SPACE  jump', dim).setScrollFactor(0).setDepth(30)
+    this.add.text(190, H - 44, 'Z  attack',   dim).setScrollFactor(0).setDepth(30)
+    this.add.text(270, H - 44, 'Q  corrupt',  dim).setScrollFactor(0).setDepth(30)
+    this._corruptLabel = this.add.text(270, H - 28, 'ready', {
       fontSize: '8px', color: '#9966cc', fontFamily: 'Courier New',
     }).setScrollFactor(0).setDepth(30)
     this.add.text(W / 2, 22, 'chapter 2  //  the body', {
@@ -257,7 +297,13 @@ export class Ch2OpeningScene extends Ch2BaseScene {
     else if (right) { body.setVelocityX(MOVE_V);  this._facing =  1 }
     else body.setVelocityX(Math.abs(body.velocity.x) < 5 ? 0 : body.velocity.x * 0.78)
 
-    // No jump — ability not yet granted
+    // Jump
+    const jumpPressed = Phaser.Input.Keyboard.JustDown(this._spaceKey)
+      || Phaser.Input.Keyboard.JustDown(this._cursors.up)
+    if (jumpPressed && body.blocked?.down) {
+      body.setVelocityY(JUMP_V)
+      this.cameras.main.flash(20, 120, 140, 200)
+    }
 
     // Pit recovery
     if (this._player.y > H + 80) {
@@ -284,6 +330,11 @@ export class Ch2OpeningScene extends Ch2BaseScene {
       if (e.body.blocked?.right) { e.body.setVelocityX(-WALKER_V); e._dir = -1 }
       if (e.body.blocked?.left)  { e.body.setVelocityX(WALKER_V);  e._dir =  1 }
       if (e._hpBar) { e._hpBar.x = e.x; e._hpBar.y = e.y - 20 }
+      if (e._sprite) {
+        e._sprite.x = e.x
+        e._sprite.y = e.y + (e._sprite._yOffset || 0)
+        e._sprite.setFlipX(e._dir < 0)
+      }
     }
 
     // Anim state

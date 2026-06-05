@@ -66,9 +66,9 @@ describe('Ch2OpeningScene — create', () => {
   })
 })
 
-// ── no jump ───────────────────────────────────────────────────────────────────
+// ── _canJump narrative gate ─────────────────────────────────────────────────────
 
-describe('Ch2OpeningScene — no jump', () => {
+describe('Ch2OpeningScene — _canJump gate', () => {
   it('_canJump returns false when ch2JumpUnlocked is unset', () => {
     const s = makeOpening()
     expect(s._canJump()).toBe(false)
@@ -82,6 +82,70 @@ describe('Ch2OpeningScene — no jump', () => {
   it('_canJump returns true if state is set (base class check)', () => {
     const s = makeOpening({ ch2JumpUnlocked: true })
     expect(s._canJump()).toBe(true)
+  })
+})
+
+// ── jump ──────────────────────────────────────────────────────────────────────
+
+describe('Ch2OpeningScene — jump', () => {
+  function bodyAt(blockedDown) {
+    return {
+      velocity: { x: 0, y: 0 }, blocked: { down: blockedDown },
+      setVelocityX: vi.fn(), setVelocityY: vi.fn(), setVelocity: vi.fn(),
+    }
+  }
+
+  it('applies jump velocity when grounded and a jump key is pressed', () => {
+    const s = makeOpening()
+    s._player.body = bodyAt(true)
+    s._dialogue = { update: vi.fn(), active: false }
+    const spy = vi.spyOn(Phaser.Input.Keyboard, 'JustDown').mockReturnValue(true)
+    s.update(0, 16)
+    expect(s._player.body.setVelocityY).toHaveBeenCalledWith(-460)
+    spy.mockRestore()
+  })
+
+  it('does not jump while airborne', () => {
+    const s = makeOpening()
+    s._player.body = bodyAt(false)
+    s._dialogue = { update: vi.fn(), active: false }
+    const spy = vi.spyOn(Phaser.Input.Keyboard, 'JustDown').mockReturnValue(true)
+    s.update(0, 16)
+    expect(s._player.body.setVelocityY).not.toHaveBeenCalledWith(-460)
+    spy.mockRestore()
+  })
+})
+
+// ── melee slash visual ──────────────────────────────────────────────────────────
+
+describe('Ch2OpeningScene — _spawnSlash', () => {
+  it('_doMelee creates a visible slash tween', () => {
+    const s = makeOpening()
+    const before = s.tweens.add.mock.calls.length
+    s._doMelee()
+    expect(s.tweens.add.mock.calls.length).toBeGreaterThan(before)
+  })
+})
+
+// ── enemy sprites ───────────────────────────────────────────────────────────────
+
+describe('Ch2OpeningScene — _onAnimsLoaded enemy sprites', () => {
+  it('does nothing when no bestiary configs are loaded', () => {
+    const s = makeOpening()
+    s._animPool = []
+    expect(() => s._onAnimsLoaded()).not.toThrow()
+    expect(s._enemies[0]._sprite).toBeUndefined()
+  })
+
+  it('attaches a bestiary sprite to each enemy when a config exists', () => {
+    const s = makeOpening()
+    s.textures.exists = vi.fn(() => true)
+    s._animPool = [{
+      key: 'open-0', label: 'walker',
+      cfg: { sheetKey: 'ch2-enemy-bestiary-sheet', frames: [{ x: 0, y: 0, w: 16, h: 24 }] },
+    }]
+    s._onAnimsLoaded()
+    expect(s._enemies.every(e => e._sprite)).toBe(true)
   })
 })
 
