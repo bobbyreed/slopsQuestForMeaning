@@ -15,6 +15,7 @@ export const PLAYER_H     = 28
 export const MOVE_V       = 190
 export const JUMP_V       = -460
 export const WALKER_V     = 55
+export const GRAVITY      = 520
 
 export const SHEET_META = {
   'ch2-slop-movement-sheet-chatgpt': { w: 1536, h: 1024 },

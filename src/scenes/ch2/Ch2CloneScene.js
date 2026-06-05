@@ -8,13 +8,12 @@ import { Dialogue } from '../../ui/Dialogue.js'
 import { W, H }     from '../../config/constants.js'
 import {
   Ch2BaseScene,
-  PLAYER_W, PLAYER_H, MOVE_V, WALKER_V, SPRITE_SCALE,
+  PLAYER_W, PLAYER_H, MOVE_V, WALKER_V, SPRITE_SCALE, GRAVITY,
 } from '../../phaser/Ch2BaseScene.js'
 
 const BG_KEY  = 'ch2-bg-cavern-v1'
 const WORLD_W = 980
 
-const GRAVITY      = 520
 const MELEE_RANGE  = 44
 const MELEE_CD     = 300
 const CORRUPT_R    = 88

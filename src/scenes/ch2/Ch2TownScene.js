@@ -8,13 +8,12 @@ import { Dialogue } from '../../ui/Dialogue.js'
 import { W, H }     from '../../config/constants.js'
 import {
   Ch2BaseScene,
-  PLAYER_W, PLAYER_H, MOVE_V, JUMP_V,
+  PLAYER_W, PLAYER_H, MOVE_V, JUMP_V, GRAVITY,
 } from '../../phaser/Ch2BaseScene.js'
 
 const BG_KEY  = 'ch2-bg-station-hub'
 const WORLD_W = 1300
 
-const GRAVITY      = 520
 const HIT_IMMUNITY = 800
 
 // ── NPC definitions ───────────────────────────────────────────────────────────

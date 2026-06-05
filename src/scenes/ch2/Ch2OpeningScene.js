@@ -8,13 +8,12 @@ import { Dialogue } from '../../ui/Dialogue.js'
 import { W, H }     from '../../config/constants.js'
 import {
   Ch2BaseScene,
-  PLAYER_W, PLAYER_H, MOVE_V, WALKER_V,
+  PLAYER_W, PLAYER_H, MOVE_V, WALKER_V, GRAVITY,
 } from '../../phaser/Ch2BaseScene.js'
 
 const BG_KEY  = 'ch2-bg-void-ruins-v1-chatgpt'
 const WORLD_W = 1600
 
-const GRAVITY       = 520
 const MELEE_RANGE   = 44
 const MELEE_CD      = 300
 const CORRUPT_R     = 88
