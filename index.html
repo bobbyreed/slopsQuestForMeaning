@@ -148,17 +148,13 @@
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('game-container').scrollIntoView({ behavior: 'instant', block: 'start' })
     })
-    window.addEventListener('keydown', (e) => {
-      // Only stop the browser's default scroll for gameplay keys. NEVER swallow
-      // them while the user is typing in a field — doing so ate the space bar in
-      // the terminal ("new game" -> "newgame") and any other text input.
-      const t = e.target
-      const isTyping = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)
-      if (isTyping) return
-      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
-        e.preventDefault()
-      }
-    }, { passive: false })
+    // NOTE: Do NOT add a global keydown preventDefault() here for Space/arrows.
+    // Phaser's KeyboardManager ignores any key event whose defaultPrevented flag
+    // is already set (KeyboardManager.onKeyDown bails on event.defaultPrevented),
+    // so a page-level preventDefault runs before Phaser and silently kills those
+    // keys in-game — prompt firing, dialogue advance, and arrow movement all died.
+    // Phaser already prevents page scroll for the keys it captures (cursor keys +
+    // addKey default to capture:true), so scroll stays handled without this.
   </script>
 </body>
 </html>
