@@ -277,10 +277,7 @@ export class NorthShrineScene extends BaseGameScene {
   _triggerGateDialogue() {
     this._gateTriggered = true
     if (this._finalDungeonCleared) {
-      const after = this._chapter2Unlocked
-        ? () => this._returnToWorld()
-        : () => this._triggerJoust()
-      this._dialogue.show('the prior', GATE_RETURN_LINES, after)
+      this._dialogue.show('the prior', GATE_RETURN_LINES, () => this._triggerJoust())
     } else {
       this._dialogue.show('the prior', GATE_LINES, () => this._enterConvergence())
     }
@@ -288,6 +285,11 @@ export class NorthShrineScene extends BaseGameScene {
 
   _triggerJoust() {
     this._sceneTransition('JoustScene', { slopState: this.slop.getState() })
+  }
+
+  // Once Chapter 2 is unlocked the gate is simply its entrance.
+  _enterChapter2() {
+    this._sceneTransition('Ch2OpeningScene', { slopState: this.slop.getState() })
   }
 
   _enterConvergence() {
@@ -473,7 +475,18 @@ export class NorthShrineScene extends BaseGameScene {
   _checkGateApproach() {
     if (!this._priorGateUnlocked || this._gateTriggered || this._dialogue.active) return
     const dist = Phaser.Math.Distance.Between(this.slop.x, this.slop.y, this._gateX, this._gateY)
-    if (dist < 80) this._triggerGateDialogue()
+    if (dist >= 80) return
+
+    // After Chapter 2 is unlocked, the prior's dialogue is done — the gate is
+    // just the door in. Walk straight through instead of replaying his lines and
+    // being bounced back to the world.
+    if (this._chapter2Unlocked) {
+      this._gateTriggered = true
+      this._enterChapter2()
+      return
+    }
+
+    this._triggerGateDialogue()
   }
 
   _updateShopMode(delta) {

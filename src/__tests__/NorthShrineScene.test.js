@@ -141,6 +141,29 @@ describe('NorthShrineScene', () => {
       expect(s._gateTriggered).toBe(true)
     })
 
+    it('_enterChapter2 transitions to Ch2OpeningScene', () => {
+      const s = allClearedScene({ chapter2Unlocked: true, priorGateUnlocked: true })
+      s._enterChapter2()
+      const fadeCb = s.cameras.main.fade.mock.calls[0]?.[5]
+      if (fadeCb) fadeCb(null, 1)
+      expect(s.scene.start).toHaveBeenCalledWith('Ch2OpeningScene', expect.any(Object))
+    })
+
+    it('gate enters Chapter 2 directly (no prior dialogue) once chapter2Unlocked', () => {
+      const s = allClearedScene({
+        finalDungeonCleared: true, chapter2Unlocked: true, priorGateUnlocked: true,
+      })
+      s._enterChapter2 = vi.fn()
+      s._triggerGateDialogue = vi.fn()
+      // Stand on the gate
+      s.slop.x = s._gateX
+      s.slop.y = s._gateY
+      s._checkGateApproach()
+      expect(s._enterChapter2).toHaveBeenCalled()
+      expect(s._triggerGateDialogue).not.toHaveBeenCalled()
+      expect(s._gateTriggered).toBe(true)
+    })
+
     describe("prior menu", () => {
       it('_openPriorMenu sets _priorMenuOpen and _priorMenuTriggered', () => {
         const s = allClearedScene()
