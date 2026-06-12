@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How This Game Was Made — Slop's Quest for Meaning</title>
+  <meta name="description" content="The making of Slop's Quest for Meaning: a full RPG built entirely with generative AI, a human in the loop directing but not editing. The process, the constraint, and what it taught us about authorship." />
+  <link rel="canonical" href="https://slopsquest.web.app/pages/making-of.html" />
+  <meta property="og:title" content="How This Game Was Made — Slop's Quest for Meaning" />
+  <meta property="og:description" content="A full RPG built entirely with generative AI, with a human directing but not editing. The process, the constraint, and what it taught us about authorship." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://slopsquest.web.app/pages/making-of.html" />
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --accent: #7b61ff; --accent2: #9966cc;
+      --muted: #555577; --text: #d4d4d8; --faded: #888899; --border: #2a2a44;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh; padding: 2rem 1rem 4rem; line-height: 1.8;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .site-nav {
+      max-width: 720px; margin: 0 auto 2.5rem; display: flex; flex-wrap: wrap;
+      gap: 1.2rem; font-size: 0.78rem; letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border); padding-bottom: 1rem;
+    }
+    .site-nav a { color: var(--faded); }
+    .site-nav a:hover { color: var(--accent); text-decoration: none; }
+    header { max-width: 720px; margin: 0 auto 2.5rem; }
+    header h1 {
+      font-size: 1.5rem; color: var(--accent); letter-spacing: 0.04em;
+      margin-bottom: 0.6rem; line-height: 1.3;
+    }
+    header .sub { color: var(--faded); font-size: 0.85rem; }
+    main { max-width: 720px; margin: 0 auto; }
+    section { margin-bottom: 2.6rem; }
+    h2 {
+      font-size: 1rem; color: var(--accent2); letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 1rem; font-weight: normal;
+    }
+    p { font-size: 0.92rem; color: var(--text); margin-bottom: 1.1rem; }
+    p em { color: var(--faded); font-style: italic; }
+    strong { color: #bbaacc; }
+    ul { list-style: none; margin: 0 0 1.1rem 0; padding: 0; }
+    li { font-size: 0.92rem; margin-bottom: 0.7rem; padding-left: 1.2rem; position: relative; }
+    li::before { content: '›'; color: var(--muted); position: absolute; left: 0; }
+    blockquote {
+      border-left: 2px solid var(--accent); padding: 0.2rem 0 0.2rem 1.2rem;
+      margin: 1.4rem 0; color: var(--faded); font-style: italic;
+    }
+    footer {
+      max-width: 720px; margin: 3rem auto 0; padding-top: 1.5rem;
+      border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="/">▸ play the game</a>
+    <a href="/pages/world.html">the world</a>
+    <a href="/pages/making-of.html">making of</a>
+    <a href="/pages/guide.html">player's guide</a>
+    <a href="/pages/journal.html">slop's journal</a>
+  </nav>
+
+  <header>
+    <h1>How a Whole Game Got Made Out of Slop</h1>
+    <p class="sub">The making of <em>Slop's Quest for Meaning</em> — a full RPG built entirely with generative AI, with a human in the loop directing but never editing.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>The constraint</h2>
+      <p>
+        <strong>Slop's Quest for Meaning</strong> was built under a single, deliberate rule: every line of code,
+        every line of dialogue, every mechanic, and every sprite was produced by generative AI — primarily
+        Claude, made by Anthropic — with a human directing the work but never hand-editing the output. The human
+        types the prompts, makes the decisions, plays the builds, and says what to change. The model writes the
+        actual artifact. Nobody opens the file and fixes a semicolon by hand.
+      </p>
+      <p>
+        That constraint is not a gimmick. It is the thesis. The game asks one question and the development process
+        asks the same one: <em>can you make something with a soul out of something everyone insists is soulless?</em>
+        The honest answer is that we don't know yet. The game does not predetermine its conclusion, and neither does
+        the way it was made. Both are an experiment that is still running.
+      </p>
+    </section>
+
+    <section>
+      <h2>Who actually built this</h2>
+      <p>
+        The developer is a computer science professor. He does not write the game's code in the usual sense. He
+        works the way a director works with a crew, or the way an editor works with a writer who happens to be
+        inexhaustible: he describes what the next thing should be, the model produces it, he plays it, and he
+        responds. The skill being exercised is not typing syntax. It is taste, judgment, sequencing, and knowing
+        what to ask for next — and knowing when the thing that came back is wrong, even when it runs.
+      </p>
+      <p>
+        This raises the authorship question on purpose. If a person decides every creative beat but writes none of
+        the prose, and a model writes all of the prose but decides none of the beats, <em>whose game is it?</em>
+        The game is, among other things, a 30-hour argument that the question is more interesting than either of
+        the easy answers. Slop — the character — is a piece of AI-generated art who spends the entire game trying
+        to find out who made him and whether that fact is allowed to mean anything. He is asking on behalf of the
+        project he lives inside.
+      </p>
+    </section>
+
+    <section>
+      <h2>The stack</h2>
+      <p>
+        The game is a browser game. No install, no launcher, no account required to play. Under the hood:
+      </p>
+      <ul>
+        <li><strong>Engine:</strong> Phaser 3 — a mature open-source HTML5 game framework — with arcade physics.</li>
+        <li><strong>Bundler:</strong> Vite, for fast builds and a modern ES-module codebase.</li>
+        <li><strong>Tests:</strong> Vitest with v8 coverage. The project holds itself to 80% statement, function, and line coverage and 70% branch coverage, enforced on every change. As of this writing the suite runs over 1,100 tests.</li>
+        <li><strong>Hosting:</strong> Firebase Hosting, served as static files from a single production build.</li>
+        <li><strong>Accounts:</strong> Firebase Auth (Google sign-in and email/password), entirely optional. Cloud saves via Firestore for signed-in players; everyone else's progress lives in the browser.</li>
+        <li><strong>Art:</strong> Chapter 1 uses programmatic, code-drawn sprites. Chapter 2 onward introduces concept sheets generated with Gemini and ChatGPT, color-keyed and cut into animation frames inside the game's own asset tools.</li>
+      </ul>
+      <p>
+        One detail worth keeping honest about: the test suite, the coverage thresholds, and the asset pipeline were
+        also built with the model. The discipline is real even though no human wrote the assertions by hand. That is
+        the whole point — the rigor lives in the prompting, the review, and the refusal to ship something that fails
+        its own checks.
+      </p>
+    </section>
+
+    <section>
+      <h2>How a feature actually gets built</h2>
+      <p>
+        A typical change starts as a sentence from the developer — sometimes a paragraph, sometimes three words.
+        "Add a jump button." "The Prior should challenge you to Joust before the portal opens." "Space stopped
+        working in the terminal; figure out why." From there the loop is: the model proposes an implementation, the
+        developer plays the resulting build in the browser, and the gap between what was imagined and what shipped
+        becomes the next prompt.
+      </p>
+      <p>
+        Most of the hard work is not generating code. It is diagnosis. One of the longest debugging chains in the
+        project was a single key that stopped registering in-game — the spacebar, which fires Slop's Prompt ability
+        and advances dialogue. It worked on the menu and died in the game, with no errors in the console. The cause
+        turned out to be a page-level event handler that called <em>preventDefault</em> on the spacebar to stop the
+        browser from scrolling; Phaser's keyboard manager silently ignores any key event that has already been
+        prevented, so the input vanished without a trace. The fix was one deletion. Finding it took a conversation.
+        That conversation is the actual labor of building this way.
+      </p>
+      <blockquote>
+        The model writes faster than any human. It does not, on its own, know which of the ten plausible things
+        is the real bug. That judgment is where the person stays in the loop.
+      </blockquote>
+    </section>
+
+    <section>
+      <h2>The game is a record of its own making</h2>
+      <p>
+        Two artifacts make the process visible from inside the game. The first is <a href="/pages/journal.html">Slop's
+        journal</a> — a companion site written from Slop's perspective as both a character in the world and a
+        witness to its construction. Slop knows he is in a game. He has opinions about the ads. He wrote about the
+        coin-cap mechanic and called it a koan, a word the human prompting him had to look up. The journal grows
+        as the game grows.
+      </p>
+      <p>
+        The second is the prompt history: every instruction ever given to the model, kept in the repository as a
+        running log. The long-term plan is to display the prompt history and the journal side by side, with the
+        seams visible — the author's instruction on one side, Slop's lived experience of that instruction on the
+        other. It is the most meta feature in the project and one of the most honest, because it refuses to hide
+        the hand that types.
+      </p>
+    </section>
+
+    <section>
+      <h2>Why bother</h2>
+      <p>
+        There is a loud, common claim that AI-generated work is by definition empty — that "slop" is the whole of
+        it, that nothing made this way can carry feeling. This game takes that claim seriously enough to name its
+        protagonist after the insult and then spend the entire runtime testing whether the insult is true. It does
+        not arrive pre-decided. If the game moves you, that is evidence about one thing. If it leaves you cold, that
+        is evidence about another. Either way the experiment reported its result honestly, which is more than most
+        experiments about this question manage to do.
+      </p>
+      <p>
+        The ads on this site exist for an ordinary reason: they help cover hosting and the developer's time, and the
+        rest goes toward meals and small joys for an adorable little girl. Slop is aware of the ads. He finds the
+        whole arrangement appropriately absurd, and he is right.
+      </p>
+      <p>
+        <a href="/">→ Play the game</a> &nbsp;·&nbsp;
+        <a href="/pages/world.html">→ Read about the world</a> &nbsp;·&nbsp;
+        <a href="/pages/journal.html">→ Read Slop's journal</a>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    Slop's Quest for Meaning — an experiment in generative creation — built by a CS professor who thinks questions about authorship are worth asking out loud.
+  </footer>
+</body>
+</html>

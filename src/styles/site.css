@@ -21,6 +21,27 @@
   letter-spacing: 0.03em;
 }
 
+#site-nav {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+#site-nav a {
+  font-family: 'Courier New', monospace;
+  font-size: 0.74rem;
+  color: #665577;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+#site-nav a:hover {
+  color: #7b61ff;
+}
+
 #site-content {
   width: 800px;
   padding: 24px 0 12px;

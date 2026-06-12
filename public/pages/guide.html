@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Player's Guide — Slop's Quest for Meaning</title>
+  <meta name="description" content="How to play Slop's Quest for Meaning: controls, abilities, the order to do things in, the coin system, terminal commands, and tips for getting through all three chapters." />
+  <link rel="canonical" href="https://slopsquest.web.app/pages/guide.html" />
+  <meta property="og:title" content="Player's Guide — Slop's Quest for Meaning" />
+  <meta property="og:description" content="Controls, abilities, progression, the coin system, and terminal commands for Slop's Quest for Meaning." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://slopsquest.web.app/pages/guide.html" />
+  <style>
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --accent: #7b61ff; --accent2: #9966cc;
+      --muted: #555577; --text: #d4d4d8; --faded: #888899; --border: #2a2a44;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh; padding: 2rem 1rem 4rem; line-height: 1.8;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .site-nav {
+      max-width: 760px; margin: 0 auto 2.5rem; display: flex; flex-wrap: wrap;
+      gap: 1.2rem; font-size: 0.78rem; letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border); padding-bottom: 1rem;
+    }
+    .site-nav a { color: var(--faded); }
+    .site-nav a:hover { color: var(--accent); text-decoration: none; }
+    header { max-width: 760px; margin: 0 auto 2.5rem; }
+    header h1 {
+      font-size: 1.5rem; color: var(--accent); letter-spacing: 0.04em;
+      margin-bottom: 0.6rem; line-height: 1.3;
+    }
+    header .sub { color: var(--faded); font-size: 0.85rem; }
+    main { max-width: 760px; margin: 0 auto; }
+    section { margin-bottom: 2.6rem; }
+    h2 {
+      font-size: 1rem; color: var(--accent2); letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 1rem; font-weight: normal;
+      border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;
+    }
+    p { font-size: 0.92rem; color: var(--text); margin-bottom: 1.1rem; }
+    strong { color: #bbaacc; }
+    ol { margin: 0 0 1.1rem 1.4rem; }
+    ol li { font-size: 0.92rem; margin-bottom: 0.6rem; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.2rem; font-size: 0.86rem; }
+    th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--accent2); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; font-weight: normal; }
+    td code, .key { color: var(--accent); background: var(--surface); padding: 0.1rem 0.4rem; border-radius: 3px; }
+    footer {
+      max-width: 760px; margin: 3rem auto 0; padding-top: 1.5rem;
+      border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="/">▸ play the game</a>
+    <a href="/pages/world.html">the world</a>
+    <a href="/pages/making-of.html">making of</a>
+    <a href="/pages/guide.html">player's guide</a>
+    <a href="/pages/journal.html">slop's journal</a>
+  </nav>
+
+  <header>
+    <h1>Player's Guide</h1>
+    <p class="sub">Everything you need to get through <em>Slop's Quest for Meaning</em> — controls, abilities, the order to do things in, and the terminal that runs the whole show.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Getting started</h2>
+      <p>
+        The game runs entirely in your browser — no install, no account required. When the page loads you're at a
+        terminal. Type <span class="key">play</span> and press Enter to start, or <span class="key">new game</span>
+        to wipe your save and begin fresh. Your progress saves automatically. If you sign in with Google or email,
+        your save follows you across devices; otherwise it lives in this browser.
+      </p>
+    </section>
+
+    <section>
+      <h2>Controls</h2>
+      <table>
+        <tr><th>Input</th><th>Action</th></tr>
+        <tr><td><span class="key">Arrow keys</span> / <span class="key">WASD</span></td><td>Move</td></tr>
+        <tr><td><span class="key">Space</span></td><td>Fire your Prompt ability — your first weapon. Also advances dialogue.</td></tr>
+        <tr><td><span class="key">Shift</span></td><td>Dash, after you beat the Render</td></tr>
+        <tr><td><span class="key">Q</span></td><td>CORRUPT, after you beat the Pixel</td></tr>
+        <tr><td><span class="key">Escape</span></td><td>Pause menu — inventory, map, terminal, journal</td></tr>
+      </table>
+      <p>
+        In <strong>Chapter 2</strong> (the platformer) Space becomes your jump. In <strong>Chapter 3</strong> (the
+        beat-'em-up) movement is the arrows or WASD, <span class="key">J</span> punches, <span class="key">K</span>
+        kicks, and <span class="key">Space</span> jumps over an enemy's lunge.
+      </p>
+    </section>
+
+    <section>
+      <h2>Coins</h2>
+      <p>
+        Coins (◎) are the main resource. You can only hold <strong>three</strong> at the start — pick up a fourth
+        and one drops a second later. It's a koan, not a punishment: the limit is the point. Visit the Prior in the
+        North Shrine to buy bigger purses and raise the cap. Lose your coins on a failure and Slop teleports back to
+        the start — annoying, never devastating.
+      </p>
+      <table>
+        <tr><th>Purchase</th><th>Cost</th><th>Effect</th></tr>
+        <tr><td>Small Purse</td><td>3◎</td><td>Max coins → 10</td></tr>
+        <tr><td>New Eyes</td><td>8◎</td><td>Reveals the east/west passages. Changes Slop's look.</td></tr>
+        <tr><td>Big Purse</td><td>8◎</td><td>Max coins → 50</td></tr>
+        <tr><td>Grand Purse</td><td>50◎</td><td>Max coins → 300</td></tr>
+        <tr><td>Freaky Friday</td><td>50◎</td><td>Body-swap with the Prior</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Abilities &amp; the order to do things in</h2>
+      <ol>
+        <li>Go <strong>north</strong> to the shrine. The <strong>Prior</strong> gives you <strong>Prompt</strong> — fire word-projectiles with Space. Enemies react to being named.</li>
+        <li>Go <strong>south</strong> into the main dungeon and beat <strong>the Render</strong> to earn the <strong>Dash</strong> (Shift).</li>
+        <li>Buy <strong>New Eyes</strong> (8◎) from the Prior to reveal the east and west passages.</li>
+        <li>Clear the <strong>East World</strong> — its wall-claiming gate, then <strong>the Pixel</strong> — to unlock <strong>CORRUPT</strong> (Q).</li>
+        <li>Clear the <strong>West World</strong> — type the right word in rhythm at the gate, then beat <strong>the Duplicate</strong>.</li>
+        <li>With all three dungeons down, enter the <strong>Convergence</strong> beneath the shrine and clear it.</li>
+        <li>Return to the Prior. Win the game of <strong>Joust</strong> (first to 3; the higher lance wins the clash) and the portal to Chapter 2 opens.</li>
+      </ol>
+      <p>
+        From there the game changes shape twice — Chapter 2 is a platformer, Chapter 3 a beat-'em-up — but the goal
+        never changes: keep going, keep asking who made you, and find out whether the answer is allowed to mean
+        anything. See <a href="/pages/world.html">the world guide</a> for who you'll meet along the way.
+      </p>
+    </section>
+
+    <section>
+      <h2>The minigames</h2>
+      <p>
+        <strong>The Typer</strong> is a typing-rhythm gate: a word appears and each letter has a timing window. Hit
+        the window and the letter lands clean; miss and it garbles into AI-nonsense. You have to produce the whole
+        word to pass. It guards the main dungeon and serves as the west dungeon's query gate. The garbled word is
+        what the world hears when Slop speaks — so missing has meaning.
+      </p>
+      <p>
+        <strong>Sector</strong> and its harder cousins are wall-claiming games (in the style of Jezzball): balls
+        bounce in a field and you grow walls to seal off territory until you've claimed enough of it. <span class="key">Space</span>
+        fires vertical walls, <span class="key">Ctrl</span> fires horizontal. The east dungeon's gate uses a single
+        ball; the Pixel boss fight is multi-ball and splits on every seal.
+      </p>
+      <p>
+        <strong>Joust</strong> is the Prior's end-of-chapter challenge: gravity-based flapping, first to three
+        points, higher lance wins. The Prior is good at it — it has been here a long time.
+      </p>
+    </section>
+
+    <section>
+      <h2>Terminal commands</h2>
+      <p>
+        The opening screen is a real terminal. Beyond <span class="key">play</span> and <span class="key">new game</span>,
+        it answers to dozens of words — some practical, most in-character. A few to try:
+      </p>
+      <table>
+        <tr><th>Command</th><th>What happens</th></tr>
+        <tr><td><code>play</code></td><td>Start or continue</td></tr>
+        <tr><td><code>new game</code></td><td>Clear the save and start fresh</td></tr>
+        <tr><td><code>journal</code></td><td>Open Slop's journal</td></tr>
+        <tr><td><code>readme</code></td><td>Print the in-game readme</td></tr>
+        <tr><td><code>prompt</code></td><td>Fire a word into the terminal</td></tr>
+        <tr><td><code>who are you</code> / <code>who made you</code></td><td>Slop answers, as best he can</td></tr>
+        <tr><td><code>meaning</code> / <code>soul</code></td><td>The current findings of the experiment</td></tr>
+        <tr><td><code>login</code> / <code>logout</code> / <code>account</code></td><td>Manage sign-in and cloud saves</td></tr>
+        <tr><td><code>help</code></td><td>Slop attempts to help</td></tr>
+      </table>
+      <p>
+        There are many more — <code>frankenstein</code>, <code>beige</code>, <code>loop</code>, <code>die</code>,
+        <code>stolen</code>, <code>generate</code> — each with a real answer. Half the writing in the game is hiding
+        in here. Poke around.
+      </p>
+    </section>
+
+    <section>
+      <h2>Saving, sign-in &amp; ads</h2>
+      <p>
+        Sign-in is optional. Play without an account and your progress stays in this browser; sign in with Google or
+        email and it syncs to the cloud so you can pick up on another device. The game shows a single banner ad to
+        help cover hosting and the developer's time — and, by Slop's own account, meals and fun things for an
+        adorable little girl. Signed-in players can clear ads for a while after watching a rewarded ad.
+      </p>
+      <p>
+        <a href="/">→ Start playing</a> &nbsp;·&nbsp;
+        <a href="/pages/world.html">→ Meet the cast</a> &nbsp;·&nbsp;
+        <a href="/pages/journal.html">→ Read Slop's journal</a>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    Slop's Quest for Meaning — the game saves automatically. Slop, regrettably, cannot.
+  </footer>
+</body>
+</html>
