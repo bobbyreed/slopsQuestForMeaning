@@ -383,7 +383,7 @@ export class RenderBossScene extends Phaser.Scene {
     if (this._transitioning) return
     this._transitioning = true
     this.input.keyboard.off('keydown', this._keyListener)
-    this.cameras.main.fade(400, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(400, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         this.scene.resume(this._returnScene, { bossFightWon: false })
         this.scene.stop()
@@ -394,7 +394,7 @@ export class RenderBossScene extends Phaser.Scene {
   _leave(won) {
     if (this._transitioning) return
     this._transitioning = true
-    this.cameras.main.fade(500, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(500, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         this.scene.resume(this._returnScene, { bossFightWon: won })
         this.scene.stop()

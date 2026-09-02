@@ -73,3 +73,34 @@ describe('Ch3Scene — update', () => {
     spy.mockRestore()
   })
 })
+
+// Regression: pressing SPACE during the scene's own 800ms fadeIn used to lock
+// the game permanently. camera.fade(..., force=false, cb) is a no-op while any
+// fade effect is already running, so the callback never fired — but _returning
+// had already been set, and update() returns early forever after that. Found by
+// the zombie client; every fade transition in the game had the same shape.
+describe('Ch3Scene — advancing during the fade-in', () => {
+  it('forces the fade so the transition cannot be swallowed', () => {
+    const s = new Ch3Scene()
+    s.init({ slopState: {} })
+    s.create()
+    const spy = vi.spyOn(Phaser.Input.Keyboard, 'JustDown').mockReturnValue(true)
+    s.update()
+    spy.mockRestore()
+
+    expect(s.cameras.main.fade).toHaveBeenCalled()
+    const force = s.cameras.main.fade.mock.calls.at(-1)[4]
+    expect(force).toBe(true)
+  })
+
+  it('still reaches the stage when the forced fade completes', () => {
+    const s = new Ch3Scene()
+    s.init({ slopState: {} })
+    s.create()
+    const spy = vi.spyOn(Phaser.Input.Keyboard, 'JustDown').mockReturnValue(true)
+    s.update()
+    spy.mockRestore()
+    s.cameras.main.fade.mock.calls.at(-1)[5](null, 1)
+    expect(s.scene.start).toHaveBeenCalledWith('Ch3StageScene', expect.any(Object))
+  })
+})

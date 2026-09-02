@@ -359,7 +359,7 @@ export class MenuScene extends Phaser.Scene {
   _devJump(sceneName, slopState, spawnOrigin) {
     this._releaseInput()
     if (this._term) { this._term.style.display = 'none' }
-    this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(300, 0, 0, 0, true, (_, t) => {
       if (t === 1) this.scene.start(sceneName, { slopState, spawnOrigin })
     })
   }
@@ -390,7 +390,7 @@ export class MenuScene extends Phaser.Scene {
   _startGame() {
     this._releaseInput()
     if (this._term) { this._term.style.display = 'none' }
-    this.cameras.main.fade(400, 8, 6, 16, false, (_, t) => {
+    this.cameras.main.fade(400, 8, 6, 16, true, (_, t) => {
       if (t === 1) this.scene.start('WorldScene')
     })
   }

@@ -72,7 +72,7 @@ export class TitleScene extends Phaser.Scene {
   _proceed() {
     if (!this._ready) return
     this._ready = false
-    this.cameras.main.fade(400, 20, 18, 14, false, (_, t) => {
+    this.cameras.main.fade(400, 20, 18, 14, true, (_, t) => {
       if (t === 1) this.scene.start('MenuScene')
     })
   }

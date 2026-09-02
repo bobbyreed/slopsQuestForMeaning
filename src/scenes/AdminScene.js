@@ -79,7 +79,7 @@ export class AdminScene extends Phaser.Scene {
 
   _goSudo() {
     this._panelEl?.remove()
-    this.cameras.main.fade(300, 8, 8, 16, false, (_, t) => {
+    this.cameras.main.fade(300, 8, 8, 16, true, (_, t) => {
       if (t === 1) this.scene.start('MenuScene', { openDev: true })
     })
   }
@@ -135,7 +135,7 @@ export class AdminScene extends Phaser.Scene {
       btn.onmouseleave = () => { btn.style.color = '#aaffcc'; btn.style.borderColor = '#332244' }
       btn.onclick = () => {
         this._panelEl?.remove()
-        this.cameras.main.fade(300, 8, 8, 16, false, (_, tt) => {
+        this.cameras.main.fade(300, 8, 8, 16, true, (_, tt) => {
           if (tt === 1) this.scene.start(t.key)
         })
       }

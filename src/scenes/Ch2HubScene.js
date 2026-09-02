@@ -69,7 +69,7 @@ export class Ch2HubScene extends Phaser.Scene {
   }
 
   _goSudo() {
-    this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {
+    this.cameras.main.fade(300, 10, 10, 20, true, (_, t) => {
       if (t === 1) this.scene.start('MenuScene', { openDev: true })
     })
   }
@@ -99,7 +99,7 @@ export class Ch2HubScene extends Phaser.Scene {
       dsc.setStyle({ color: '#aaaaaa' })
     })
     bg.on('pointerdown', () => {
-      this.cameras.main.fade(300, 10, 10, 20, false, (_, t) => {
+      this.cameras.main.fade(300, 10, 10, 20, true, (_, t) => {
         if (t === 1) this.scene.start(sceneKey)
       })
     })

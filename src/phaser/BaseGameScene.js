@@ -141,7 +141,7 @@ export class BaseGameScene extends Phaser.Scene {
     if (this._transitioning) return false
     this._transitioning = true
     if (this.slop?.getState) SaveState.save(this.slop.getState())
-    this.cameras.main.fade(duration, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(duration, 0, 0, 0, true, (_, t) => {
       if (t === 1) this.scene.start(sceneName, data)
     })
     return true

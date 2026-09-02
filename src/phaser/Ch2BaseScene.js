@@ -198,7 +198,7 @@ export class Ch2BaseScene extends Phaser.Scene {
   _sceneTransition(key, data) {
     if (this._transitioning) return
     this._transitioning = true
-    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(600, 0, 0, 0, true, (_, t) => {
       if (t === 1) this.scene.start(key, data)
     })
   }

@@ -68,7 +68,7 @@ export class Ch3Scene extends Phaser.Scene {
     if (this._returning) return
     if (Phaser.Input.Keyboard.JustDown(this._spaceKey) || Phaser.Input.Keyboard.JustDown(this._enterKey)) {
       this._returning = true
-      this.cameras.main.fade(500, 0, 0, 0, false, (_, t) => {
+      this.cameras.main.fade(500, 0, 0, 0, true, (_, t) => {
         if (t === 1) this.scene.start('Ch3StageScene', { slopState: this._slopState })
       })
     }

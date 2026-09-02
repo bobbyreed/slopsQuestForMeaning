@@ -420,7 +420,7 @@ export class Ch3StageScene extends Phaser.Scene {
   _transition(key, data, delay = 0) {
     if (this._transitioning) return
     this._transitioning = true
-    const go = () => this.cameras.main.fade(500, 0, 0, 0, false, (_, t) => { if (t === 1) this.scene.start(key, data) })
+    const go = () => this.cameras.main.fade(500, 0, 0, 0, true, (_, t) => { if (t === 1) this.scene.start(key, data) })
     if (delay > 0) this.time.delayedCall(delay, go)
     else go()
   }

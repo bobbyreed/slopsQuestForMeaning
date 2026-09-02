@@ -181,7 +181,7 @@ export class TypingMinigameScene extends Phaser.Scene {
     if (this._transitioning) return
     this._transitioning = true
     this.input.keyboard.off('keydown', this._keyListener)
-    this.cameras.main.fade(400, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(400, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         if (this._returnScene) {
           // Overlay mode: called from DungeonScene (paused, waiting for result)

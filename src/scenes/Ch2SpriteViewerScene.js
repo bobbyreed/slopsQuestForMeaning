@@ -156,7 +156,7 @@ export class Ch2SpriteViewerScene extends Phaser.Scene {
     }
     if (Phaser.Input.Keyboard.JustDown(this._escKey)) {
       this._transitioning = true
-      this.cameras.main.fade(350, 8, 8, 8, false, (_, t) => {
+      this.cameras.main.fade(350, 8, 8, 8, true, (_, t) => {
         if (t === 1) this.scene.start('Ch2HubScene')
       })
     }

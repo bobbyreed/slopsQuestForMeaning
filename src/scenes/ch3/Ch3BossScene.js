@@ -523,7 +523,7 @@ export class Ch3BossScene extends Phaser.Scene {
 
     this._banner.setText(ending === ENDING.TOOK ? 'he takes the pen' : 'he leaves it there')
     this._sub.setText('')
-    this.cameras.main.fade(1200, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(1200, 0, 0, 0, true, (_, t) => {
       if (t === 1) this.scene.start('Ch3CreditsScene', { slopState: state, ending })
     })
   }

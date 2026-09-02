@@ -196,7 +196,7 @@ export class FirstNPCScene extends BaseGameScene {
   _launchBossFight() {
     if (this._transitioning) return
     this._transitioning = true
-    this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(300, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         this.scene.launch('RenderBossScene', {
           slopState: this.slop.getState(),

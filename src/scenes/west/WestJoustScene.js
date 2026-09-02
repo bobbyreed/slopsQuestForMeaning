@@ -259,7 +259,7 @@ export class WestJoustScene extends Phaser.Scene {
     if (this._transitioning) return
     this._transitioning = true
     if (this._indexerTimer) this._indexerTimer.remove()
-    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(600, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         this.scene.start('WestB0Scene', {
           slopState: { ...this._slopState, westGateCleared: true, westJoustWon: true },
@@ -273,7 +273,7 @@ export class WestJoustScene extends Phaser.Scene {
     if (this._transitioning) return
     this._transitioning = true
     if (this._indexerTimer) this._indexerTimer.remove()
-    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(600, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         this.scene.start('WestScene', {
           slopState: this._slopState,

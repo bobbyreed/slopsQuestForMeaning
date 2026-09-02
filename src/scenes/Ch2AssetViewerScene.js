@@ -98,13 +98,13 @@ export class Ch2AssetViewerScene extends Phaser.Scene {
   // ── Navigation ─────────────────────────────────────────────────────────────
 
   _goSudo() {
-    this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(300, 0, 0, 0, true, (_, t) => {
       if (t === 1) this.scene.start('MenuScene', { openDev: true })
     })
   }
 
   _goHub() {
-    this.cameras.main.fade(300, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(300, 0, 0, 0, true, (_, t) => {
       if (t === 1) this.scene.start('Ch2HubScene')
     })
   }

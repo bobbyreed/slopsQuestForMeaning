@@ -338,7 +338,7 @@ export class PlatformerWorldScene extends Phaser.Scene {
   _winTransition() {
     if (this._transitioning) return
     this._transitioning = true
-    this.cameras.main.fade(800, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(800, 0, 0, 0, true, (_, t) => {
       if (t === 1) this.scene.start('MenuScene', { slopState: this._slopState })
     })
   }

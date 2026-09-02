@@ -376,14 +376,14 @@ export class Ch2SpriteAnimScene extends Phaser.Scene {
 
   _goSudo() {
     this._closePicker()
-    this.cameras.main.fade(300, 10, 10, 10, false, (_, t) => {
+    this.cameras.main.fade(300, 10, 10, 10, true, (_, t) => {
       if (t === 1) this.scene.start('MenuScene', { openDev: true })
     })
   }
 
   _goHub() {
     this._closePicker()
-    this.cameras.main.fade(300, 10, 10, 10, false, (_, t) => {
+    this.cameras.main.fade(300, 10, 10, 10, true, (_, t) => {
       if (t === 1) this.scene.start('Ch2HubScene')
     })
   }

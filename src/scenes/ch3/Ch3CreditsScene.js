@@ -193,7 +193,7 @@ export class Ch3CreditsScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this._spaceKey) ||
         Phaser.Input.Keyboard.JustDown(this._enterKey)) {
       this._leaving = true
-      this.cameras.main.fade(1200, 0, 0, 0, false, (_c, t) => {
+      this.cameras.main.fade(1200, 0, 0, 0, true, (_c, t) => {
         if (t === 1) this.scene.start('MenuScene')
       })
     }

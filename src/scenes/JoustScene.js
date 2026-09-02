@@ -240,7 +240,7 @@ export class JoustScene extends Phaser.Scene {
     if (this._transitioning) return
     this._transitioning = true
     if (this._priorTimer) this._priorTimer.remove()
-    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(600, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         const newState = { ...this._slopState, chapter2Unlocked: true }
         this.scene.start('Ch2OpeningScene', { slopState: newState })
@@ -252,7 +252,7 @@ export class JoustScene extends Phaser.Scene {
     if (this._transitioning) return
     this._transitioning = true
     if (this._priorTimer) this._priorTimer.remove()
-    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(600, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         this.scene.start('WorldScene', { slopState: this._slopState, spawnOrigin: 'shrine' })
       }

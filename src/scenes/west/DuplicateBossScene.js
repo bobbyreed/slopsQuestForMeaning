@@ -271,7 +271,7 @@ export class DuplicateBossScene extends Phaser.Scene {
     this._transitioning = true
     if (this._indexerTimer1) this._indexerTimer1.remove()
     if (this._indexerTimer2) this._indexerTimer2.remove()
-    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(600, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         this.scene.start('WestC3Scene', {
           slopState: { ...this._slopState, westDungeonCleared: true },
@@ -286,7 +286,7 @@ export class DuplicateBossScene extends Phaser.Scene {
     this._transitioning = true
     if (this._indexerTimer1) this._indexerTimer1.remove()
     if (this._indexerTimer2) this._indexerTimer2.remove()
-    this.cameras.main.fade(600, 0, 0, 0, false, (_, t) => {
+    this.cameras.main.fade(600, 0, 0, 0, true, (_, t) => {
       if (t === 1) {
         this.scene.start('WestC3Scene', {
           slopState: this._slopState,
