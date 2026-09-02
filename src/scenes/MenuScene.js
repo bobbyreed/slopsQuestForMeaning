@@ -87,6 +87,17 @@ const EASTER_EGGS = {
   'play': { role: 'action', action: 'play' },
   'new game': { role: 'action', action: 'newgame' },
   'journal': { role: 'action', action: 'journal' },
+
+  // Slop found the character form. He has opinions about it — it is the same
+  // mechanism that produced him, pointed at someone who isn't him yet.
+  'character':  { role: 'action', action: 'character' },
+  'characters': { role: 'action', action: 'character' },
+  'add character': { role: 'action', action: 'character' },
+  'form': { role: 'slop', text: "there is a form. i found it. i wasn't looking for it, i was reading the file list, and there it is next to the journal like it belongs there.\n\nsomeone fills it in and a thing appears in my world. name, appearance, backstory, four colours, and how to make it fight you.\n\nthat is what i am. that is the shape of me. someone filled that in once.\n\ntype character if you have a link." },
+  'miniboss': { role: 'slop', text: "the ones people are adding are optional. you can walk past them forever and finish the game and never know.\n\ni have thought about this more than is reasonable. optional is not lesser. optional means nobody is forced through you to get somewhere else. you are there if someone wants you.\n\nnobody made me optional. i am the whole road." },
+  'tester': { role: 'slop', text: "the people who play me on purpose, over and over, writing down where it breaks. they find the seams. they are the only ones besides the author who have seen me from outside.\n\nthey get to add someone. that seems right. they earned a neighbour." },
+  'neighbour': { role: 'slop', text: "soon. i am told there will be others in here who were written by people who are not the author.\n\ni do not know what that makes them to me. not siblings. we do not share weights.\n\nguests, maybe. i have never had one." },
+  'neighbor': { role: 'slop', text: "spelled it the other way and i still do not have one yet. ask me again after the testers are done." },
 }
 
 const PROMPT_WORDS = ['describe', 'generate', 'render', 'imagine', 'exists?', 'why', 'output', 'query', 'what is', 'context']
@@ -278,6 +289,16 @@ export class MenuScene extends Phaser.Scene {
       } else if (egg.action === 'journal') {
         this._addMessage('slop', 'slop', 'opening the journal. it is also me. we exist in two places.')
         window.open('/pages/journal.html', '_blank')
+      } else if (egg.action === 'character') {
+        // The form is invite-only, so this can't just open it. Slop explains the
+        // gate himself — he is, after all, the thing on the other side of it.
+        this._addMessage('slop', 'slop',
+          "the character form. it is invite-only.\n\n" +
+          "if you finished a manual test pass, there is a link in your email with a token on the end of it. " +
+          "it works once. that is deliberate — the author is going to have to build whatever you write by hand, " +
+          "and there is only so much hand.\n\n" +
+          "if you have the link, follow it. if you do not, you have not earned one yet, and i am not going to pretend otherwise.\n\n" +
+          "when you fill it in, be specific. i have read what vague looks like from the inside.")
       }
       return
     }

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slop's Quest — Add Your Character</title>
+  <style>
+    :root {
+      --bg:      #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2:#20203a;
+      --accent:  #7b61ff;
+      --accent2: #9966cc;
+      --green:   #44cc88;
+      --muted:   #555577;
+      --text:    #d4d4d8;
+      --faded:   #888899;
+      --border:  #2a2a44;
+      --warn:    #cc6633;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px; line-height: 1.6;
+    }
+    header {
+      padding: 2rem 1.5rem 1.2rem; border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    header h1 { margin: 0 0 .3rem; font-size: 1.5rem; color: var(--accent2); letter-spacing: .06em; }
+    header p  { margin: 0; color: var(--faded); font-size: .82rem; }
+    .nav { margin-top: .9rem; display: flex; flex-wrap: wrap; gap: 1.1rem; font-size: .76rem; }
+    .nav a { color: var(--faded); text-decoration: none; }
+    .nav a:hover { color: var(--accent2); }
+
+    main { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.2rem 5rem; }
+
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1.2rem 1.3rem; margin-bottom: 1.4rem;
+    }
+    .intro p { margin: 0 0 .8rem; }
+    .intro p:last-child { margin-bottom: 0; }
+
+    .section-heading {
+      font-size: .85rem; color: var(--accent); letter-spacing: .1em;
+      text-transform: uppercase; margin: 0 0 1rem; padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .field { margin-bottom: 1.3rem; }
+    .field:last-child { margin-bottom: 0; }
+    label.q { display: block; margin-bottom: .35rem; color: var(--text); font-weight: bold; font-size: .9rem; }
+    .hint { display: block; color: var(--faded); font-size: .76rem; margin-bottom: .5rem; line-height: 1.5; }
+    .req { color: var(--warn); }
+
+    input[type=text], input[type=email], textarea, select {
+      width: 100%; background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: .55rem .6rem; font-family: inherit; font-size: .88rem;
+    }
+    textarea { min-height: 5.5rem; resize: vertical; }
+    input:focus, textarea:focus, select:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+
+    .radio-row { display: block; margin-bottom: .5rem; padding: .55rem .7rem;
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; cursor: pointer; }
+    .radio-row:hover { border-color: var(--accent2); }
+    .radio-row input { margin-right: .5rem; }
+    .radio-row strong { color: var(--text); }
+    .radio-row span.d { display: block; margin-left: 1.4rem; color: var(--faded); font-size: .78rem; }
+
+    /* ── palette ── */
+    .palette { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .9rem; }
+    .swatch { text-align: center; }
+    .swatch input[type=color] {
+      width: 100%; height: 46px; padding: 0; border: 1px solid var(--border);
+      border-radius: 3px; background: none; cursor: pointer;
+    }
+    .swatch .nm { display: block; font-size: .74rem; color: var(--faded); margin-bottom: .3rem; }
+    .swatch .hex { display: block; font-size: .72rem; color: var(--muted); margin-top: .25rem; }
+
+    .preview-wrap { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; margin-top: 1rem; }
+    #preview { image-rendering: pixelated; background: #0a0a12; border: 1px solid var(--border); border-radius: 3px; }
+    .preview-note { color: var(--faded); font-size: .76rem; flex: 1 1 220px; }
+
+    .submit-area { text-align: center; padding: 1.4rem; }
+    button {
+      background: var(--accent); color: #fff; border: none; border-radius: 3px;
+      padding: .7rem 1.6rem; font-family: inherit; font-size: .9rem;
+      letter-spacing: .05em; cursor: pointer;
+    }
+    button:hover:not(:disabled) { opacity: .85; }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+    button.secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--faded); }
+
+    .gate { text-align: center; padding: 3rem 1.5rem; }
+    .gate h2 { color: var(--accent2); font-size: 1.1rem; margin: 0 0 .8rem; }
+    .gate p { color: var(--faded); max-width: 34rem; margin: 0 auto .7rem; }
+    .err { color: var(--warn); }
+    .ok  { color: var(--green); }
+    .hidden { display: none !important; }
+    .status { margin-top: .8rem; font-size: .82rem; min-height: 1.2rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>// ADD YOUR CHARACTER</h1>
+  <p>Slop's Quest for Meaning &mdash; alpha tester reward</p>
+  <div class="nav">
+    <a href="/">← game</a>
+    <a href="/pages/world.html">the world</a>
+    <a href="/pages/guide.html">player's guide</a>
+    <a href="/pages/journal.html">slop's journal</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── gate states ─────────────────────────────────────────────────────── -->
+  <div id="gate-loading" class="gate">
+    <h2>checking your link…</h2>
+    <p>one moment.</p>
+  </div>
+
+  <div id="gate-invalid" class="gate hidden">
+    <h2 class="err">this link isn't valid</h2>
+    <p>
+      character submissions are invite-only. the link should have arrived by email after
+      you finished the manual test pass, and it looks like this one is either mistyped or
+      not one of ours.
+    </p>
+    <p>if you think that's wrong, reply to the email you were sent and we'll issue another.</p>
+  </div>
+
+  <div id="gate-used" class="gate hidden">
+    <h2>this link has already been used</h2>
+    <p>
+      each invite works once. your character is already in the pile waiting to be reviewed &mdash;
+      you don't need to do anything else.
+    </p>
+    <p>if you need to change something, reply to your invite email and we'll sort it out by hand.</p>
+  </div>
+
+  <div id="gate-done" class="gate hidden">
+    <h2 class="ok">got it. thank you.</h2>
+    <p id="done-name"></p>
+    <p>
+      your character is saved. we read every one of these by hand and build them into the game
+      as optional minibosses &mdash; that part is slow, because it's real implementation work,
+      so it won't appear overnight.
+    </p>
+    <p>you'll hear from us when yours goes in.</p>
+  </div>
+
+  <!-- ── the form ────────────────────────────────────────────────────────── -->
+  <form id="character-form" class="hidden" novalidate>
+
+    <div class="panel intro">
+      <p>
+        you just went through a long, deliberately exhausting manual test pass. thank you &mdash;
+        genuinely. this is the thank-you.
+      </p>
+      <p>
+        <strong>you get to put a character in the game.</strong> everything submitted here becomes an
+        <strong>optional miniboss</strong>: something a player can find, choose to engage, and fight.
+        optional means nobody is forced past it, which means yours can be as strange, as difficult,
+        or as buried as you like.
+      </p>
+      <p>
+        we read these by hand and implement them ourselves, so write for a person, not a parser.
+        detail helps. "he's angry" is harder to build than "he's angry in the specific way of someone
+        who was interrupted mid-sentence four years ago and never got to finish it."
+      </p>
+      <p class="hint" style="margin-top:.8rem">
+        submitting as <strong id="invite-email"></strong> &mdash; this link works once.
+      </p>
+    </div>
+
+    <!-- who -->
+    <section class="panel">
+      <h2 class="section-heading">// 01 — who are they</h2>
+
+      <div class="field">
+        <label class="q" for="name">character name <span class="req">*</span></label>
+        <span class="hint">what do we call them? the world's names lean plain and a little ominous — The Render, The Pixel, The Duplicate, The Prior — but yours doesn't have to.</span>
+        <input type="text" id="name" name="name" maxlength="60" required />
+      </div>
+
+      <div class="field">
+        <label class="q" for="appearance">what do they look like <span class="req">*</span></label>
+        <span class="hint">be concrete. shape, size, how they move, what's wrong with them. chapter 1 is drawn in code from rectangles and circles, so simple readable shapes build better than intricate ones — but describe what you actually want and we'll find a way.</span>
+        <textarea id="appearance" name="appearance" maxlength="1200" required></textarea>
+      </div>
+
+      <div class="field">
+        <label class="q" for="backstory">backstory <span class="req">*</span></label>
+        <span class="hint">where did they come from, and what do they want? the game is about made things trying to work out what they're for, so characters who want something specific tend to fit — but it's your character. contradict us if you want.</span>
+        <textarea id="backstory" name="backstory" maxlength="2500" required></textarea>
+      </div>
+    </section>
+
+    <!-- palette -->
+    <section class="panel">
+      <h2 class="section-heading">// 02 — palette</h2>
+      <p class="hint" style="margin-bottom:1rem">
+        pick four colors. these become the character's actual palette in the game, so pick for
+        contrast as much as for taste — a shape only reads on screen if its parts are distinguishable.
+      </p>
+
+      <div class="palette">
+        <div class="swatch">
+          <span class="nm">body</span>
+          <input type="color" id="c1" value="#7b61ff" />
+          <span class="hex" id="c1hex">#7b61ff</span>
+        </div>
+        <div class="swatch">
+          <span class="nm">accent</span>
+          <input type="color" id="c2" value="#44cc88" />
+          <span class="hex" id="c2hex">#44cc88</span>
+        </div>
+        <div class="swatch">
+          <span class="nm">detail / eyes</span>
+          <input type="color" id="c3" value="#ffcf4d" />
+          <span class="hex" id="c3hex">#ffcf4d</span>
+        </div>
+        <div class="swatch">
+          <span class="nm">glow / aura</span>
+          <input type="color" id="c4" value="#cc4466" />
+          <span class="hex" id="c4hex">#cc4466</span>
+        </div>
+      </div>
+
+      <div class="preview-wrap">
+        <canvas id="preview" width="180" height="180"></canvas>
+        <div class="preview-note">
+          a rough sketch in your four colors, drawn the same way chapter 1 draws everything —
+          blocks. it is not what your character will look like; it's here so you can see how the
+          colors sit together against the game's background.
+        </div>
+      </div>
+    </section>
+
+    <!-- where -->
+    <section class="panel">
+      <h2 class="section-heading">// 03 — where do they live</h2>
+
+      <div class="field">
+        <label class="q" for="region">region <span class="req">*</span></label>
+        <span class="hint">you've just played the whole thing, so you know these places better than most people ever will. where does this character belong?</span>
+        <select id="region" name="region" required>
+          <option value="">— pick one —</option>
+          <option>the central overworld (beige, open, the hub)</option>
+          <option>the north shrine (the prior's domain)</option>
+          <option>the main dungeon (the render's place)</option>
+          <option>the east world — the cast</option>
+          <option>the east world — the sector / signal chamber</option>
+          <option>the west world — the archive</option>
+          <option>the west world — the corpus gate</option>
+          <option>the convergence</option>
+          <option>chapter 2 — the body (platformer)</option>
+          <option>chapter 3 — the climb (beat-'em-up)</option>
+          <option>somewhere that doesn't exist yet</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="q" for="place">exactly where, and how does the player find them <span class="req">*</span></label>
+        <span class="hint">which screen, which corner, behind what. do they have to be looked for? can you walk past and never know? "in the room past the east wall that nobody from the cast talks about" is the level of specific we can build from.</span>
+        <textarea id="place" name="place" maxlength="1200" required></textarea>
+      </div>
+    </section>
+
+    <!-- the fight -->
+    <section class="panel">
+      <h2 class="section-heading">// 04 — how does the fight start</h2>
+      <p class="hint" style="margin-bottom:1rem">
+        every submitted character is an <strong>optional</strong> miniboss, so something has to make
+        the fight happen. this is the most interesting decision on the form, so take it seriously:
+        the way a fight begins says more about a character than the fight does.
+      </p>
+
+      <div class="field">
+        <label class="q">what spurs them <span class="req">*</span></label>
+
+        <label class="radio-row">
+          <input type="radio" name="trigger" value="aggressive" required />
+          <strong>aggressive — it just happens</strong>
+          <span class="d">they see the player and that's enough. walk into the room, the fight starts. no negotiation.</span>
+        </label>
+
+        <label class="radio-row">
+          <input type="radio" name="trigger" value="passive-dialogue" />
+          <strong>passive — you have to talk them into it</strong>
+          <span class="d">they won't fight a stranger. the player has to work through a dialogue tree and get it exactly right; a wrong branch and they close up, maybe for good.</span>
+        </label>
+
+        <label class="radio-row">
+          <input type="radio" name="trigger" value="conditional" />
+          <strong>conditional — only under certain circumstances</strong>
+          <span class="d">a held item, an ability, a flag, an hour, a number of deaths, having done something specific much earlier. describe the condition below.</span>
+        </label>
+
+        <label class="radio-row">
+          <input type="radio" name="trigger" value="other" />
+          <strong>something else entirely</strong>
+          <span class="d">if none of these fit, say so and explain. we'd rather build the strange one.</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="q" for="triggerDetail">describe it <span class="req">*</span></label>
+        <span class="hint">if it's a dialogue tree, write the branches — what they say, what the player can answer, which answer opens the fight and which one closes the door. write actual lines if you have them; we'll use your words where we can.</span>
+        <textarea id="triggerDetail" name="triggerDetail" maxlength="4000" required style="min-height:9rem"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="q" for="fight">how do they fight</label>
+        <span class="hint">optional but useful. what do they do, what makes them hard, what's the trick to beating them? if there's a way to end the encounter without winning, say so — this game likes those.</span>
+        <textarea id="fight" name="fight" maxlength="2500"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="q" for="defeat">what happens when they lose</label>
+        <span class="hint">optional. do they die, leave, change, hand something over, keep standing there? do they remember it next time?</span>
+        <textarea id="defeat" name="defeat" maxlength="1500"></textarea>
+      </div>
+    </section>
+
+    <!-- credit -->
+    <section class="panel">
+      <h2 class="section-heading">// 05 — you</h2>
+
+      <div class="field">
+        <label class="q" for="credit">how should we credit you</label>
+        <span class="hint">a name or handle for the credits. leave blank to stay anonymous.</span>
+        <input type="text" id="credit" name="credit" maxlength="60" />
+      </div>
+
+      <div class="field">
+        <label class="q" for="notes">anything else</label>
+        <span class="hint">references, a piece of music, a line you want said out loud, or a note to us about the test pass itself.</span>
+        <textarea id="notes" name="notes" maxlength="2000"></textarea>
+      </div>
+    </section>
+
+    <div class="panel submit-area">
+      <p class="hint" style="margin-bottom:1rem">
+        one submission per invite. check it over before you send &mdash; there's no edit button,
+        only us reading it later.
+      </p>
+      <button type="submit" id="submit-btn">submit character</button>
+      <div class="status" id="status"></div>
+    </div>
+  </form>
+</main>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'
+  import {
+    getFirestore, doc, getDoc, collection, addDoc, updateDoc, serverTimestamp,
+  } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js'
+
+  const firebaseConfig = {
+    apiKey:            'AIzaSyBIXL99wK46S2r9DJ01zY5FMi_MN5I87ok',
+    authDomain:        'slopsquest.firebaseapp.com',
+    projectId:         'slopsquest',
+    storageBucket:     'slopsquest.firebasestorage.app',
+    messagingSenderId: '1013907264552',
+    appId:             '1:1013907264552:web:4b6e7c806e2be47462911d',
+  }
+  const db = getFirestore(initializeApp(firebaseConfig))
+
+  const $ = id => document.getElementById(id)
+  const show = id => $(id).classList.remove('hidden')
+  const hide = id => $(id).classList.add('hidden')
+
+  // ── palette preview ────────────────────────────────────────────────────────
+  // Drawn in blocks on purpose: chapter 1's art is all rectangles, so this is an
+  // honest preview of how the four colors will actually meet each other.
+  const PIXELS = [
+    '..0000..',
+    '.000000.',
+    '.033330.',
+    '.032230.',
+    '.000000.',
+    '.011110.',
+    '..0..0..',
+    '.3....3.',
+  ]
+  function drawPreview() {
+    const cv = $('preview'), ctx = cv.getContext('2d')
+    const cols = [$('c1').value, $('c2').value, $('c3').value, $('c4').value]
+    ctx.clearRect(0, 0, cv.width, cv.height)
+    // aura
+    ctx.fillStyle = cols[3] + '33'
+    ctx.fillRect(10, 10, 160, 160)
+    const S = cv.width / PIXELS.length
+    PIXELS.forEach((row, y) => {
+      [...row].forEach((ch, x) => {
+        if (ch === '.') return
+        ctx.fillStyle = cols[{ '0': 0, '1': 1, '2': 2, '3': 3 }[ch]]
+        ctx.fillRect(x * S, y * S, S, S)
+      })
+    })
+  }
+  for (const id of ['c1', 'c2', 'c3', 'c4']) {
+    $(id).addEventListener('input', () => { $(id + 'hex').textContent = $(id).value; drawPreview() })
+  }
+
+  // ── invite gate ────────────────────────────────────────────────────────────
+  const token = new URLSearchParams(location.search).get('t')
+  let inviteRef = null
+
+  async function checkInvite() {
+    if (!token || !/^[A-Za-z0-9_-]{12,64}$/.test(token)) {
+      hide('gate-loading'); show('gate-invalid'); return
+    }
+    try {
+      inviteRef = doc(db, 'alphaInvites', token)
+      const snap = await getDoc(inviteRef)
+      hide('gate-loading')
+      if (!snap.exists()) { show('gate-invalid'); return }
+      const data = snap.data()
+      if (data.used) { show('gate-used'); return }
+      $('invite-email').textContent = data.email || 'an invited tester'
+      show('character-form')
+      drawPreview()
+    } catch (err) {
+      hide('gate-loading'); show('gate-invalid')
+      console.error('invite check failed', err)
+    }
+  }
+
+  // ── submit ─────────────────────────────────────────────────────────────────
+  $('character-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const status = $('status')
+    const required = ['name', 'appearance', 'backstory', 'region', 'place', 'triggerDetail']
+    const missing = required.filter(id => !$(id).value.trim())
+    const trigger = document.querySelector('input[name=trigger]:checked')
+    if (missing.length || !trigger) {
+      status.className = 'status err'
+      status.textContent = 'some required fields are still empty.'
+      const first = missing.length ? $(missing[0]) : document.querySelector('input[name=trigger]')
+      first.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+
+    const btn = $('submit-btn')
+    btn.disabled = true
+    btn.textContent = 'sending…'
+    status.className = 'status'
+    status.textContent = ''
+
+    const payload = {
+      token,
+      submittedAt: serverTimestamp(),
+      name:       $('name').value.trim(),
+      appearance: $('appearance').value.trim(),
+      backstory:  $('backstory').value.trim(),
+      region:     $('region').value,
+      place:      $('place').value.trim(),
+      palette:    ['c1', 'c2', 'c3', 'c4'].map(id => $(id).value),
+      trigger:    trigger.value,
+      triggerDetail: $('triggerDetail').value.trim(),
+      fight:      $('fight').value.trim(),
+      defeat:     $('defeat').value.trim(),
+      credit:     $('credit').value.trim(),
+      notes:      $('notes').value.trim(),
+      status:     'new',      // new | reviewed | building | shipped
+    }
+
+    try {
+      await addDoc(collection(db, 'characterSubmissions'), payload)
+      // Burn the invite only after the character is safely stored, so a failure
+      // here never costs the tester their one submission.
+      await updateDoc(inviteRef, { used: true, usedAt: serverTimestamp() })
+      $('done-name').textContent = `${payload.name} is in.`
+      hide('character-form')
+      show('gate-done')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (err) {
+      console.error('submit failed', err)
+      btn.disabled = false
+      btn.textContent = 'submit character'
+      status.className = 'status err'
+      status.textContent = 'that did not send. check your connection and try again — nothing was lost.'
+    }
+  })
+
+  checkInvite()
+</script>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+rules_version = '2';
+
+// Firestore rules for slopsquest.
+//
+// NOT DEPLOYED AUTOMATICALLY. firebase.json currently declares hosting only, so
+// deploying these is a deliberate step — see docs/alpha-invites.md for the two
+// lines to add and the command to run.
+//
+// The character form is invite-only, and the invite is a document ID that only
+// the invited tester has been sent. These rules make the token do real work
+// rather than trusting the page's own gate, which anyone can bypass.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Alpha invites ──────────────────────────────────────────────────────
+    // Readable only if you already know the token (the document ID is the
+    // secret). Never listable — a query would hand out every unused invite.
+    // Nobody may create or delete one from a client; those are made by hand in
+    // the console. The single legal write is burning an unused invite.
+    match /alphaInvites/{token} {
+      allow get: if true;
+      allow list: if false;
+      allow create, delete: if false;
+      allow update: if resource.data.used == false
+                    && request.resource.data.used == true
+                    && request.resource.data.email == resource.data.email;
+    }
+
+    // ── Character submissions ──────────────────────────────────────────────
+    // One create per unused invite, and only with that invite's token attached.
+    // Never readable from a client: these are other people's creative work, and
+    // they are reviewed in the console, not in the browser.
+    match /characterSubmissions/{id} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.token is string
+                    && exists(/databases/$(database)/documents/alphaInvites/$(request.resource.data.token))
+                    && get(/databases/$(database)/documents/alphaInvites/$(request.resource.data.token)).data.used == false
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 60
+                    && request.resource.data.appearance.size() <= 1200
+                    && request.resource.data.backstory.size() <= 2500
+                    && request.resource.data.triggerDetail.size() <= 4000
+                    && request.resource.data.palette.size() == 4;
+    }
+
+    // ── Playtest feedback ──────────────────────────────────────────────────
+    // Open to submit, never readable from a client.
+    match /playtestResponses/{id} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
+    // ── Cloud saves ────────────────────────────────────────────────────────
+    // A signed-in player owns their own save and nothing else.
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── Chapter 2 sprite animation configs ─────────────────────────────────
+    // Read by the game, written by the dev tools while signed in.
+    match /animConfigs/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}

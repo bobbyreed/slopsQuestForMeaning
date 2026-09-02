@@ -5,3 +5,4 @@ coverage/
 *.local
 .env
 tools/zombie/reports/
+tools/invites/invites-*.json

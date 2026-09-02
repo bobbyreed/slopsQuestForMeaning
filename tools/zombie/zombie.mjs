@@ -138,10 +138,31 @@ const PAGE_HOOK = () => {
       if (typeof s._hp === 'number') { out.hp = s._hp; break }
     }
     // Position, so a report can say whether the client was moving or just
-    // standing in a room pressing buttons.
+    // standing in a room pressing buttons. Not every scene has an avatar —
+    // minigames and the shadow-box do not — so absence is recorded as such
+    // rather than reported as "never moved".
+    out.hasAvatar = false
     for (const s of active) {
       const p = s.slop || s._player
-      if (p && typeof p.x === 'number') { out.pos = [Math.round(p.x), Math.round(p.y)]; break }
+      if (p && typeof p.x === 'number') {
+        out.pos = [Math.round(p.x), Math.round(p.y)]
+        out.hasAvatar = true
+        break
+      }
+    }
+    // Fight and minigame progress. Without these the stall fingerprint is just
+    // the scene key plus a frozen save, so a boss room that never responds to
+    // input looks identical to one being fought.
+    const LIVE = ['_hp', '_authorHp', '_meter', '_breaks', '_won', '_gameActive',
+                  '_phase', '_authorState', '_playerScore', '_priorScore', '_offset']
+    out.live = {}
+    for (const s of active) {
+      for (const f of LIVE) {
+        const v = s[f]
+        if (typeof v === 'number' || typeof v === 'boolean' || typeof v === 'string') {
+          out.live[`${s.sys?.settings?.key}.${f}`] = typeof v === 'number' ? Math.round(v) : v
+        }
+      }
     }
     return out
   }
@@ -273,6 +294,7 @@ async function runSession(browser, opts, index, outDir) {
   const scenesSeen = new Set()
   const dwell = {}                      // scene key -> ms observed
   let moved = false
+  let sawAvatar = false
   let firstPos = null
   // Each session gets its own browser context, so saves never leak between
   // sessions. On top of that, unless --resume, wipe both of the game's
@@ -312,9 +334,22 @@ async function runSession(browser, opts, index, outDir) {
     const state = PRESETS[opts.state || 'full'] || {}
     await sleep(1200)
     await page.evaluate(({ key, st }) => {
-      window.__SLOP_GAME__.scene.start(key, { slopState: st, playerHealth: 100 })
+      const game = window.__SLOP_GAME__
+      // scene.start() on the manager does NOT stop the scenes already running.
+      // Left alone, MenuScene stays up with its DOM terminal focused and every
+      // keystroke lands in a text input instead of the game — which is how a
+      // whole sweep can look busy while testing nothing.
+      for (const k of ['MenuScene', 'TitleScene', 'BootScene', 'PauseScene']) {
+        try { game.scene.stop(k) } catch (_) { /* not running */ }
+      }
+      document.getElementById('slop-terminal')?.remove()
+      document.querySelectorAll('#slop-input').forEach(el => el.remove())
+      try { document.activeElement?.blur?.() } catch (_) { /* fine */ }
+      game.scene.start(key, { slopState: st, playerHealth: 100 })
     }, { key: opts.scene, st: state })
     await sleep(1200)
+    // Focus the canvas so keyboard events reach Phaser.
+    await page.locator('canvas').first().click({ position: { x: 400, y: 500 }, force: true }).catch(() => {})
   } else {
     // Bootstrap past the front door. The title wants any key, and the menu is a
     // focused DOM terminal that swallows keystrokes — random mashing will never
@@ -367,6 +402,8 @@ async function runSession(browser, opts, index, outDir) {
   const deadline = Date.now() + opts.duration * 1000
   let lastFingerprint = ''
   let lastChange = Date.now()
+  let posMovedSinceStall = false
+  let stallAnchorPos = null
   const held = new Set()
 
   // Movement runs on "intents": pick a direction, lean on it for a beat, then
@@ -420,9 +457,13 @@ async function runSession(browser, opts, index, outDir) {
     if (!sample) continue
 
     sample.scenes.forEach(s => { scenesSeen.add(s); dwell[s] = (dwell[s] || 0) + 120 })
+    if (sample.hasAvatar) sawAvatar = true
     if (sample.pos) {
       firstPos ??= sample.pos
       if (Math.abs(sample.pos[0] - firstPos[0]) > 24 || Math.abs(sample.pos[1] - firstPos[1]) > 24) moved = true
+      stallAnchorPos ??= sample.pos
+      if (Math.abs(sample.pos[0] - stallAnchorPos[0]) > 24 ||
+          Math.abs(sample.pos[1] - stallAnchorPos[1]) > 24) posMovedSinceStall = true
     }
 
     // Enter opens the pause menu, and its terminal eats keystrokes. A player
@@ -453,15 +494,34 @@ async function runSession(browser, opts, index, outDir) {
       sample.state ? Object.entries(sample.state)
         .filter(([, v]) => typeof v === 'boolean' || typeof v === 'number')
         .map(([k, v]) => `${k}:${v}`) : [],
+      sample.live || {},
     ])
     if (fingerprint !== lastFingerprint) {
       lastFingerprint = fingerprint
       lastChange = Date.now()
+      posMovedSinceStall = false
+      stallAnchorPos = sample.pos || null
     } else if (Date.now() - lastChange > opts.stall * 1000) {
-      await record('soft-lock',
-        `no scene or state change for ${opts.stall}s of continuous input in ${sample.scenes.join(' + ') || '(no active scene)'}`,
+      // Two very different things look the same from here, so separate them.
+      //
+      // If the avatar is moving, the scene is alive and the client simply has
+      // not stumbled onto the exit — normal for random input, and not a bug.
+      // That is still worth knowing: a room a mindless player cannot leave in
+      // half a minute is a room that may want a clearer way out, so it is
+      // reported as polish rather than breakage.
+      //
+      // If nothing moves at all — no scene, no flags, no position — then the
+      // room is not responding, which is the real soft-lock and the shape of
+      // the Render-room bug.
+      const alive = posMovedSinceStall
+      await record(alive ? 'no-exit-found' : 'soft-lock',
+        alive
+          ? `${opts.stall}s of input in ${sample.scenes.join(' + ')} moved the player around but never changed scene or state — the way out may be unclear`
+          : `nothing responded for ${opts.stall}s of continuous input in ${sample.scenes.join(' + ') || '(no active scene)'} — no scene change, no state change, no movement`,
         { scenes: sample.scenes, state: sample.state })
       lastChange = Date.now()   // keep going; report once per stall window
+      posMovedSinceStall = false
+      stallAnchorPos = sample.pos || null
     }
   }
 
@@ -472,7 +532,7 @@ async function runSession(browser, opts, index, outDir) {
   }
 
   await context.close()
-  return { seed, findings, scenesSeen: [...scenesSeen].sort(), dwell, moved, label }
+  return { seed, findings, scenesSeen: [...scenesSeen].sort(), dwell, moved, sawAvatar, label }
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────
@@ -539,8 +599,13 @@ function buildSummary(opts, results, ms, outDir) {
   lines.push(`mode: ${opts.sweep ? 'sweep' : opts.scene ? `${opts.scene}/${opts.state || 'full'}` : 'menu'}` +
              ` | ${opts.resume ? 'resumed save' : 'cold start'} | base seed ${opts.seed}`)
 
-  const idle = results.filter(r => !r.moved && !r.findings.some(f => f.id === 'bootstrap-failed'))
-  if (idle.length) lines.push(`note: ${idle.length} run(s) never moved the player — ${idle.map(r => r.label).join(', ')}`)
+  // Only meaningful where there was an avatar to move; minigames and the
+  // shadow-box have none, and calling those "never moved" is noise.
+  const idle = results.filter(r => r.sawAvatar && !r.moved &&
+    !r.findings.some(f => f.id === 'bootstrap-failed'))
+  if (idle.length) lines.push(`WARN: ${idle.length} run(s) had a player that never moved — ${idle.map(r => r.label).join(', ')}`)
+  const noAvatar = results.filter(r => !r.sawAvatar)
+  if (noAvatar.length) lines.push(`(${noAvatar.length} run(s) have no walking avatar to track: ${noAvatar.map(r => r.label).join(', ')})`)
 
   if (!all.length) {
     lines.push('')
@@ -564,6 +629,11 @@ function buildSummary(opts, results, ms, outDir) {
 async function main() {
   const opts = parseArgs(process.argv.slice(2))
   if (opts.help) { console.log(HELP); return 0 }
+
+  // A stall window as long as the run itself can never trip. Keep it under the
+  // duration so short sweeps can still report a frozen scene.
+  const maxStall = Math.max(6, Math.floor(opts.duration * 0.6))
+  if (opts.stall > maxStall) opts.stall = maxStall
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
   const outDir = opts.out || join(ROOT, 'tools', 'zombie', 'reports', stamp)
