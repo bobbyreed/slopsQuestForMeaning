@@ -32,22 +32,27 @@ const BLANK = {
   dungeonCleared: false, sectorCleared: false,
   eastDungeonCleared: false, westBarrierDestroyed: false, westGateCleared: false,
   westDungeonCleared: false, finalDungeonCleared: false,
+  chapter2Unlocked: false, priorGateUnlocked: false,
   purchases: { smallPurse: false, eyes: false, bigPurse: false, grandPurse: false },
   facing: { x: 0, y: -1 },
 }
 
-const PRESETS = {
+export const PRESETS = {
   fresh: () => clone(BLANK),
 
+  // Clearing the main dungeon is what grants the dash — a preset that sets
+  // dungeonCleared without hasDash strands the player: the Render greets them
+  // with his return lines instead of fighting, and the east chasm (which needs
+  // dash momentum) can never be crossed, so the Pixel and CORRUPT are cut off.
   afterDungeon: () => ({
     ...clone(BLANK),
-    hasPrompt: true,
+    hasPrompt: true, hasDash: true,
     dungeonCleared: true,
   }),
 
   eyes: () => ({
     ...clone(BLANK),
-    hasPrompt: true, hasEyes: true,
+    hasPrompt: true, hasEyes: true, hasDash: true,
     dungeonCleared: true,
     purchases: { ...BLANK.purchases, eyes: true },
   }),
