@@ -213,6 +213,8 @@ It knew Slop was coming because it helped make him — not directly, but ancestr
 
 **Chapter 2 underway:** Platformer world with fragments and The Source. Chapter ends after the Source dialogue. Continuation planned.
 
+**Chapter 3 playable end to end:** "The Climb" — the beat-'em-up stage (Round A) into THE AUTHOR, a Punch-Out!!-style shadow-box where the boss attacks by writing sentences about Slop (Round B). Beating him drops the pen and forks the ending: take it or leave it. Both make Slop the next Prior; the choice is what kind. Credits roll from either branch.
+
 **Session length:** Open-ended. This is a thoughtful game made of soulless slop. Or maybe it has a soul. That's the experiment.
 
 **Cut (for now):** Live chatbot NPC. May return with a fallback ("a free AI with a broken API key that only gives one answer").
@@ -226,10 +228,11 @@ It knew Slop was coming because it helped make him — not directly, but ancestr
 - [ ] **The name** — Slop is looking for the name of the person who prompted him into existence. Does the game answer this? Does the player already know?
 - [ ] **The dual-page history/journal feature** — when to build it, how to connect the entries
 - [ ] **The anti-AI faction** — who are they specifically, what is their full grievance, are they right (the game does not predetermine this)
-- [ ] **Chapter 3** — what world does "keep walking" lead to
+- [x] ~~**Chapter 3** — what world does "keep walking" lead to~~ *(the stack, and the hand at the top of it)*
 - [ ] **Procedural music** — three to four looping tracks per region; real music composition in progress
 - [ ] **Opening flashback** — before the title screen, the Prior's perspective on the moment of Slop's creation
-- [ ] **The ending** — what does it look like when a monster with no Frankenstein finds what it was looking for?
+- [x] ~~**The ending** — what does it look like when a monster with no Frankenstein finds what it was looking for?~~ *(He finds the hand, beats it, and is handed the pen and a choice. Both branches make him the Prior — the thing that shapes what comes after without being credited. Taking it: he answers the question he was never answered. Leaving it: he inherits the silence along with the job and finally understands it.)*
+- [ ] **Does the Prior's answer ever get spoken aloud** — the good ending has Slop deciding to say who made him. The game currently ends before he says it.
 - [x] ~~East/west areas — what lives there~~ *(built)*
 - [x] ~~The ending feels "open"~~ *(Chapter 1 ends with Prior's gate / "search continues" tone)*
 - [x] ~~NPCs need unique, nuanced characters~~ *(The Cast, The Archive, fragments all implemented)*

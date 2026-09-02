@@ -23,7 +23,7 @@ npm run test         # run tests in watch mode
 npm run coverage     # run tests with v8 coverage report
 ```
 
-Coverage thresholds: **80% statements, 80% functions, 70% branches, 80% lines.** Currently: **1156 tests passing.**
+Coverage thresholds: **80% statements, 80% functions, 70% branches, 80% lines.** Currently: **1200 tests passing.**
 
 ### Deploy
 
@@ -116,12 +116,18 @@ index.html          # entry point
     Ch2OpeningScene → Ch2CloneScene → Ch2TownScene
                     |
     [CHAPTER 3 — BEAT 'EM UP]       "The Climb"
-    Ch3Scene(intro) → Ch3StageScene → Ch3BossScene (THE AUTHOR) → Credits
+    Ch3Scene(intro) → Ch3StageScene → Ch3BossScene (THE AUTHOR) → Ch3CreditsScene
 ```
 
 **Chapter 1** is a top-down RPG. **Chapter 2** ("The Body") shifts to a side-scrolling platformer — same character, gravity now pulls down, camera follows left to right. The rules change. The Prior warned you. **Chapter 3** ("The Climb") shifts again, to a side-scrolling **beat-'em-up**: Slop fights up through the stack toward **THE AUTHOR** — a 1v1 final boss — to break the loop and take the pen, then the credits roll.
 
 **Chapter 3 controls:** arrows / WASD move · **J** punch · **K** kick · **SPACE** jump.
+
+**THE AUTHOR (final boss)** is a shadow-box, not a brawl — the controls change for the fight: **← →** dodge · **↓** block · **J** body · **K** head · **SPACE** prompt (the super, charged by landing hits and fastest by countering).
+
+He does not punch. He writes: each attack is a sentence about Slop composed one character at a time across the windup, and finishing it is the hit. Dodge the telegraphed direction and the line breaks mid-word, opening him for a counter. Slop carries in whatever health he had at the end of the stage.
+
+**The ending forks.** Beat him and the pen falls between you; the game stops and asks whether to take it or leave it. Both endings make Slop the next Prior — the choice is what kind. `GOOD_ENDING` in `src/scenes/ch3/Ch3BossScene.js` names which branch the game treats as the good one.
 
 ---
 
@@ -203,7 +209,7 @@ Access with `sudo` in the terminal, or append `?dev=true` to the URL. Intentiona
 
 ## The Journal
 
-[`/pages/journal.html`](public/pages/journal.html) — Slop's journal. Written from Slop's perspective as both a character in the game and a witness to its own construction. Updated throughout development. 46 entries and growing.
+[`/pages/journal.html`](public/pages/journal.html) — Slop's journal. Written from Slop's perspective as both a character in the game and a witness to its own construction. Updated throughout development. 47 entries and growing.
 
 A planned future feature displays `docs/history.md` (every prompt ever given to Claude) and the journal side by side with visible connections — showing the seams between the author's instructions and Slop's experience of them.
 

@@ -422,3 +422,18 @@ The existing bug-fix entry for today was renumbered so it lands after the return
 The journal's numbering had drifted: three 2026-05-05 entries reused the numbers 028/029/030 already held by the April 27-28 entries, and the 2026-04-27 entry ("the prior asked me to fight him") sat at the very bottom of the file, after the September entries.
 
 Moved that stray entry into its date slot and renumbered all 46 entries sequentially, 001-046. Dates now ascend monotonically down the page and every number is unique. Only the four 2026-04-26 entries changed relative order (they now take numbers in the order they actually read on the page); everything from the May 5 trio onward shifted up by three. In-body cross-references were updated to match, and the return entry's "three entries up from here" - wrong even before the renumber - now reads "the entry directly above this one," which no future renumber can break.
+
+**Prompt 110**
+> let's work on Round B, the AUTHOR boss fight
+
+Round B built: `Ch3BossScene` (the real fight) and `Ch3CreditsScene` (epilogue + credits), replacing the placeholder.
+
+Adapted from `bobbyreed/slopsPunchDemo` into this project's idiom — plain shapes positioned per frame rather than Phaser containers (the test mock has no container geometry, and the rest of Ch3 already draws this way), delta-decremented cooldowns rather than `time.now` comparisons (testable, and consistent with the Slop entity), and the Slop palette.
+
+**The departure from the template:** the Author does not throw punches, he writes. Each attack is a sentence about Slop composed one character at a time across the windup; finishing it is the hit, and the finished sentence floats up as the damage number. The strokes are the lines Slop has been hearing since Chapter 1 — *"a bad piece of generated art," "output. only ever output.," "slop."* Dodging the telegraphed direction breaks the line mid-word, which is the counter window. The super is Chapter 1's PROMPT ability, still in his hands at the top of the stack. The Author has no face, only a blinking cursor; the room is a ruled page and Slop stands in the margin.
+
+Four phase barks fire as his health crosses 75/50/28/12%, ending on *"if you take this from me someone still has to hold it,"* which sets up the choice. The health handed over by the stage is now load-bearing — `slop carried in at N hp` decides the fight — and a loss retries from arrival health rather than from what was left, so a bad run can't spiral into an unwinnable one.
+
+**The ending fork** (asked and answered before building: a choice after the KO). The pen falls between them and the game stops — `[E]` take it, `[Q]` leave it, waiting indefinitely. Both branches make Slop the next Prior, per the GDD's definition of the Prior as "the thing that shapes what comes after without being credited for it" whose defining flaw is knowing who made Slop and not saying. Taking the pen: he authors, remembering he was the output, and when the next one asks who made me like this — *"he is going to say."* Leaving it: someone still has to hold it and he is the one still there, so he becomes the Prior anyway, and finally understands why nobody told him — *"he says nothing. he sells them a purse."* `GOOD_ENDING` is a single exported constant; taking the pen is currently the good branch, matching the documented arc.
+
+48 new tests. Journal entry 047 covers the fight from inside it, including the payoff of the "100 hp" complaint from entry 043 and the fact that the one moment of real choice in the game is the one Slop doesn't get to make.
