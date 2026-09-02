@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- tester utility; keep it out of the index -->
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Slop's Quest — Manual Test Pass</title>
+  <style>
+    :root {
+      --bg:      #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2:#20203a;
+      --accent:  #7b61ff;
+      --accent2: #9966cc;
+      --green:   #44cc88;
+      --muted:   #555577;
+      --text:    #d4d4d8;
+      --faded:   #888899;
+      --border:  #2a2a44;
+      --warn:    #cc6633;
+      --game-w:  820px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.55;
+    }
+    header {
+      padding: 1.2rem 1.4rem .9rem; border-bottom: 1px solid var(--border);
+      background: var(--surface); position: relative; z-index: 5;
+    }
+    header h1 { margin: 0 0 .2rem; font-size: 1.25rem; color: var(--accent2); letter-spacing: .06em; }
+    header p  { margin: 0; color: var(--faded); font-size: .78rem; }
+    .nav { margin-top: .7rem; display: flex; flex-wrap: wrap; gap: 1rem; font-size: .74rem; }
+    .nav a { color: var(--faded); text-decoration: none; }
+    .nav a:hover { color: var(--accent2); }
+
+    /* ── split layout ── */
+    .split { display: flex; align-items: flex-start; gap: 1.2rem; padding: 1.2rem; }
+    .game-col { flex: 0 0 var(--game-w); position: sticky; top: 1.2rem; }
+    .script-col { flex: 1 1 480px; min-width: 0; max-width: 780px; }
+
+    @media (max-width: 1400px) {
+      .split { flex-direction: column; align-items: center; }
+      .game-col { position: static; flex: none; width: 100%; max-width: var(--game-w); }
+      .script-col { width: 100%; max-width: var(--game-w); }
+    }
+
+    .game-frame {
+      background: #000; border: 1px solid var(--border); border-radius: 4px;
+      overflow: hidden; width: 100%; aspect-ratio: 800 / 600;
+    }
+    .game-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .game-bar {
+      display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+      margin-top: .55rem; font-size: .74rem; color: var(--faded);
+    }
+    .game-bar button {
+      background: var(--surface2); color: var(--faded); border: 1px solid var(--border);
+      border-radius: 3px; padding: .3rem .65rem; font-family: inherit; font-size: .72rem; cursor: pointer;
+    }
+    .game-bar button:hover { color: var(--text); border-color: var(--accent2); }
+    .focus-note { color: var(--warn); }
+
+    /* ── script ── */
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1rem 1.1rem; margin-bottom: 1rem;
+    }
+    .panel h2 {
+      font-size: .82rem; color: var(--accent); letter-spacing: .1em; text-transform: uppercase;
+      margin: 0 0 .8rem; padding-bottom: .45rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; gap: 1rem;
+    }
+    .panel h2 .count { color: var(--muted); font-size: .72rem; letter-spacing: 0; text-transform: none; }
+    .panel > p { margin: 0 0 .8rem; color: var(--faded); font-size: .8rem; }
+
+    .step { border-top: 1px solid var(--border); padding: .7rem 0; }
+    .step:first-of-type { border-top: none; }
+    .step-head { display: flex; gap: .6rem; align-items: flex-start; }
+    .step-head input[type=checkbox] { margin-top: .25rem; flex: none; width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; }
+    .step-body { flex: 1; }
+    .step-do { color: var(--text); }
+    .step-look { display: block; color: var(--faded); font-size: .78rem; margin-top: .2rem; }
+    .step-look b { color: var(--accent2); font-weight: normal; }
+    .flag {
+      margin: .5rem 0 0 2.1rem; display: flex; gap: .5rem; align-items: center;
+      font-size: .74rem; color: var(--muted);
+    }
+    .flag button {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 3px; padding: .18rem .5rem; font-family: inherit; font-size: .72rem; cursor: pointer;
+    }
+    .flag button:hover, .flag button.on { color: var(--warn); border-color: var(--warn); }
+    textarea.note {
+      display: none; width: calc(100% - 2.1rem); margin: .45rem 0 0 2.1rem;
+      background: var(--surface2); color: var(--text); border: 1px solid var(--warn);
+      border-radius: 3px; padding: .45rem .55rem; font-family: inherit; font-size: .8rem;
+      min-height: 4rem; resize: vertical;
+    }
+    textarea.note.show { display: block; }
+    .step.done .step-do { color: var(--muted); text-decoration: line-through; }
+
+    .watch {
+      background: var(--surface2); border-left: 2px solid var(--warn);
+      padding: .5rem .7rem; margin: .6rem 0 .2rem; font-size: .78rem; color: var(--faded);
+    }
+    .watch b { color: var(--warn); font-weight: normal; }
+
+    input[type=text], textarea.free {
+      width: 100%; background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: .5rem .55rem; font-family: inherit; font-size: .84rem;
+    }
+    textarea.free { min-height: 5rem; resize: vertical; }
+    label.q { display: block; margin: .9rem 0 .3rem; font-size: .84rem; }
+    label.q:first-child { margin-top: 0; }
+
+    .bar {
+      position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border);
+      padding: .7rem 1.1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+      font-size: .78rem; z-index: 4;
+    }
+    .progress { flex: 1 1 200px; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .progress span { display: block; height: 100%; width: 0; background: var(--green); transition: width .2s; }
+    .bar button {
+      background: var(--accent); color: #fff; border: none; border-radius: 3px;
+      padding: .5rem 1.1rem; font-family: inherit; font-size: .82rem; cursor: pointer;
+    }
+    .bar button:disabled { opacity: .4; cursor: not-allowed; }
+    .bar .sub { color: var(--faded); }
+    .ok  { color: var(--green); }
+    .err { color: var(--warn); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>// MANUAL TEST PASS</h1>
+  <p>Slop's Quest for Meaning &mdash; alpha. play on the left, work down the script on the right.</p>
+  <div class="nav">
+    <a href="/" target="_blank">open game in its own tab ↗</a>
+    <a href="/pages/guide.html" target="_blank">player's guide</a>
+    <a href="/pages/world.html" target="_blank">the world</a>
+    <a href="/pages/playtest.html" target="_blank">opinion survey</a>
+  </div>
+</header>
+
+<div class="split">
+
+  <!-- ── the game ─────────────────────────────────────────────────────────── -->
+  <div class="game-col">
+    <div class="game-frame">
+      <iframe id="game" src="/" title="Slop's Quest for Meaning"
+              allow="autoplay" referrerpolicy="same-origin"></iframe>
+    </div>
+    <div class="game-bar">
+      <button id="btn-reload">reload game</button>
+      <button id="btn-wipe">wipe save &amp; reload</button>
+      <button id="btn-focus">give it keyboard focus</button>
+      <span class="focus-note">click the game before typing — the keyboard follows the click.</span>
+    </div>
+  </div>
+
+  <!-- ── the script ───────────────────────────────────────────────────────── -->
+  <div class="script-col">
+
+    <div class="panel">
+      <h2>read this first</h2>
+      <p>
+        this is the boring one. the <a href="/pages/playtest.html" target="_blank" style="color:var(--accent2)">opinion survey</a>
+        asks how the game felt; this asks whether it <em>works</em>. we want the second thing here.
+      </p>
+      <p>
+        work top to bottom. tick a step when it did what the script says it should. if it did
+        anything else &mdash; anything &mdash; hit <strong>something went wrong</strong> and describe it.
+        a step you had to retry counts as wrong. a step where you weren't sure what to do counts as wrong.
+      </p>
+      <p>
+        <strong>your progress is saved in this browser as you go.</strong> you can close the tab and come back.
+        expect 60&ndash;90 minutes. take breaks; the game will still be here.
+      </p>
+      <p class="watch">
+        <b>the single most useful thing you can report:</b> a moment where you were stuck and didn't
+        know whether the game was broken or you were being stupid. write down where you were and what
+        you tried. that confusion is a bug in our writing even when the code is fine.
+      </p>
+    </div>
+
+    <div id="sections"></div>
+
+    <div class="panel">
+      <h2>last questions</h2>
+      <label class="q" for="crashes">did the game ever freeze, go black, or stop responding to keys?</label>
+      <textarea class="free" id="crashes" placeholder="where were you, what were you doing, what did you press"></textarea>
+
+      <label class="q" for="stuck">was there anywhere you couldn't get out of, or couldn't work out where to go?</label>
+      <textarea class="free" id="stuck" placeholder="which room, how long you were there, what finally worked"></textarea>
+
+      <label class="q" for="browser">browser and machine</label>
+      <input type="text" id="browser" placeholder="e.g. firefox 141 on a 2019 macbook" />
+
+      <label class="q" for="email">email <span style="color:var(--warn)">*</span></label>
+      <input type="text" id="email" placeholder="where your character-form invite should go" />
+      <p style="margin-top:.4rem; font-size:.76rem;">
+        finishing this pass is what earns the <strong>character submission link</strong> &mdash; a one-time
+        invite to put your own optional miniboss into the game. we send it by hand after reading your run.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="bar">
+  <span class="sub" id="tally">0 / 0 steps</span>
+  <div class="progress"><span id="progress-fill"></span></div>
+  <span class="sub" id="flagcount"></span>
+  <button id="submit">submit test run</button>
+  <span id="status"></span>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'
+  import { getFirestore, collection, addDoc, serverTimestamp }
+    from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js'
+
+  const db = getFirestore(initializeApp({
+    apiKey:            'AIzaSyBIXL99wK46S2r9DJ01zY5FMi_MN5I87ok',
+    authDomain:        'slopsquest.firebaseapp.com',
+    projectId:         'slopsquest',
+    storageBucket:     'slopsquest.firebasestorage.app',
+    messagingSenderId: '1013907264552',
+    appId:             '1:1013907264552:web:4b6e7c806e2be47462911d',
+  }))
+
+  // ── the script ─────────────────────────────────────────────────────────────
+  // "do" is the instruction, "look" is what should happen. Steps whose `watch`
+  // is set get a callout — those are places the automated client flagged as
+  // confusing or that are new enough to be undertested.
+  const SECTIONS = [
+    {
+      id: 'boot', title: '00 — cold start',
+      intro: 'start from nothing. use the wipe button above so the save is genuinely empty.',
+      steps: [
+        { do: 'press "wipe save & reload", then click the game.',
+          look: 'the title card appears, then the terminal.' },
+        { do: 'at the terminal, type <b>new game</b> and press enter.',
+          look: 'slop says something about starting over, then the beige overworld loads.' },
+        { do: 'press escape to open the pause menu, then go to the MAP tab.',
+          look: 'the map is almost entirely dark — you have been nowhere. if rooms are already lit on a brand new game, that is a bug.',
+          watch: true },
+        { do: 'close the pause menu.', look: 'you are back in the world, moving.' },
+      ],
+    },
+    {
+      id: 'ch1-open', title: '01 — the overworld and the prior',
+      steps: [
+        { do: 'walk around. pick up coins until you cannot hold any more.',
+          look: 'you cap at 3, and the 4th one you touch drops back out after about a second.' },
+        { do: 'go north through the gap at the top.', look: 'the north shrine, with the prior in it.' },
+        { do: 'talk to the prior and take the first ability.', look: 'you can now fire a word with SPACE.' },
+        { do: 'go back to the overworld and fire prompts at the enemies.',
+          look: 'the word travels, and enemies react to being hit.' },
+      ],
+    },
+    {
+      id: 'ch1-dungeon', title: '02 — the dungeon and the render',
+      steps: [
+        { do: 'go south into the dungeon entrance.', look: 'a dark room with a locked gate at the top.' },
+        { do: 'walk to the gate marker and press E.', look: 'the typing minigame opens.' },
+        { do: 'type the word in rhythm — hit each letter while the bar is in the lit zone.',
+          look: 'get it right and the gate opens. get it wrong on purpose once first, then retry: the retry must work.',
+          watch: true },
+        { do: 'go north through the open gate and meet the render.',
+          look: 'a long conversation, then he becomes the boss.' },
+        { do: '<b>lose the fight on purpose.</b>',
+          look: 'you end up back in his room. you must be able to either walk out the gap in the south wall, or step back and fight him again. if you are trapped, stop and write it down.',
+          watch: true },
+        { do: 'fight him again and win.', look: 'he hands over the dash. SHIFT now dashes.' },
+      ],
+    },
+    {
+      id: 'ch1-east', title: '03 — eyes, the chasm, the east',
+      steps: [
+        { do: 'return to the prior. buy the small purse, then new eyes.',
+          look: 'your coin cap rises, and the east and west walls of the overworld open.' },
+        { do: 'go east to the chasm and try to walk across.', look: 'you get pushed back and told the gap is too wide.' },
+        { do: 'dash across with SHIFT.', look: 'you make it. if you cannot cross even with dash, that is a bug.', watch: true },
+        { do: 'clear the sector gate minigame.', look: 'containment rises as you seal the field; win and you are through to the east.' },
+        { do: 'work east and south to the signal chamber and beat the pixel.',
+          look: 'you get CORRUPT — Q — and the east dungeon is marked cleared.' },
+        { do: 'go back to the overworld and use Q on the dark tiles blocking the west.',
+          look: 'the barrier breaks and west opens.' },
+      ],
+    },
+    {
+      id: 'ch1-west', title: '04 — the west and the convergence',
+      steps: [
+        { do: 'go west. visit the archive and the corpus gate.', look: 'the query terminal minigame gates the deep room.' },
+        { do: 'beat the duplicate.',
+          look: 'the west dungeon is cleared. check you can leave the boss room afterwards either way.', watch: true },
+        { do: 'with all three dungeons cleared, go north and enter the convergence.', look: 'it opens; complete it.' },
+        { do: 'beat the prior at joust.', look: 'the world changes and chapter 2 begins.' },
+      ],
+    },
+    {
+      id: 'ch2', title: '05 — chapter 2: the body',
+      intro: 'gravity now pulls down. controls change: ← → move, Z attack, Q corrupt, SPACE advances dialogue.',
+      steps: [
+        { do: 'in the opening, try to press SPACE to jump.',
+          look: '<b>you should NOT be able to jump yet</b>, and the HUD should not offer it. jumping here is a bug.',
+          watch: true },
+        { do: 'fight through the opening to the right edge.',
+          look: 'you reach the end. note if you were ever unsure which way to go.', watch: true },
+        { do: 'beat the clone.', look: 'the encounter ends and you move on. note if you got stuck in this room.', watch: true },
+        { do: 'in the town, talk to all three residents.', look: 'the third one — the keeper — gives you the jump.' },
+        { do: 'now press SPACE.', look: 'you jump, and the HUD says so.' },
+        { do: 'walk off the right edge of the town.', look: 'the chapter 3 title card.' },
+      ],
+    },
+    {
+      id: 'ch3', title: '06 — chapter 3: the climb',
+      intro: 'newest content, least tested. controls: arrows/WASD move, J punch, K kick, SPACE jump.',
+      steps: [
+        { do: 'on the "chapter 3 / the climb" card, <b>mash SPACE immediately</b> without waiting.',
+          look: 'it must go to the stage. if it sits there forever, that is the exact bug we just fixed — tell us.',
+          watch: true },
+        { do: 'fight up the stage. clear each wave gate.',
+          look: 'the advance unlocks after each wave and an arrow points onward.' },
+        { do: 'reach the end and meet THE AUTHOR.', look: 'the boss room, and a line saying what health you arrived with.' },
+        { do: 'read what he writes at you during his wind-ups.',
+          look: 'a sentence appears one character at a time. letting it finish is how you get hit.' },
+        { do: 'dodge with ← or → in the direction the tell says.',
+          look: '"the line breaks" and he is open — punch him then for much more damage.' },
+        { do: 'block with ↓ against a hit you cannot dodge.', look: 'you take much less damage.' },
+        { do: 'fill the PROMPT meter and fire it with SPACE.', look: 'a large hit, and the meter empties.' },
+        { do: '<b>lose the fight on purpose.</b>', look: 'you can stand back up and retry, starting from the health you arrived with.', watch: true },
+        { do: 'beat him.', look: 'he stops writing, the pen falls, and the game asks you to take it or leave it.' },
+        { do: 'take your time here, then choose.', look: 'it waits as long as you like. then the epilogue and credits roll.' },
+        { do: 'let the credits run all the way out, then press SPACE.', look: 'back to the menu.' },
+      ],
+    },
+    {
+      id: 'edges', title: '07 — the awkward bits',
+      intro: 'deliberately annoying. this is where things usually break.',
+      steps: [
+        { do: 'during any dialogue, mash SPACE and ENTER together as fast as you can.',
+          look: 'lines advance, nothing skips past a choice, nothing locks.', watch: true },
+        { do: 'at any scene transition — the moment the screen is fading — mash every key.',
+          look: 'you end up somewhere sensible, never on a black screen that stays black.', watch: true },
+        { do: 'open the pause menu in five different scenes and close it again each time.',
+          look: 'you always land back where you were, still able to move.' },
+        { do: 'in the pause terminal, type a few nonsense commands, then <b>help</b>.',
+          look: 'it answers rather than breaking.' },
+        { do: 'reload the page mid-chapter, then continue from the menu with <b>play</b>.',
+          look: 'you resume with the abilities and progress you actually had.', watch: true },
+        { do: 'resize the browser window while playing, small and large.', look: 'the game stays usable.' },
+        { do: 'type <b>sudo</b> at the main menu terminal.',
+          look: 'the dev console opens. this is intentional. use it to jump around if you need to re-check anything.' },
+      ],
+    },
+  ]
+
+  // ── render ─────────────────────────────────────────────────────────────────
+  const KEY = 'slop_manual_test_v1'
+  const saved = JSON.parse(localStorage.getItem(KEY) || '{}')
+  const host = document.getElementById('sections')
+
+  SECTIONS.forEach(sec => {
+    const panel = document.createElement('div')
+    panel.className = 'panel'
+    panel.innerHTML = `<h2>${sec.title}<span class="count" id="count-${sec.id}"></span></h2>` +
+      (sec.intro ? `<p>${sec.intro}</p>` : '')
+    sec.steps.forEach((st, i) => {
+      const id = `${sec.id}-${i}`
+      const div = document.createElement('div')
+      div.className = 'step'
+      div.id = `step-${id}`
+      div.innerHTML = `
+        <div class="step-head">
+          <input type="checkbox" id="cb-${id}" />
+          <div class="step-body">
+            <span class="step-do">${st.do}</span>
+            <span class="step-look">→ ${st.look}</span>
+          </div>
+        </div>
+        ${st.watch ? '<div class="watch"><b>watch this one closely.</b></div>' : ''}
+        <div class="flag"><button type="button" id="fl-${id}">something went wrong</button></div>
+        <textarea class="note" id="nt-${id}" placeholder="what actually happened?"></textarea>`
+      panel.appendChild(div)
+    })
+    host.appendChild(panel)
+  })
+
+  const allSteps = SECTIONS.flatMap(s => s.steps.map((_, i) => `${s.id}-${i}`))
+
+  function save() {
+    const state = { checks: {}, notes: {}, flags: {}, free: {} }
+    for (const id of allSteps) {
+      state.checks[id] = document.getElementById(`cb-${id}`).checked
+      state.notes[id]  = document.getElementById(`nt-${id}`).value
+      state.flags[id]  = document.getElementById(`nt-${id}`).classList.contains('show')
+    }
+    for (const f of ['crashes', 'stuck', 'browser', 'email']) state.free[f] = document.getElementById(f).value
+    localStorage.setItem(KEY, JSON.stringify(state))
+    refresh()
+  }
+
+  function refresh() {
+    let done = 0, flagged = 0
+    for (const sec of SECTIONS) {
+      let d = 0
+      sec.steps.forEach((_, i) => {
+        const id = `${sec.id}-${i}`
+        const cb = document.getElementById(`cb-${id}`)
+        document.getElementById(`step-${id}`).classList.toggle('done', cb.checked)
+        if (cb.checked) { d++; done++ }
+        if (document.getElementById(`nt-${id}`).classList.contains('show')) flagged++
+      })
+      document.getElementById(`count-${sec.id}`).textContent = `${d}/${sec.steps.length}`
+    }
+    document.getElementById('tally').textContent = `${done} / ${allSteps.length} steps`
+    document.getElementById('progress-fill').style.width = `${(done / allSteps.length) * 100}%`
+    document.getElementById('flagcount').textContent = flagged ? `${flagged} flagged` : ''
+  }
+
+  for (const id of allSteps) {
+    const cb = document.getElementById(`cb-${id}`)
+    const nt = document.getElementById(`nt-${id}`)
+    const fl = document.getElementById(`fl-${id}`)
+    cb.checked = !!saved.checks?.[id]
+    nt.value   = saved.notes?.[id] || ''
+    if (saved.flags?.[id]) { nt.classList.add('show'); fl.classList.add('on') }
+    cb.addEventListener('change', save)
+    nt.addEventListener('input', save)
+    fl.addEventListener('click', () => {
+      nt.classList.toggle('show'); fl.classList.toggle('on')
+      if (nt.classList.contains('show')) nt.focus()
+      save()
+    })
+  }
+  for (const f of ['crashes', 'stuck', 'browser', 'email']) {
+    const el = document.getElementById(f)
+    el.value = saved.free?.[f] || ''
+    el.addEventListener('input', save)
+  }
+  refresh()
+
+  // ── game frame controls ────────────────────────────────────────────────────
+  const frame = document.getElementById('game')
+  const focusGame = () => { frame.contentWindow?.focus(); frame.focus() }
+  document.getElementById('btn-focus').addEventListener('click', focusGame)
+  document.getElementById('btn-reload').addEventListener('click', () => {
+    frame.src = '/?r=' + Date.now(); setTimeout(focusGame, 900)
+  })
+  document.getElementById('btn-wipe').addEventListener('click', () => {
+    // Same origin, so the harness can clear the game's own storage for a
+    // guaranteed cold start rather than trusting the tester to type it.
+    try {
+      const s = frame.contentWindow.localStorage
+      s.removeItem('slop_save'); s.removeItem('slop_visited')
+    } catch (_) { /* fall through — the reload still helps */ }
+    frame.src = '/?r=' + Date.now()
+    setTimeout(focusGame, 900)
+  })
+
+  // ── submit ─────────────────────────────────────────────────────────────────
+  document.getElementById('submit').addEventListener('click', async () => {
+    const status = document.getElementById('status')
+    const email = document.getElementById('email').value.trim()
+    if (!email) {
+      status.className = 'err'
+      status.textContent = 'we need an email to send your character invite to.'
+      document.getElementById('email').scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+    const btn = document.getElementById('submit')
+    btn.disabled = true
+    status.className = ''
+    status.textContent = 'sending…'
+
+    const steps = {}
+    for (const sec of SECTIONS) {
+      sec.steps.forEach((st, i) => {
+        const id = `${sec.id}-${i}`
+        steps[id] = {
+          section: sec.title,
+          instruction: st.do.replace(/<[^>]+>/g, ''),
+          passed: document.getElementById(`cb-${id}`).checked,
+          flagged: document.getElementById(`nt-${id}`).classList.contains('show'),
+          note: document.getElementById(`nt-${id}`).value.trim(),
+        }
+      })
+    }
+    try {
+      await addDoc(collection(db, 'manualTestRuns'), {
+        submittedAt: serverTimestamp(),
+        email,
+        browser:  document.getElementById('browser').value.trim(),
+        crashes:  document.getElementById('crashes').value.trim(),
+        stuck:    document.getElementById('stuck').value.trim(),
+        userAgent: navigator.userAgent,
+        completed: Object.values(steps).filter(s => s.passed).length,
+        total: allSteps.length,
+        flagged: Object.values(steps).filter(s => s.flagged).length,
+        steps,
+        status: 'new',
+      })
+      status.className = 'ok'
+      status.textContent = 'got it — thank you. your invite comes by email.'
+    } catch (err) {
+      console.error(err)
+      btn.disabled = false
+      status.className = 'err'
+      status.textContent = 'that did not send. your answers are still saved here — try again.'
+    }
+  })
+</script>
+
+</body>
+</html>

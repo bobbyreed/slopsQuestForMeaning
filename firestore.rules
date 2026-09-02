@@ -45,6 +45,15 @@ service cloud.firestore {
                     && request.resource.data.palette.size() == 4;
     }
 
+    // ── Manual test runs ───────────────────────────────────────────────────
+    // Submitted from the test-pass page. Open to create, never client-readable.
+    match /manualTestRuns/{id} {
+      allow create: if request.resource.data.email is string
+                    && request.resource.data.email.size() > 0
+                    && request.resource.data.email.size() <= 200;
+      allow read, update, delete: if false;
+    }
+
     // ── Playtest feedback ──────────────────────────────────────────────────
     // Open to submit, never readable from a client.
     match /playtestResponses/{id} {
