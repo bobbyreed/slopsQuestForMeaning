@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { SaveState } from '../ui/SaveState.js'
+import { VisitedScenes } from '../ui/VisitedScenes.js'
 import { AuthManager } from '../auth/AuthManager.js'
 import { AuthModal } from '../ui/AuthModal.js'
 import { CloudSave } from '../firestore/CloudSave.js'
@@ -270,6 +271,9 @@ export class MenuScene extends Phaser.Scene {
       } else if (egg.action === 'newgame') {
         this._addMessage('slop', 'slop', 'clearing the save. starting over. this counts as a choice.')
         SaveState.clear()
+        // The map remembers rooms independently of the save; leaving it behind
+        // makes a fresh run look like it has already been played.
+        VisitedScenes.clear()
         setTimeout(() => this._startGame(), 900)
       } else if (egg.action === 'journal') {
         this._addMessage('slop', 'slop', 'opening the journal. it is also me. we exist in two places.')
