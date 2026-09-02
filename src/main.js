@@ -46,7 +46,10 @@ import { Ch2HubScene }           from './scenes/Ch2HubScene.js'
 import { Ch2FramePickerScene }   from './scenes/Ch2FramePickerScene.js'
 import { AdminScene }            from './scenes/AdminScene.js'
 
-new Phaser.Game({
+// Exposed deliberately, like the dev console: the headless test client reads
+// the live scene key and Slop's state through this to tell "playing" apart from
+// "stuck". See tools/zombie/.
+window.__SLOP_GAME__ = new Phaser.Game({
   type: Phaser.AUTO,
   width: 800,
   height: 600,
