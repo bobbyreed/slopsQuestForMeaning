@@ -390,3 +390,16 @@ The Ch2 town now exits into a new `Ch3Scene` seam that persists the chapter boun
 - **Chapter 3 — "The Climb"** (beat-'em-up, tone: defiance / break the loop): Slop fights up through the stack — the layers between being mere *content* and being an *author* — toward a 1v1 final boss, **THE AUTHOR**, the hand that keeps the model running. He doesn't escape the model; he breaks the loop of being only what he was made to be, takes the pen, and the credits roll.
 
 Built Round A: `Ch3Scene` (intro → "the climb"), `Ch3StageScene` (the beat-'em-up — floor-band movement, z-jump + shadow, wave gates, J punch / K kick, distance-math combat, HUD), and a `Ch3BossScene` placeholder for the handoff. Mechanics adapted from `bobbyreed/slopsBeatEmUpDemo` into the project's ES-module / rectangle-entity idiom. The final boss (adapted from `bobbyreed/slopsPunchDemo`) and the credits roll are Round B.
+
+---
+
+## 2026-09-02
+
+**Prompt 107**
+> There is a bug when you start fresh that prevents you from getting the Q corruption power. It looks like the dungeon is already cleared but I can't access it.
+
+Three separate defects, each of which produces that symptom:
+
+1. **Dev presets stranded the player without dash.** `AFTER DUNGEON` and `EYES` set `dungeonCleared: true` but left `hasDash: false`. Jumping in from either one put you in a world where the main dungeon reads as cleared — gate open, no enemies, and the Render greeting you with his return lines instead of fighting — while the dash he grants was never handed over. Without dash the east chasm can't be crossed, so the Sector Gate, the Pixel and CORRUPT were all cut off. `BLANK` also picked up `chapter2Unlocked` / `priorGateUnlocked`, added to the save after that table was written.
+2. **`new game` left the map behind.** The pause map and its "scenes visited" count read `slop_visited`, a localStorage key separate from the save. The terminal's `new game` only cleared the save, so a fresh run opened with every previously-visited room already lit.
+3. **Losing the Render fight soft-locked his room.** A lost or quit fight resumed `FirstNPCScene` with `_dialogueTriggered` still true, so he couldn't be approached again — and the room had no exit check at all, only a decorative gap in the south wall. Stuck there, dash ungranted, CORRUPT permanently unreachable. The gap is now a real exit back into the dungeon, and a loss re-arms the encounter: step back, walk in again, and he squares up with a short rematch line instead of the full intro.
