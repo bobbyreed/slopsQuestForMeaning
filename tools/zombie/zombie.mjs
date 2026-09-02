@@ -17,7 +17,7 @@
 
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile, appendFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -197,7 +197,7 @@ zombie — headless client that plays the game badly to shake out bugs
   --state PRESET  fresh | afterDungeon | eyes | preFinal | full  (with --scene)
   --stall S       seconds of no state change = soft-lock (default 25)
   --sweep         one short run in every major scene (best coverage per minute)
-  --quiet         print only the summary line
+  --quiet         suppress the final summary echo (progress still goes to stderr)
   --resume        keep whatever save is there instead of starting fresh
   --url URL       test an already-running server instead of starting one
   --headed        show the browser
@@ -587,14 +587,26 @@ async function main() {
     ? SWEEP
     : Array.from({ length: opts.sessions }, () => ({ scene: opts.scene, state: opts.state }))
 
+  // Progress goes to stderr and to progress.txt, always — even under --quiet.
+  // A sweep runs for ten-plus minutes, and a run you cannot check without
+  // waiting for it to end is a run you end up babysitting. `tail -3
+  // progress.txt` is the cheap way to see where it is.
+  const progressPath = join(outDir, 'progress.txt')
+  const note = async line => {
+    process.stderr.write(line + '\n')
+    await appendFile(progressPath, line + '\n').catch(() => {})
+  }
+  await note(`start ${new Date().toISOString()} — ${plan.length} run(s), ${opts.duration}s each`)
+
   try {
     for (let i = 0; i < plan.length; i++) {
       const runOpts = { ...opts, scene: plan[i].scene, state: plan[i].state }
       const r = await runSession(browser, runOpts, i, outDir)
       results.push(r)
-      if (!opts.quiet) {
-        console.log(`  ${String(i + 1).padStart(2)}/${plan.length} ${r.label.padEnd(28)} ${String(r.findings.length).padStart(2)} finding(s)`)
-      }
+      await note(`  ${String(i + 1).padStart(2)}/${plan.length} ${r.label.padEnd(28)} ${String(r.findings.length).padStart(2)} finding(s)`)
+      // Persist after every run, so a crash or a kill still leaves usable output.
+      await writeFile(join(outDir, 'findings.json'), JSON.stringify({ opts, results }, null, 2)).catch(() => {})
+      await writeFile(join(outDir, 'summary.txt'), buildSummary(opts, results, Date.now() - started, outDir)).catch(() => {})
     }
   } finally {
     await browser.close()
@@ -609,7 +621,8 @@ async function main() {
   await writeFile(join(outDir, 'findings.json'), JSON.stringify({ opts, results }, null, 2))
 
   const total = results.reduce((n, r) => n + r.findings.length, 0)
-  console.log('\n' + summary)
+  if (!opts.quiet) console.log('\n' + summary)
+  else console.log(join(outDir, 'summary.txt'))
   return total ? 1 : 0
 }
 

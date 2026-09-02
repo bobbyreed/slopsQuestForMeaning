@@ -95,8 +95,8 @@ describe('Ch2OpeningScene — jump', () => {
     }
   }
 
-  it('applies jump velocity when grounded and a jump key is pressed', () => {
-    const s = makeOpening()
+  it('applies jump velocity when grounded, jump-unlocked, and a jump key is pressed', () => {
+    const s = makeOpening({ ch2JumpUnlocked: true })
     s._player.body = bodyAt(true)
     s._dialogue = { update: vi.fn(), active: false }
     const spy = vi.spyOn(Phaser.Input.Keyboard, 'JustDown').mockReturnValue(true)
@@ -105,8 +105,20 @@ describe('Ch2OpeningScene — jump', () => {
     spy.mockRestore()
   })
 
+  // This case used to assert the opposite. The jump is the town keeper's gift,
+  // and the opening handing it over early defeated that scene.
+  it('does not jump when grounded but the keeper has not given the jump', () => {
+    const s = makeOpening({})
+    s._player.body = bodyAt(true)
+    s._dialogue = { update: vi.fn(), active: false }
+    const spy = vi.spyOn(Phaser.Input.Keyboard, 'JustDown').mockReturnValue(true)
+    s.update(0, 16)
+    expect(s._player.body.setVelocityY).not.toHaveBeenCalledWith(-460)
+    spy.mockRestore()
+  })
+
   it('does not jump while airborne', () => {
-    const s = makeOpening()
+    const s = makeOpening({ ch2JumpUnlocked: true })
     s._player.body = bodyAt(false)
     s._dialogue = { update: vi.fn(), active: false }
     const spy = vi.spyOn(Phaser.Input.Keyboard, 'JustDown').mockReturnValue(true)
@@ -380,5 +392,41 @@ describe('Ch2OpeningScene — tween/timer callbacks', () => {
     s._killEnemy(e)
     const tweenCfg = s.tweens.add.mock.calls.find(([c]) => c.onComplete)
     if (tweenCfg) tweenCfg[0].onComplete()
+  })
+})
+
+// The town keeper grants the jump; that scene only works if Slop cannot rise
+// before someone who noticed him looking up says so. The opening used to jump
+// ungated and advertise SPACE in the HUD, handing over the keeper's gift two
+// scenes early.
+describe('Ch2OpeningScene — the jump is the keeper\'s to give', () => {
+  function opening(slopState = {}) {
+    const s = new Ch2OpeningScene()
+    s.init({ slopState })
+    s.create()
+    return s
+  }
+
+  it('cannot jump before the keeper gives it', () => {
+    const s = opening({})
+    expect(s._canJump()).toBe(false)
+  })
+
+  it('can jump once ch2JumpUnlocked is set', () => {
+    const s = opening({ ch2JumpUnlocked: true })
+    expect(s._canJump()).toBe(true)
+  })
+
+  it('does not advertise SPACE jump in the HUD before it is earned', () => {
+    const s = opening({})
+    const shown = s.add.text.mock.calls.map(c => c[2]).join(' | ')
+    expect(shown).not.toContain('SPACE  jump')
+    expect(shown).toContain('← →  move')
+  })
+
+  it('does advertise it once earned', () => {
+    const s = opening({ ch2JumpUnlocked: true })
+    const shown = s.add.text.mock.calls.map(c => c[2]).join(' | ')
+    expect(shown).toContain('SPACE  jump')
   })
 })

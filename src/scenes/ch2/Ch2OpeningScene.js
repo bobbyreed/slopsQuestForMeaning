@@ -270,7 +270,11 @@ export class Ch2OpeningScene extends Ch2BaseScene {
   _buildHUD() {
     const dim = { fontSize: '9px', color: '#776688', fontFamily: 'Courier New' }
     this.add.text(16,  H - 44, '← →  move',   dim).setScrollFactor(0).setDepth(30)
-    this.add.text(92,  H - 44, 'SPACE  jump', dim).setScrollFactor(0).setDepth(30)
+    // No jump line until the keeper has given it — the HUD was announcing an
+    // ability the player did not have yet.
+    if (this._canJump()) {
+      this.add.text(92, H - 44, 'SPACE  jump', dim).setScrollFactor(0).setDepth(30)
+    }
     this.add.text(190, H - 44, 'Z  attack',   dim).setScrollFactor(0).setDepth(30)
     this.add.text(270, H - 44, 'Q  corrupt',  dim).setScrollFactor(0).setDepth(30)
     this._corruptLabel = this.add.text(270, H - 28, 'ready', {
@@ -300,7 +304,11 @@ export class Ch2OpeningScene extends Ch2BaseScene {
     // Jump
     const jumpPressed = Phaser.Input.Keyboard.JustDown(this._spaceKey)
       || Phaser.Input.Keyboard.JustDown(this._cursors.up)
-    if (jumpPressed && body.blocked?.down) {
+    // Gated: the town keeper grants the jump, and the whole point of that scene
+    // is that Slop cannot rise until someone who noticed him looking up says so.
+    // Ch2TownScene already checks this; the opening used to jump ungated, which
+    // handed the player the keeper's gift two scenes before he offered it.
+    if (jumpPressed && this._canJump() && body.blocked?.down) {
       body.setVelocityY(JUMP_V)
       this.cameras.main.flash(20, 120, 140, 200)
     }
