@@ -19,6 +19,7 @@ const SCENES = [
   { key: 'Ch3Scene',             label: 'CH3 INTRO',    spawn: null },
   { key: 'Ch3StageScene',        label: 'CH3 STAGE',    spawn: null },
   { key: 'Ch3BossScene',         label: 'CH3 BOSS',     spawn: null },
+  { key: 'Ch3CreditsScene',      label: 'CH3 CREDITS',  spawn: null },
   { key: 'Chapter2DemoScene',    label: 'CH2 DEMO',     spawn: null },
   { key: 'Ch2HubScene',          label: 'CH2 TOOLS',    spawn: null },
   { key: 'AdminScene',           label: 'ADMIN',        spawn: null },
