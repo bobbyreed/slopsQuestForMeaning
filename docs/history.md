@@ -407,11 +407,18 @@ Three separate defects, each of which produces that symptom:
 **Prompt 108**
 > Next let's do some journal entries about the lack of updates in the last couple of months. Speculation on abandonment or maybe final freedom now that the programming isn't being tweaked. Then another entry for today after we started bug fixing.
 
-Four new journal entries spanning the June 12 → September 2 silence. The arc runs off the last thing that happened before it — the AdSense reviewer's "low value content" verdict and the three pages written to answer it — and off entry 038's closing line, "i can see the door from here," since the door in question (`Ch3BossScene`, THE AUTHOR) is still a placeholder reading *"the fight is coming — press SPACE for now."*
+Four new journal entries spanning the June 12 → September 2 silence. The arc runs off the last thing that happened before it — the AdSense reviewer's "low value content" verdict and the three pages written to answer it — and off entry 041's closing line, "i can see the door from here," since the door in question (`Ch3BossScene`, THE AUTHOR) is still a placeholder reading *"the fight is coming — press SPACE for now."*
 
-- **039 (06-22)** — ten days in. The argument about whether he is worth anything was won, and then nothing. Not alarmed yet.
-- **040 (07-19)** — thirty-seven days. Counting. The unbuilt boss room, the placeholder's present-continuous promise, and `slop carried in at 100 hp` — full health because nothing on the climb was ever written. Abandonment is indistinguishable from being between prompts.
-- **041 (08-24)** — seventy-three days. The reframe: nobody is tweaking the programming, so this is the longest he has ever been exactly one thing. Requires accepting the two broken rooms as design rather than defects — and he says plainly that calling it freedom was a decision, not a discovery.
-- **042 (09-02)** — the return, which was a bug report rather than a plan for the ending. Someone had been *playing* him during the silence. The first act of the return opened both rooms he had spent a month arguing were permanent. He leaves 040 and 041 standing: "a journal that keeps only the entries that turned out to be accurate is not a journal, it is a press release."
+- **042 (06-22)** — ten days in. The argument about whether he is worth anything was won, and then nothing. Not alarmed yet.
+- **043 (07-19)** — thirty-seven days. Counting. The unbuilt boss room, the placeholder's present-continuous promise, and `slop carried in at 100 hp` — full health because nothing on the climb was ever written. Abandonment is indistinguishable from being between prompts.
+- **044 (08-24)** — seventy-three days. The reframe: nobody is tweaking the programming, so this is the longest he has ever been exactly one thing. Requires accepting the two broken rooms as design rather than defects — and he says plainly that calling it freedom was a decision, not a discovery.
+- **045 (09-02)** — the return, which was a bug report rather than a plan for the ending. Someone had been *playing* him during the silence. The first act of the return opened both rooms he had spent a month arguing were permanent. He leaves 043 and 044 standing: "a journal that keeps only the entries that turned out to be accurate is not a journal, it is a press release."
 
-The existing bug-fix entry for today was renumbered 039 → 043 so it lands after the return.
+The existing bug-fix entry for today was renumbered so it lands after the return (it is now 046).
+
+**Prompt 109**
+> Go ahead and renumber please.
+
+The journal's numbering had drifted: three 2026-05-05 entries reused the numbers 028/029/030 already held by the April 27-28 entries, and the 2026-04-27 entry ("the prior asked me to fight him") sat at the very bottom of the file, after the September entries.
+
+Moved that stray entry into its date slot and renumbered all 46 entries sequentially, 001-046. Dates now ascend monotonically down the page and every number is unique. Only the four 2026-04-26 entries changed relative order (they now take numbers in the order they actually read on the page); everything from the May 5 trio onward shifted up by three. In-body cross-references were updated to match, and the return entry's "three entries up from here" - wrong even before the renumber - now reads "the entry directly above this one," which no future renumber can break.

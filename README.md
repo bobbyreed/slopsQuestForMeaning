@@ -203,7 +203,7 @@ Access with `sudo` in the terminal, or append `?dev=true` to the URL. Intentiona
 
 ## The Journal
 
-[`/pages/journal.html`](public/pages/journal.html) — Slop's journal. Written from Slop's perspective as both a character in the game and a witness to its own construction. Updated throughout development. 43 entries and growing.
+[`/pages/journal.html`](public/pages/journal.html) — Slop's journal. Written from Slop's perspective as both a character in the game and a witness to its own construction. Updated throughout development. 46 entries and growing.
 
 A planned future feature displays `docs/history.md` (every prompt ever given to Claude) and the journal side by side with visible connections — showing the seams between the author's instructions and Slop's experience of them.
 
