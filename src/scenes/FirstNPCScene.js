@@ -69,6 +69,13 @@ const DISMISS_LINES = [
   "and that's the problem, isn't it.",
 ]
 
+const RETRY_LINES = [
+  "again.",
+  "you don't have to. the door is behind you. it has been the whole time.",
+  "but you came back up the room instead.",
+  "fine. same as before.",
+]
+
 const RETURN_LINES = [
   "you came back.",
   "i don't know what you're looking for in here. there's nothing left.",
@@ -113,6 +120,8 @@ export class FirstNPCScene extends BaseGameScene {
 
     this._dialogue = new Dialogue(this)
     this._dialogueTriggered = false
+    this._retryPending   = false
+    this._retryAvailable = false
     this._coinGiven = false
     this._transitioning = false
     this._bossMode = false
@@ -127,6 +136,10 @@ export class FirstNPCScene extends BaseGameScene {
           this._renderYields()
         } else {
           this._dissolveAura()
+          // Losing doesn't end the encounter. Step back from him and the room
+          // re-arms, so the fight can be taken again — without this there is no
+          // fight left to win and no dash to be given.
+          this._retryPending = true
         }
       }
       // Resuming from PauseScene (no data) — camera and state are fine as-is
@@ -148,7 +161,13 @@ export class FirstNPCScene extends BaseGameScene {
 
   _triggerDialogue() {
     this._dialogueTriggered = true
-    if (this._isReturn) {
+    if (this._retryAvailable) {
+      this._retryAvailable = false
+      this._dialogue.show('the render', RETRY_LINES, () => {
+        this._spawnBossAura()
+        this._launchBossFight()
+      }, { uppercase: true, bold: true })
+    } else if (this._isReturn) {
       this._dialogue.show('the render', RETURN_LINES, () => this._returnToWorld())
     } else {
       this._dialogue.show('the render', RENDER_LINES, () => this._beginSlopQuestions())
@@ -264,6 +283,14 @@ export class FirstNPCScene extends BaseGameScene {
     this._sceneTransition('WorldScene', { slopState: this.slop.getState(), spawnOrigin: 'dungeon' }, 400)
   }
 
+  // Back out through the south gap into the dungeon, keeping whatever the
+  // encounter has granted so far.
+  _exitToDungeon() {
+    this._sceneTransition('DungeonScene', {
+      slopState: this.slop.getState(), unlocked: true,
+    }, 400)
+  }
+
   update(_, delta) {
     if (this._transitioning) return
     this._checkPauseKey()
@@ -273,9 +300,22 @@ export class FirstNPCScene extends BaseGameScene {
     this.slop.tick(delta)
     this._dialogue.update()
 
-    if (!this._dialogueTriggered) {
-      const dist = Phaser.Math.Distance.Between(this.slop.x, this.slop.y, this._render.x, this._render.y)
-      if (dist < 120) this._triggerDialogue()
+    const dist = Phaser.Math.Distance.Between(this.slop.x, this.slop.y, this._render.x, this._render.y)
+
+    // After a loss, back off before he'll square up again — otherwise the
+    // rematch fires the instant the fight scene hands control back.
+    if (this._retryPending && dist > 170) {
+      this._retryPending    = false
+      this._retryAvailable  = true
+      this._dialogueTriggered = false
+    }
+
+    if (!this._dialogueTriggered && dist < 120) this._triggerDialogue()
+
+    // The south wall has a gap; it is the way back to the dungeon. Leaving is
+    // only barred while the render is mid-sentence.
+    if (!blocked && this.slop.y > H - 20 && Math.abs(this.slop.x - W / 2) < 36) {
+      this._exitToDungeon()
     }
   }
 }

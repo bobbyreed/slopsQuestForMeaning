@@ -286,4 +286,87 @@ describe('FirstNPCScene', () => {
       expect(lines.some(l => l.includes('came back'))).toBe(true)
     })
   })
+
+  // The render's room is entered from the dungeon's north gate and its only
+  // scripted way out is a dialogue callback. Losing the fight used to end the
+  // dialogue with nothing left to trigger, stranding the player in a room with
+  // no exit — and, because the render hands over the dash, with no way to ever
+  // cross the east chasm or reach CORRUPT.
+  describe('escaping the room', () => {
+    function roomWithSlopAt(x, y) {
+      const s = makeScene({ slopState: {} })
+      s.create()
+      s.slop.x = x
+      s.slop.y = y
+      s._dialogue.active = false
+      return s
+    }
+
+    it('exits south through the wall gap', () => {
+      const s = roomWithSlopAt(400, 590)
+      s.update(0, 16)
+      expect(s.cameras.main.fade).toHaveBeenCalled()
+      const fadeCb = s.cameras.main.fade.mock.calls[0][5]
+      fadeCb(null, 1)
+      expect(s.scene.start).toHaveBeenCalledWith('DungeonScene', expect.objectContaining({ unlocked: true }))
+    })
+
+    it('does not exit through the solid part of the south wall', () => {
+      const s = roomWithSlopAt(100, 590)
+      s.update(0, 16)
+      expect(s.cameras.main.fade).not.toHaveBeenCalled()
+    })
+
+    it('does not exit while the render is mid-sentence', () => {
+      const s = roomWithSlopAt(400, 590)
+      s._dialogue.active = true
+      s.update(0, 16)
+      expect(s.cameras.main.fade).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('rematch after a lost fight', () => {
+    function lostTheFight() {
+      const s = makeScene({ slopState: {} })
+      s.create()
+      s._dialogueTriggered = true
+      s._retryPending = true
+      s._dialogue.active = false
+      return s
+    }
+
+    it('re-arms only once the player has backed away', () => {
+      const s = lostTheFight()
+      s.slop.x = s._render.x
+      s.slop.y = s._render.y + 40      // still close
+      s.update(0, 16)
+      expect(s._dialogueTriggered).toBe(true)
+
+      s.slop.y = s._render.y + 200     // stepped back
+      s.update(0, 16)
+      expect(s._retryPending).toBe(false)
+      expect(s._retryAvailable).toBe(true)
+      expect(s._dialogueTriggered).toBe(false)
+    })
+
+    it('walking back in goes straight to the fight, not the whole intro', () => {
+      const s = lostTheFight()
+      s._retryPending = false
+      s._retryAvailable = true
+      s._dialogueTriggered = false
+      s._launchBossFight = vi.fn()
+      s._beginSlopQuestions = vi.fn()
+      const show = vi.spyOn(s._dialogue, 'show')
+
+      s.slop.x = s._render.x
+      s.slop.y = s._render.y + 40
+      s.update(0, 16)
+
+      expect(s._dialogueTriggered).toBe(true)
+      const cb = show.mock.calls.at(-1)[2]
+      cb()
+      expect(s._launchBossFight).toHaveBeenCalled()
+      expect(s._beginSlopQuestions).not.toHaveBeenCalled()
+    })
+  })
 })
